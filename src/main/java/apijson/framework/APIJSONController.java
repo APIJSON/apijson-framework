@@ -223,4 +223,12 @@ public class APIJSONController {
 	}
 
 
+	public JSONObject invokeMethod(String request) {
+		return MethodUtil.invokeMethod(request);
+	}
+
+	public JSONObject listMethod(String request) {
+		return MethodUtil.listMethod(request);
+	}
+
 }
