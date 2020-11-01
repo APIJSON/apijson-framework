@@ -28,5 +28,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/apijson-orm-4.2.3.jar"/>
+	<classpathentry kind="lib" path="libs/unitauto-2.5.0.jar"/>
+	<classpathentry kind="lib" path="libs/unitauto-jar-2.5.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

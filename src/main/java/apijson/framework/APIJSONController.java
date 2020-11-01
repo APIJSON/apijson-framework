@@ -30,8 +30,12 @@ import static apijson.framework.APIJSONConstant.VERSION;
 import static apijson.framework.APIJSONConstant.VISITOR_;
 import static apijson.framework.APIJSONConstant.VISITOR_ID;
 
+import java.lang.reflect.Method;
 import java.rmi.ServerException;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSONObject;
@@ -42,9 +46,11 @@ import apijson.RequestMethod;
 import apijson.StringUtil;
 import apijson.orm.Parser;
 import apijson.orm.Visitor;
+import unitauto.MethodUtil;
+import unitauto.MethodUtil.InterfaceProxy;
 
 
-/**request controller
+/**APIJSON base controller，建议在子项目被 @RestController 注解的类继承它或通过它的实例调用相关方法
  * <br > 全通过 HTTP POST 来请求:
  * <br > 1.减少代码 - 客户端无需写 HTTP GET, HTTP PUT 等各种方式的请求代码
  * <br > 2.提高性能 - 无需 URL encode 和 decode
@@ -223,12 +229,44 @@ public class APIJSONController {
 	}
 
 
-	public JSONObject invokeMethod(String request) {
-		return MethodUtil.invokeMethod(request);
-	}
 
 	public JSONObject listMethod(String request) {
 		return MethodUtil.listMethod(request);
+	}
+	
+	public void invokeMethod(String request, HttpServletRequest servletRequest) {
+		AsyncContext asyncContext = servletRequest.startAsync();
+
+		MethodUtil.Listener<JSONObject> listener = new MethodUtil.Listener<JSONObject>() {
+
+			@Override
+			public void complete(JSONObject data, Method method, InterfaceProxy proxy, Object... extras) throws Exception {
+				ServletResponse servletResponse = asyncContext.getResponse();
+				if (servletResponse.isCommitted()) {
+                    Log.w(TAG, "invokeMethod  listener.complete  servletResponse.isCommitted() >> return;");
+                    return;
+				}
+
+				servletResponse.setCharacterEncoding(servletRequest.getCharacterEncoding());
+				servletResponse.setContentType(servletRequest.getContentType());
+				servletResponse.getWriter().println(data);
+				asyncContext.complete();
+			}
+		};
+
+		try {
+			MethodUtil.invokeMethod(request, null, listener);
+		}
+		catch (Exception e) {
+			Log.e(TAG, "invokeMethod  try { JSONObject req = JSON.parseObject(request); ... } catch (Exception e) { \n" + e.getMessage());
+			try {
+				listener.complete(MethodUtil.JSON_CALLBACK.newErrorResult(e));
+			}
+			catch (Exception e1) {
+				e1.printStackTrace();
+				asyncContext.complete();
+			}
+		}
 	}
 
 }
