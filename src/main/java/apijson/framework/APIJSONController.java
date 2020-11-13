@@ -72,7 +72,7 @@ public class APIJSONController {
 	public String parse(String request, HttpSession session, RequestMethod method) {
 		return newParser(session, method).parse(request);
 	}
-	
+
 	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 	/**获取
@@ -231,9 +231,12 @@ public class APIJSONController {
 
 
 	public JSONObject listMethod(String request) {
+		if (Log.DEBUG == false) {
+			return APIJSONParser.newErrorResult(new IllegalAccessException("非 DEBUG 模式下不允许使用 UnitAuto 单元测试！"));
+		}
 		return MethodUtil.listMethod(request);
 	}
-	
+
 	public void invokeMethod(String request, HttpServletRequest servletRequest) {
 		AsyncContext asyncContext = servletRequest.startAsync();
 
@@ -243,8 +246,8 @@ public class APIJSONController {
 			public void complete(JSONObject data, Method method, InterfaceProxy proxy, Object... extras) throws Exception {
 				ServletResponse servletResponse = asyncContext.getResponse();
 				if (servletResponse.isCommitted()) {
-                    Log.w(TAG, "invokeMethod  listener.complete  servletResponse.isCommitted() >> return;");
-                    return;
+					Log.w(TAG, "invokeMethod  listener.complete  servletResponse.isCommitted() >> return;");
+					return;
 				}
 
 				servletResponse.setCharacterEncoding(servletRequest.getCharacterEncoding());
@@ -253,6 +256,19 @@ public class APIJSONController {
 				asyncContext.complete();
 			}
 		};
+		
+		if (Log.DEBUG == false) {
+			try {
+				listener.complete(MethodUtil.JSON_CALLBACK.newErrorResult(new IllegalAccessException("非 DEBUG 模式下不允许使用 UnitAuto 单元测试！")));
+			}
+			catch (Exception e1) {
+				e1.printStackTrace();
+				asyncContext.complete();
+			}
+			
+			return;
+		}
+		
 
 		try {
 			MethodUtil.invokeMethod(request, null, listener);
