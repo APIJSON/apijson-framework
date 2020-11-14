@@ -1,6 +1,6 @@
 # apijson-framework  [![](https://jitpack.io/v/APIJSON/apijson-framework.svg)](https://jitpack.io/#APIJSON/apijson-framework)
-[APIJSON](https://github.com/APIJSON/APIJSON) 服务端框架，可通过 Maven, Gradle 等远程依赖。<br />
-[APIJSON](https://github.com/APIJSON/APIJSON) Server Framework for remote dependencies with Maven, Gradle, etc.
+腾讯 [APIJSON](https://github.com/APIJSON/APIJSON) 服务端框架，可通过 Maven, Gradle 等远程依赖。<br />
+Tencent [APIJSON](https://github.com/APIJSON/APIJSON) Server Framework for remote dependencies with Maven, Gradle, etc.
 
 ### Maven
 #### 1. 在 pom.xml 中添加 JitPack 仓库
