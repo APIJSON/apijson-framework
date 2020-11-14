@@ -22,6 +22,7 @@ import static apijson.framework.APIJSONConstant.USER_ID;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import apijson.RequestMethod;
 import apijson.orm.AbstractSQLConfig;
@@ -37,6 +38,7 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 	public static final String TAG = "APIJSONSQLConfig";
 
 	public static Callback SIMPLE_CALLBACK;
+	public static APIJSONCreator APIJSON_CREATOR;
 	static {
 		DEFAULT_DATABASE = DATABASE_MYSQL;  //TODO 默认数据库类型，改成你自己的
 		DEFAULT_SCHEMA = "sys";  //TODO 默认模式名，改成你自己的，默认情况是 MySQL: sys, PostgreSQL: public, SQL Server: dbo, Oracle: 
@@ -46,12 +48,13 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		//		TABLE_KEY_MAP.put(User.class.getSimpleName(), "apijson_user");
 		//		TABLE_KEY_MAP.put(Privacy.class.getSimpleName(), "apijson_privacy");
 
-		//主键名映射
+		APIJSON_CREATOR = new APIJSONCreator();
+
 		SIMPLE_CALLBACK = new SimpleCallback() {
 
 			@Override
 			public SQLConfig getSQLConfig(RequestMethod method, String database, String schema, String table) {
-				SQLConfig config = APIJSONApplication.DEFAULT_APIJSON_CREATOR.createSQLConfig();
+				SQLConfig config = APIJSON_CREATOR.createSQLConfig();
 				config.setMethod(method);
 				config.setTable(table);
 				return config;
@@ -76,8 +79,11 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 			//				return null; // return null 则不生成 id，一般用于数据库自增 id
 			//			}
 		};
+		
 	}
 
+
+	
 	@Override
 	public String getDBVersion() {
 		if (isMySQL()) {
@@ -94,6 +100,7 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		}
 		return null;
 	}
+
 	@Override
 	public String getDBUri() {
 		if (isMySQL()) {
@@ -110,6 +117,8 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		}
 		return null;
 	}
+
+	@JSONField(serialize = false)  // 不在日志打印 账号/密码 等敏感信息
 	@Override
 	public String getDBAccount() {
 		if (isMySQL()) {
@@ -126,6 +135,8 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		}
 		return null;
 	}
+
+	@JSONField(serialize = false)  // 不在日志打印 账号/密码 等敏感信息
 	@Override
 	public String getDBPassword() {
 		if (isMySQL()) {

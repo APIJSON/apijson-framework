@@ -27,8 +27,6 @@ import apijson.Log;
 import apijson.RequestMethod;
 import apijson.StringUtil;
 import apijson.orm.JSONRequest;
-import apijson.orm.ParserCreator;
-import apijson.orm.SQLCreator;
 import apijson.orm.Structure;
 
 
@@ -38,9 +36,11 @@ import apijson.orm.Structure;
 public class StructureUtil {
 	public static final String TAG = "StructureUtil";
 
+	public static APIJSONCreator APIJSON_CREATOR;
 	//根据 version 动态从数据库查的  version{}:">=$currentVersion"，所以静态缓存暂时没用   public static final Map<String, JSONObject> REQUEST_MAP;
 	static {
 		//		REQUEST_MAP = new HashMap<>();
+		APIJSON_CREATOR = new APIJSONCreator();
 	}
 
 	/**初始化，加载所有请求校验配置
@@ -48,7 +48,7 @@ public class StructureUtil {
 	 * @throws ServerException
 	 */
 	public static JSONObject init() throws ServerException {
-		return init(false);
+		return init(false, null);
 	}
 	/**初始化，加载所有请求校验配置
 	 * @param shutdownWhenServerError 
@@ -63,7 +63,7 @@ public class StructureUtil {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(ParserCreator<Long> creator) throws ServerException {
+	public static JSONObject init(APIJSONCreator creator) throws ServerException {
 		return init(false, creator);
 	}
 	/**初始化，加载所有请求校验配置
@@ -72,7 +72,12 @@ public class StructureUtil {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(boolean shutdownWhenServerError, ParserCreator<Long> creator) throws ServerException {
+	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+		if (creator == null) {
+			creator = APIJSON_CREATOR;
+		}
+		APIJSON_CREATOR = creator;
+		
 		JSONRequest request = new JSONRequest();
 
 		{   //Request[]<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -86,10 +91,6 @@ public class StructureUtil {
 
 		}   //Request[]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-
-		if (creator == null) {
-			creator = APIJSONApplication.DEFAULT_APIJSON_CREATOR;
-		}
 
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
@@ -186,33 +187,22 @@ public class StructureUtil {
 	 * @throws Exception
 	 */
 	public static void test() throws Exception {
-		test(null);
-	}
-	/**测试
-	 * @throws Exception
-	 */
-	public static void test(SQLCreator creator) throws Exception {
 		JSONObject request;
-
-		if (creator == null) {
-			creator = APIJSONApplication.DEFAULT_APIJSON_CREATOR;
-		}
-
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"userId\":0}}");
-			Log.d(TAG, "test  parseRequest = " + Structure.parseRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, creator));
+			Log.d(TAG, "test  parseRequest = " + Structure.parseRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
-			Log.d(TAG, "test  parseRequest = " + Structure.parseRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, creator));
+			Log.d(TAG, "test  parseRequest = " + Structure.parseRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"id\":0, \"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
-			Log.d(TAG, "test  parseRequest = " + Structure.parseRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, creator));
+			Log.d(TAG, "test  parseRequest = " + Structure.parseRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -221,25 +211,25 @@ public class StructureUtil {
 		JSONObject response;
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0}}");
-			Log.d(TAG, "test  parseResponse = " + Structure.parseResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, creator, null));
+			Log.d(TAG, "test  parseResponse = " + Structure.parseResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\"}}");
-			Log.d(TAG, "test  parseResponse = " + Structure.parseResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, creator, null));
+			Log.d(TAG, "test  parseResponse = " + Structure.parseResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\", \"sex\":1}}");
-			Log.d(TAG, "test  parseResponse = " + Structure.parseResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, creator, null));
+			Log.d(TAG, "test  parseResponse = " + Structure.parseResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"id\":0, \"name\":\"tommy\", \"phone\":\"12345678\", \"sex\":1}}");
-			Log.d(TAG, "test  parseResponse = " + Structure.parseResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response,creator, null));
+			Log.d(TAG, "test  parseResponse = " + Structure.parseResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -59,9 +59,16 @@ import unitauto.MethodUtil.InterfaceProxy;
  */
 public class APIJSONController {
 	public static final String TAG = "APIJSONController";
+	
+	@NotNull
+	public static APIJSONCreator APIJSON_CREATOR;
+	static {
+		APIJSON_CREATOR = new APIJSONCreator();
+	}
+	
 
 	public Parser<Long> newParser(HttpSession session, RequestMethod method) {
-		Parser<Long> parser = APIJSONApplication.DEFAULT_APIJSON_CREATOR.createParser();
+		Parser<Long> parser = APIJSON_CREATOR.createParser();
 		parser.setMethod(method);
 		if (parser instanceof APIJSONParser) {
 			((APIJSONParser) parser).setSession(session);

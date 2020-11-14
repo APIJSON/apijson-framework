@@ -36,7 +36,6 @@ import apijson.RequestRole;
 import apijson.StringUtil;
 import apijson.orm.AbstractFunctionParser;
 import apijson.orm.JSONRequest;
-import apijson.orm.ParserCreator;
 import unitauto.MethodUtil;
 import unitauto.MethodUtil.Argument;
 
@@ -46,6 +45,12 @@ import unitauto.MethodUtil.Argument;
  */
 public class APIJSONFunctionParser extends AbstractFunctionParser {
 	public static final String TAG = "APIJSONFunctionParser";
+
+	@NotNull
+	public static APIJSONCreator APIJSON_CREATOR;
+	static {
+		APIJSON_CREATOR = new APIJSONCreator();
+	}
 
 	private HttpSession session;
 	public APIJSONFunctionParser() {
@@ -102,16 +107,21 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(ParserCreator<Long> creator) throws ServerException {
+	public static JSONObject init(APIJSONCreator creator) throws ServerException {
 		return init(false, creator);
 	}
 	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
-	 * @param shutdownWhenServerError
-	 * @param creator
+	 * @param shutdownWhenServerError 
+	 * @param creator 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(boolean shutdownWhenServerError, ParserCreator<Long> creator) throws ServerException {
+	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+		if (creator == null) {
+			creator = APIJSON_CREATOR;
+		}
+		APIJSON_CREATOR = creator;
+
 		JSONObject request = new JSONObject(); 
 
 		{  //Function[]<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -125,9 +135,6 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			request.putAll(functionItem.toArray(0, 0, FUNCTION_));
 		}  //Function[]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-		if (creator == null) {
-			creator = APIJSONApplication.DEFAULT_APIJSON_CREATOR;
-		}
 
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(true).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
@@ -230,11 +237,11 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 
 	}
 
-	
-	
-	
-	
-	
+
+
+
+
+
 
 	/**获取远程函数的demo，如果没有就自动补全
 	 * @param request
@@ -518,55 +525,55 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 * @throws IOException
 	 */
 	public String getMethodArguments(@NotNull JSONObject request, String methodArgsKey) throws IllegalArgumentException, ClassNotFoundException, IOException {
-        JSONObject obj = request.getJSONObject("request");
-        String argsStr = obj == null ? null : obj.getString(methodArgsKey);
+		JSONObject obj = request.getJSONObject("request");
+		String argsStr = obj == null ? null : obj.getString(methodArgsKey);
 		if (StringUtil.isEmpty(argsStr, true)) {
-            argsStr = request.getString(methodArgsKey);
+			argsStr = request.getString(methodArgsKey);
 		}
 		List<Argument> methodArgs = JSON.parseArray(removeComment(argsStr), Argument.class);
 		if (methodArgs == null || methodArgs.isEmpty()) {
 			return "";
 		}
 
-//		Class<?>[] types = new Class<?>[methodArgs.size()];
-//		Object[] args = new Object[methodArgs.size()];
-//		MethodUtil.initTypesAndValues(methodArgs, types, args, true);
+		//		Class<?>[] types = new Class<?>[methodArgs.size()];
+		//		Object[] args = new Object[methodArgs.size()];
+		//		MethodUtil.initTypesAndValues(methodArgs, types, args, true);
 
 		String s = "";
-//		if (types != null) {
-//			String sn;
-//			for (int i = 0; i < types.length; i++) {
-//				sn = types[i] == null ? null : types[i].getSimpleName();
-//				if (sn == null) {
-//					sn = Object.class.getSimpleName();
-//				}
-//
-//				if (i > 0) {
-//					s += ",";
-//				}
-//
-//				if (MethodUtil.CLASS_MAP.containsKey(sn)) {
-//					s += sn;
-//				}
-//				else {
-//					s += types[i].getName();
-//				}
-//			}
-//		}
+		//		if (types != null) {
+		//			String sn;
+		//			for (int i = 0; i < types.length; i++) {
+		//				sn = types[i] == null ? null : types[i].getSimpleName();
+		//				if (sn == null) {
+		//					sn = Object.class.getSimpleName();
+		//				}
+		//
+		//				if (i > 0) {
+		//					s += ",";
+		//				}
+		//
+		//				if (MethodUtil.CLASS_MAP.containsKey(sn)) {
+		//					s += sn;
+		//				}
+		//				else {
+		//					s += types[i].getName();
+		//				}
+		//			}
+		//		}
 
-        for (int i = 0; i < methodArgs.size(); i++) {
-            Argument arg = methodArgs.get(i);
+		for (int i = 0; i < methodArgs.size(); i++) {
+			Argument arg = methodArgs.get(i);
 
-            String sn = arg == null ? null : arg.getType();
-            if (sn == null) {
-                sn = arg.getValue() == null ? Object.class.getSimpleName() : MethodUtil.trimType(arg.getValue().getClass());
-            }
+			String sn = arg == null ? null : arg.getType();
+			if (sn == null) {
+				sn = arg.getValue() == null ? Object.class.getSimpleName() : MethodUtil.trimType(arg.getValue().getClass());
+			}
 
-            if (i > 0) {
-                s += ",";
-            }
-            s += sn;
-        }
+			if (i > 0) {
+				s += ",";
+			}
+			s += sn;
+		}
 
 		return s;
 	}
@@ -581,7 +588,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 */
 	public String getMethodDefination(@NotNull JSONObject request)
 			throws IllegalArgumentException, ClassNotFoundException, IOException {
-//		request.put("arguments", removeComment(request.getString("methodArgs")));
+		//		request.put("arguments", removeComment(request.getString("methodArgs")));
 		return getMethodDefination(request, "method", "arguments", "genericType", "genericExceptions", "Java");
 	}
 	/**获取方法的定义
@@ -626,7 +633,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		if (StringUtil.isEmpty(req, true) == false) {
 			return req;
 		}
-		
+
 		req = "{";
 		Boolean isStatic = request.getBoolean("static");
 		String methodArgs = request.getString("methodArgs");

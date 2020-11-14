@@ -36,7 +36,6 @@ import apijson.RequestRole;
 import apijson.StringUtil;
 import apijson.orm.AbstractVerifier;
 import apijson.orm.JSONRequest;
-import apijson.orm.ParserCreator;
 import apijson.orm.Visitor;
 
 
@@ -58,6 +57,10 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	//		ACCESS_MAP.put(Login.class.getSimpleName(), getAccessMap(Login.class.getAnnotation(MethodAccess.class)));
 	//	}
 	
+	public static APIJSONCreator APIJSON_CREATOR;
+	static {
+		APIJSON_CREATOR = new APIJSONCreator();
+	}
 
 	/**初始化，加载所有权限配置
 	 * @return 
@@ -65,13 +68,6 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 */
 	public static JSONObject init() throws ServerException {
 		return init(false);
-	}
-	/**初始化，加载所有权限配置
-	 * @return 
-	 * @throws ServerException
-	 */
-	public static JSONObject init(ParserCreator<Long> creator) throws ServerException {
-		return init(false, creator);
 	}
 	/**初始化，加载所有权限配置
 	 * @param shutdownWhenServerError 
@@ -82,11 +78,25 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		return init(shutdownWhenServerError, null);
 	}
 	/**初始化，加载所有权限配置
-	 * @param shutdownWhenServerError 
+	 * @param creator 
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(boolean shutdownWhenServerError, ParserCreator<Long> creator) throws ServerException {
+	public static JSONObject init(APIJSONCreator creator) throws ServerException {
+		return init(false, creator);
+	}
+	/**初始化，加载所有权限配置
+	 * @param shutdownWhenServerError 
+	 * @param creator 
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+		if (creator == null) {
+			creator = APIJSON_CREATOR;
+		}
+		APIJSON_CREATOR = creator;
+
 		JSONRequest request = new JSONRequest();
 
 		{   //Access[]<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -99,10 +109,6 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 
 			request.putAll(accessItem.toArray(0, 0, ACCESS_));
 		}   //Access[]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-		if (creator == null) {
-			creator = APIJSONApplication.DEFAULT_APIJSON_CREATOR;
-		}
 
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
@@ -191,7 +197,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	@NotNull
 	@Override
 	public APIJSONParser createParser() {
-		APIJSONParser parser = new APIJSONParser();
+		APIJSONParser parser = (APIJSONParser) APIJSON_CREATOR.createParser();
 		parser.setVisitor(visitor);
 		return parser;
 	}
@@ -204,7 +210,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 */
 	public static void verifyLogin(HttpSession session) throws Exception {
 		Log.d(TAG, "verifyLogin  session.getId() = " + (session == null ? null : session.getId()));
-		new APIJSONVerifier().setVisitor(getVisitor(session)).verifyLogin();
+		APIJSON_CREATOR.createVerifier().setVisitor(getVisitor(session)).verifyLogin();
 	}
 
 

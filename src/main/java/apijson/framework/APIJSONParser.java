@@ -25,6 +25,7 @@ import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSONObject;
 
+import apijson.NotNull;
 import apijson.RequestMethod;
 import apijson.orm.AbstractParser;
 import apijson.orm.FunctionParser;
@@ -40,6 +41,13 @@ import apijson.orm.Verifier;
 public class APIJSONParser extends AbstractParser<Long> {
 	public static final String TAG = "APIJSONParser";
 
+	@NotNull
+	public static APIJSONCreator APIJSON_CREATOR;
+	static {
+		APIJSON_CREATOR = new APIJSONCreator();
+	}
+	
+	
 	public APIJSONParser() {
 		super();
 	}
@@ -62,25 +70,25 @@ public class APIJSONParser extends AbstractParser<Long> {
 
 	@Override
 	public Parser<Long> createParser() {
-		return APIJSONApplication.DEFAULT_APIJSON_CREATOR.createParser();
+		return APIJSON_CREATOR.createParser();
 	}
 	@Override
 	public FunctionParser createFunctionParser() {
-		return APIJSONApplication.DEFAULT_APIJSON_CREATOR.createFunctionParser();
+		return APIJSON_CREATOR.createFunctionParser();
 	}
 	
 	@Override
 	public Verifier<Long> createVerifier() {
-		return APIJSONApplication.DEFAULT_APIJSON_CREATOR.createVerifier();
+		return APIJSON_CREATOR.createVerifier();
 	}
 	
 	@Override
 	public SQLConfig createSQLConfig() {
-		return APIJSONApplication.DEFAULT_APIJSON_CREATOR.createSQLConfig();
+		return APIJSON_CREATOR.createSQLConfig();
 	}
 	@Override
 	public SQLExecutor createSQLExecutor() {
-		return APIJSONApplication.DEFAULT_APIJSON_CREATOR.createSQLExecutor();
+		return APIJSON_CREATOR.createSQLExecutor();
 	}
 
 
