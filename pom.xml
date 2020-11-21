@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>com.github.Tencent</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>4.2.4</version>
+			<version>4.2.5</version>
 		</dependency>
 
 
@@ -53,7 +53,8 @@
 		<!-- 数据库 JDBC 驱动 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> -->
 
 
-		<!-- 单元测试：可使用 libs 目录的 unitauto-java.jar 和 unitauto-jar.jar 来替代，两种方式二选一 <<<<<<<<< -->
+		<!-- 单元测试：可使用 libs 目录的 unitauto-java.jar 和 unitauto-jar.jar 来替代，两种方式二选一 
+			<<<<<<<<< -->
 		<dependency>
 			<groupId>com.github.TommyLemon</groupId>
 			<artifactId>unitauto-java</artifactId>
@@ -64,7 +65,8 @@
 			<artifactId>unitauto-jar</artifactId>
 			<version>2.5.3</version>
 		</dependency>
-		<!-- 单元测试：可使用 libs 目录的 unitauto-java.jar 和 unitauto-jar.jar 来替代，两种方式二选一 >>>>>>>>> -->
+		<!-- 单元测试：可使用 libs 目录的 unitauto-java.jar 和 unitauto-jar.jar 来替代，两种方式二选一 
+			>>>>>>>>> -->
 
 	</dependencies>
 

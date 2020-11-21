@@ -42,6 +42,7 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 	static {
 		DEFAULT_DATABASE = DATABASE_MYSQL;  //TODO 默认数据库类型，改成你自己的
 		DEFAULT_SCHEMA = "sys";  //TODO 默认模式名，改成你自己的，默认情况是 MySQL: sys, PostgreSQL: public, SQL Server: dbo, Oracle: 
+		//		TABLE_KEY_MAP.put(Access.class.getSimpleName(), "apijson_access");
 
 		//  由 APIJSONVerifier.init 方法读取数据库 Access 表来替代手动输入配置
 		//		//表名映射，隐藏真实表名，对安全要求很高的表可以这么做
@@ -79,11 +80,11 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 			//				return null; // return null 则不生成 id，一般用于数据库自增 id
 			//			}
 		};
-		
+
 	}
 
 
-	
+
 	@Override
 	public String getDBVersion() {
 		if (isMySQL()) {
@@ -179,6 +180,23 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 	//		return false;
 	//	}
 
+	/**获取 APIJSON 配置表所在数据库模式 schema，默认与业务表一块
+	 * @return
+	 */
+	public String getConfigSchema() {
+		return getSchema();
+	}
+	/**是否为 APIJSON 配置表
+	 * @return
+	 */
+	public boolean isConfigTable() {
+		return CONFIG_TABLE_LIST.contains(getTable());
+	}
+	@Override
+	public String getSQLSchema() {
+		String sch = isConfigTable() ? getConfigSchema() : super.getSQLSchema();
+		return sch == null ? DEFAULT_SCHEMA : sch;
+	}
 
 
 	@Override
