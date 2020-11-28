@@ -15,6 +15,7 @@ limitations under the License.*/
 package apijson.framework;
 
 import static apijson.framework.APIJSONConstant.ACCESS_;
+import static apijson.framework.APIJSONConstant.REQUEST_;
 import static apijson.framework.APIJSONConstant.VISITOR_;
 import static apijson.framework.APIJSONConstant.VISITOR_ID;
 
@@ -56,20 +57,20 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	//		ACCESS_MAP.put(Verify.class.getSimpleName(), getAccessMap(Verify.class.getAnnotation(MethodAccess.class)));
 	//		ACCESS_MAP.put(Login.class.getSimpleName(), getAccessMap(Login.class.getAnnotation(MethodAccess.class)));
 	//	}
-	
+
 	public static APIJSONCreator APIJSON_CREATOR;
 	static {
 		APIJSON_CREATOR = new APIJSONCreator();
 	}
 
-	/**初始化，加载所有权限配置
+	/**初始化，加载所有权限配置和请求校验配置
 	 * @return 
 	 * @throws ServerException
 	 */
 	public static JSONObject init() throws ServerException {
 		return init(false);
 	}
-	/**初始化，加载所有权限配置
+	/**初始化，加载所有权限配置和请求校验配置
 	 * @param shutdownWhenServerError 
 	 * @return 
 	 * @throws ServerException
@@ -77,7 +78,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	public static JSONObject init(boolean shutdownWhenServerError) throws ServerException {
 		return init(shutdownWhenServerError, null);
 	}
-	/**初始化，加载所有权限配置
+	/**初始化，加载所有权限配置和请求校验配置
 	 * @param creator 
 	 * @return 
 	 * @throws ServerException
@@ -85,13 +86,49 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	public static JSONObject init(APIJSONCreator creator) throws ServerException {
 		return init(false, creator);
 	}
-	/**初始化，加载所有权限配置
+	/**初始化，加载所有权限配置和请求校验配置
 	 * @param shutdownWhenServerError 
 	 * @param creator 
 	 * @return 
 	 * @throws ServerException
 	 */
 	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+		JSONObject result = new JSONObject(true);
+		result.put(ACCESS_, initAccess(shutdownWhenServerError, creator));
+		result.put(REQUEST_, initRequest(shutdownWhenServerError, creator));
+		return result;
+	}
+
+	/**初始化，加载所有权限配置
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initAccess() throws ServerException {
+		return initAccess(false);
+	}
+	/**初始化，加载所有权限配置
+	 * @param shutdownWhenServerError 
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initAccess(boolean shutdownWhenServerError) throws ServerException {
+		return initAccess(shutdownWhenServerError, null);
+	}
+	/**初始化，加载所有权限配置
+	 * @param creator 
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initAccess(APIJSONCreator creator) throws ServerException {
+		return initAccess(false, creator);
+	}
+	/**初始化，加载所有权限配置
+	 * @param shutdownWhenServerError 
+	 * @param creator 
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initAccess(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
 		if (creator == null) {
 			creator = APIJSON_CREATOR;
 		}
@@ -182,6 +219,194 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	}
 
 
+	/**初始化，加载所有请求校验配置
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initRequest() throws ServerException {
+		return initRequest(false);
+	}
+	/**初始化，加载所有请求校验配置
+	 * @param shutdownWhenServerError 
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initRequest(boolean shutdownWhenServerError) throws ServerException {
+		return initRequest(shutdownWhenServerError, null);
+	}
+	/**初始化，加载所有请求校验配置
+	 * @param creator 
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initRequest(APIJSONCreator creator) throws ServerException {
+		return initRequest(false, creator);
+	}
+	/**初始化，加载所有请求校验配置
+	 * @param shutdownWhenServerError 
+	 * @param creator 
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initRequest(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+		if (creator == null) {
+			creator = APIJSON_CREATOR;
+		}
+		APIJSON_CREATOR = creator;
+
+		JSONRequest request = new JSONRequest();
+
+		{   //Request[]<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			JSONRequest requestItem = new JSONRequest();
+
+			{   //Request<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				requestItem.put(REQUEST_, new JSONRequest());
+			}   //Request>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+			request.putAll(requestItem.toArray(0, 0, REQUEST_));
+
+		}   //Request[]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
+		if (JSONResponse.isSuccess(response) == false) {
+			Log.e(TAG, "\n\n\n\n\n !!!! 查询权限配置异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n");
+			onServerError("查询权限配置异常 !", shutdownWhenServerError);
+		}
+
+		JSONArray list = response.getJSONArray(REQUEST_ + "[]");
+		if (list == null || list.isEmpty()) {
+			Log.w(TAG, "init list == null || list.isEmpty()，没有可用的权限配置");
+			throw new NullPointerException("没有可用的权限配置");
+		}
+
+		//		Log.d(TAG, "init < for REQUEST_MAP.size() = " + REQUEST_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
+
+		//		REQUEST_MAP.clear();
+
+		JSONObject item;
+		for (int i = 0; i < list.size(); i++) {
+			item = list.getJSONObject(i);
+			if (item == null) {
+				continue;
+			}
+
+			String version = item.getString("version");
+			if (StringUtil.isEmpty(version, true)) {
+				Log.e(TAG, "init  for  StringUtil.isEmpty(version, true)，Request 表中的 version 不能为空！");
+				onServerError("服务器内部错误，Request 表中的 version 不能为空！", shutdownWhenServerError);
+			}
+
+			String method = item.getString("method");
+			if (StringUtil.isEmpty(method, true)) {
+				Log.e(TAG, "init  for  StringUtil.isEmpty(method, true)，Request 表中的 method 不能为空！");
+				onServerError("服务器内部错误，Request 表中的 method 不能为空！", shutdownWhenServerError);
+			}
+
+			String tag = item.getString("tag");
+			if (StringUtil.isEmpty(tag, true)) {
+				Log.e(TAG, "init  for  StringUtil.isEmpty(tag, true)，Request 表中的 tag 不能为空！");
+				onServerError("服务器内部错误，Request 表中的 tag 不能为空！", shutdownWhenServerError);
+			}
+
+			JSONObject structure = JSON.parseObject(item.getString("structure"));
+
+
+			JSONObject target = null;
+
+			if (structure != null) {
+				target = structure;
+				if (structure.containsKey(tag) == false) { //tag 是 Table 名或 Table[]
+
+					boolean isArrayKey = tag.endsWith(":[]");  //  JSONRequest.isArrayKey(tag);
+					String key = isArrayKey ? tag.substring(0, tag.length() - 3) : tag;
+
+					if (apijson.JSONObject.isTableKey(key)) {
+						if (isArrayKey) { //自动为 tag = Comment:[] 的 { ... } 新增键值对 "Comment[]":[] 为 { "Comment[]":[], ... }
+							target.put(key + "[]", new JSONArray()); 
+						}
+						else { //自动为 tag = Comment 的 { ... } 包一层为 { "Comment": { ... } }
+							target = new JSONObject(true);
+							target.put(tag, structure);
+						}
+					}
+				}
+			}
+
+			if (target == null || target.isEmpty()) {
+				Log.e(TAG, "init  for  target == null || target.isEmpty()");
+				onServerError("服务器内部错误，Request 表中的 version = " + version + ", method = " + method + ", tag = " + tag +  " 对应的 structure 不能为空！", shutdownWhenServerError);
+			}
+
+			//			REQUEST_MAP.put(tag, target);
+		}
+
+		//		Log.d(TAG, "init  for /> REQUEST_MAP.size() = " + REQUEST_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
+
+		return response;
+	}
+
+	public static void test() {
+		testStructure();
+	}
+	
+	static final String requestString = "{\"Comment\":{\"REFUSE\": \"id\", \"MUST\": \"userId,momentId,content\"}, \"INSERT\":{\"Comment:to\":{}}}";
+	static final String responseString = "{\"User\":{\"REMOVE\": \"phone\", \"REPLACE\":{\"sex\":2}, \"INSERT\":{\"name\":\"api\"}}, \"UPDATE\":{\"Comment:to\":{}}}";
+	/**
+	 * 测试 Request 和 Response 的数据结构校验
+	 */
+	public static void testStructure() {
+		JSONObject request;
+		try {
+			request = JSON.parseObject("{\"Comment\":{\"userId\":0}}");
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			request = JSON.parseObject("{\"Comment\":{\"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			request = JSON.parseObject("{\"Comment\":{\"id\":0, \"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+		JSONObject response;
+		try {
+			response = JSON.parseObject("{\"User\":{\"userId\":0}}");
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\"}}");
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\", \"sex\":1}}");
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			response = JSON.parseObject("{\"User\":{\"id\":0, \"name\":\"tommy\", \"phone\":\"12345678\", \"sex\":1}}");
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+
+
 	private static void onServerError(String msg, boolean shutdown) throws ServerException {
 		Log.e(TAG, "\n权限配置文档测试未通过！\n请修改 Access 表里的记录！\n保证前端看到的权限配置文档是正确的！！！\n\n原因：\n" + msg);
 
@@ -244,6 +469,18 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		return v == null ? 0 : v;
 	}
 
+	@Override
+	public String getIdKey(String database, String schema, String table) {
+		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, schema, table);
+	}
+	@Override
+	public String getUserIdKey(String database, String schema, String table) {
+		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, schema, table);
+	}
+	@Override
+	public Object newId(RequestMethod method, String database, String schema, String table) {
+		return APIJSONSQLConfig.SIMPLE_CALLBACK.newId(method, database, schema, table);
+	}
 
 
 

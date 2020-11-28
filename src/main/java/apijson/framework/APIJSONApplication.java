@@ -71,54 +71,54 @@ public class APIJSONApplication {
 		APIJSONController.APIJSON_CREATOR = creator;
 
 
-		System.out.println("\n\n\n开始初始化:权限校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+		System.out.println("\n\n\n开始初始化: 权限校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 		try {
-			APIJSONVerifier.init(shutdownWhenServerError, creator);
+			APIJSONVerifier.initAccess(shutdownWhenServerError, creator);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("\n完成初始化:权限校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println("\n完成初始化: 权限校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
 		
 		
-		System.out.println("\n\n\n开始初始化:远程函数配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+		System.out.println("\n\n\n开始初始化: 远程函数配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 		try {
 			APIJSONFunctionParser.init(shutdownWhenServerError, creator);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("\n完成初始化:远程函数配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println("\n完成初始化: 远程函数配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-		System.out.println("开始测试:远程函数 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+		System.out.println("开始测试: 远程函数 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 		try {
 			APIJSONFunctionParser.test();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("\n完成测试:远程函数 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println("\n完成测试: 远程函数 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
 
 
-		System.out.println("\n\n\n开始初始化:请求校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+		System.out.println("\n\n\n开始初始化: 请求结构校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 		try {
-			StructureUtil.init(shutdownWhenServerError, creator);
+			APIJSONVerifier.initRequest(shutdownWhenServerError, creator);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("\n完成初始化:请求校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println("\n完成初始化: 请求结构校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-		System.out.println("\n\n\n开始测试:请求校验 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+		System.out.println("\n\n\n开始测试: Request 和 Response 的数据结构校验 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 		try {
-			StructureUtil.test();
+			APIJSONVerifier.testStructure();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("\n完成测试:请求校验 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println("\n完成测试: Request 和 Response 的数据结构校验 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
 
 

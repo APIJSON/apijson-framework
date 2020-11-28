@@ -175,6 +175,15 @@ public class APIJSONController {
 
 		boolean reloadAll = StringUtil.isEmpty(type, true) || "ALL".equals(type);
 
+		if (reloadAll || "ACCESS".equals(type)) {
+			try {
+				result.put(ACCESS_, APIJSONVerifier.initAccess());
+			} catch (ServerException e) {
+				e.printStackTrace();
+				result.put(ACCESS_, APIJSONParser.newErrorResult(e));
+			}
+		}
+
 		if (reloadAll || "FUNCTION".equals(type)) {
 			try {
 				result.put(FUNCTION_, APIJSONFunctionParser.init());
@@ -186,19 +195,10 @@ public class APIJSONController {
 
 		if (reloadAll || "REQUEST".equals(type)) {
 			try {
-				result.put(REQUEST_, StructureUtil.init());
+				result.put(REQUEST_, APIJSONVerifier.initRequest());
 			} catch (ServerException e) {
 				e.printStackTrace();
 				result.put(REQUEST_, APIJSONParser.newErrorResult(e));
-			}
-		}
-
-		if (reloadAll || "ACCESS".equals(type)) {
-			try {
-				result.put(ACCESS_, APIJSONVerifier.init());
-			} catch (ServerException e) {
-				e.printStackTrace();
-				result.put(ACCESS_, APIJSONParser.newErrorResult(e));
 			}
 		}
 

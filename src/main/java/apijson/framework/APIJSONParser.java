@@ -184,17 +184,5 @@ public class APIJSONParser extends AbstractParser<Long> {
 	//		return 50;
 	//	}
 	
-	@Override
-	public String getIdKey(String database, String schema, String table) {
-		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, schema, table);
-	}
-	@Override
-	public String getUserIdKey(String database, String schema, String table) {
-		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, schema, table);
-	}
-	@Override
-	public Object newId(RequestMethod method, String database, String schema, String table) {
-		return APIJSONSQLConfig.SIMPLE_CALLBACK.newId(method, database, schema, table);
-	}
 
 }
