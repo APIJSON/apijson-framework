@@ -56,6 +56,6 @@ Tencent [APIJSON](https://github.com/Tencent/APIJSON) Server Framework for remot
 ### Tips
 Oracle 和 SQLServer 的 JDBC 驱动用了 GPL 系列协议，所以本项目 pom.xml 没有加它们的 Maven 依赖，需要自己加。<br />
 The JDBC Drivers for Oracle and SQLServer have been licensed with GPL agreements, so they are not added on pom.xml, you need to add them yourself. <br />
-启动时会有 Oracle 和 SQLServer 的 JDBC 驱动加载失败的 警日志，但不影响 MySQL, PostgreSQL 等使用。<br />
+启动时会有 Oracle 和 SQLServer 的 JDBC 驱动加载失败的告警日志，但不影响 MySQL, PostgreSQL 等数据库的使用。<br />
 There would be failures and warnings when loading JDBC Drivers for Oracle and SQLServer, but it does not matter if you use MySQL or PostgreSQL only.<br />
 
