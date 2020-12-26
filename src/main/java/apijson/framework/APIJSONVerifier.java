@@ -20,8 +20,11 @@ import static apijson.framework.APIJSONConstant.VISITOR_;
 import static apijson.framework.APIJSONConstant.VISITOR_ID;
 
 import java.rmi.ServerException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpSession;
 
@@ -141,6 +144,9 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 
 			{   //Access<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 				JSONRequest access = new JSONRequest();
+				if (Log.DEBUG == false) {
+					access.put("debug", 0);
+				}
 				accessItem.put(ACCESS_, access);
 			}   //Access>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -196,18 +202,14 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 					onServerError("name: " + name + "不合法！字段 alias 的值为空时，name 必须为合法表名！", shutdownWhenServerError);
 				}
 
-				if (Log.DEBUG || item.getBooleanValue("debug") == false) {
-					ACCESS_MAP.put(name, map);
-				}
+				ACCESS_MAP.put(name, map);
 			}
 			else {
 				if (JSONRequest.isTableKey(alias) == false) {
 					onServerError("alias: " + alias + "不合法！字段 alias 的值只能为 空 或者 合法表名！", shutdownWhenServerError);
 				}
 
-				if (Log.DEBUG || item.getBooleanValue("debug") == false) {
-					ACCESS_MAP.put(alias, map);
-				}
+				ACCESS_MAP.put(alias, map);
 			}
 
 			APIJSONSQLConfig.TABLE_KEY_MAP.put(alias, name);
@@ -260,7 +262,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 			JSONRequest requestItem = new JSONRequest();
 
 			{   //Request<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-				requestItem.put(REQUEST_, new JSONRequest());
+				requestItem.put(REQUEST_, new JSONRequest().setOrder("version-,id+"));  // 方便查找
 			}   //Request>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 			request.putAll(requestItem.toArray(0, 0, REQUEST_));
@@ -280,9 +282,9 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 			throw new NullPointerException("没有可用的权限配置");
 		}
 
-		//		Log.d(TAG, "init < for REQUEST_MAP.size() = " + REQUEST_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
+		Log.d(TAG, "init < for REQUEST_MAP.size() = " + REQUEST_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
 
-		//		REQUEST_MAP.clear();
+		REQUEST_MAP.clear();
 
 		JSONObject item;
 		for (int i = 0; i < list.size(); i++) {
@@ -311,7 +313,6 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 
 			JSONObject structure = JSON.parseObject(item.getString("structure"));
 
-
 			JSONObject target = null;
 
 			if (structure != null) {
@@ -338,18 +339,31 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 				onServerError("服务器内部错误，Request 表中的 version = " + version + ", method = " + method + ", tag = " + tag +  " 对应的 structure 不能为空！", shutdownWhenServerError);
 			}
 
-			//			REQUEST_MAP.put(tag, target);
+			String cacheKey = getCacheKeyForRequest(method, tag);
+			SortedMap<Integer, JSONObject> versionedMap = REQUEST_MAP.get(cacheKey);
+			if (versionedMap == null) {
+				versionedMap = new TreeMap<>(new Comparator<Integer>() {
+
+					@Override
+					public int compare(Integer o1, Integer o2) {
+						return o2 == null ? -1 : o2.compareTo(o1);  // 降序
+					}
+				});
+			}
+			versionedMap.put(Integer.valueOf(version), item);
+			REQUEST_MAP.put(cacheKey, versionedMap);
 		}
 
-		//		Log.d(TAG, "init  for /> REQUEST_MAP.size() = " + REQUEST_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
+		Log.d(TAG, "init  for /> REQUEST_MAP.size() = " + REQUEST_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
 
 		return response;
 	}
 
+
 	public static void test() {
 		testStructure();
 	}
-	
+
 	static final String requestString = "{\"Comment\":{\"REFUSE\": \"id\", \"MUST\": \"userId,momentId,content\"}, \"INSERT\":{\"Comment:to\":{}}}";
 	static final String responseString = "{\"User\":{\"REMOVE\": \"phone\", \"REPLACE\":{\"sex\":2}, \"INSERT\":{\"name\":\"api\"}}, \"UPDATE\":{\"Comment:to\":{}}}";
 	/**
