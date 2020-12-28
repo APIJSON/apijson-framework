@@ -15,6 +15,7 @@ limitations under the License.*/
 package apijson.framework;
 
 import static apijson.framework.APIJSONConstant.FUNCTION_;
+import static apijson.framework.APIJSONConstant.REQUEST_;
 
 import java.io.IOException;
 import java.rmi.ServerException;
@@ -117,23 +118,30 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 * @throws ServerException
 	 */
 	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+		return init(shutdownWhenServerError, creator, null);
+	}
+	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
+	 * @param shutdownWhenServerError 
+	 * @param creator 
+	 * @param table 表内自定义数据过滤条件
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator, JSONObject table) throws ServerException {
 		if (creator == null) {
 			creator = APIJSON_CREATOR;
 		}
 		APIJSON_CREATOR = creator;
 
+
+		boolean isAll = table == null || table.isEmpty();
+		
+		JSONObject function = isAll ? new JSONRequest() : table;
+		JSONRequest functionItem = new JSONRequest();
+		functionItem.put(FUNCTION_, function);
+
 		JSONObject request = new JSONObject(); 
-
-		{  //Function[]<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-			JSONRequest functionItem = new JSONRequest();
-
-			{  //Function<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-				JSONRequest function = new JSONRequest();
-				functionItem.put(FUNCTION_, function);
-			}  //Function>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-			request.putAll(functionItem.toArray(0, 0, FUNCTION_));
-		}  //Function[]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		request.putAll(functionItem.toArray(0, 0, FUNCTION_));
 
 
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(true).parseResponse(request);
@@ -142,13 +150,18 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		}
 
 		JSONArray list = response.getJSONArray(FUNCTION_ + "[]");
-		if (list == null || list.isEmpty()) {
-			Log.w(TAG, "init list == null || list.isEmpty()，没有可用的远程函数");
+		int size = list == null ? 0 : list.size();
+		if (isAll && size <= 0) {
+			Log.w(TAG, "init isAll && size <= 0，，没有可用的远程函数");
 			throw new NullPointerException("没有可用的远程函数");
+		}
+		
+		if (table == null || table.isEmpty()) {  // 全量更新
+			FUNCTION_MAP.clear();
 		}
 
 		JSONObject item;
-		for (int i = 0; i < list.size(); i++) {
+		for (int i = 0; i < size; i++) {
 			item = list.getJSONObject(i);
 			if (item == null) {
 				continue;

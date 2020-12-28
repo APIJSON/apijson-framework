@@ -132,27 +132,35 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @throws ServerException
 	 */
 	public static JSONObject initAccess(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+		return initAccess(shutdownWhenServerError, creator, null);
+	}
+	/**初始化，加载所有权限配置
+	 * @param shutdownWhenServerError 
+	 * @param creator 
+	 * @param table 表内自定义数据过滤条件
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initAccess(boolean shutdownWhenServerError, APIJSONCreator creator, JSONObject table) throws ServerException {
 		if (creator == null) {
 			creator = APIJSON_CREATOR;
 		}
 		APIJSON_CREATOR = creator;
 
+		
+		boolean isAll = table == null || table.isEmpty();
+
+		JSONObject access = isAll ? new JSONRequest() : table;
+		if (Log.DEBUG == false) {
+			access.put("debug", 0);
+		}
+		JSONRequest accessItem = new JSONRequest();
+		accessItem.put(ACCESS_, access);
+
 		JSONRequest request = new JSONRequest();
+		request.putAll(accessItem.toArray(0, 0, ACCESS_));
 
-		{   //Access[]<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-			JSONRequest accessItem = new JSONRequest();
-
-			{   //Access<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-				JSONRequest access = new JSONRequest();
-				if (Log.DEBUG == false) {
-					access.put("debug", 0);
-				}
-				accessItem.put(ACCESS_, access);
-			}   //Access>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-			request.putAll(accessItem.toArray(0, 0, ACCESS_));
-		}   //Access[]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+		
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
 			Log.e(TAG, "\n\n\n\n\n !!!! 查询权限配置异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n");
@@ -160,17 +168,20 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		}
 
 		JSONArray list = response.getJSONArray(ACCESS_ + "[]");
-		if (list == null || list.isEmpty()) {
-			Log.w(TAG, "init list == null || list.isEmpty()，没有可用的权限配置");
+		int size = list == null ? 0 : list.size();
+		if (isAll && size <= 0) {
+			Log.w(TAG, "initAccess isAll && size <= 0，，没有可用的权限配置");
 			throw new NullPointerException("没有可用的权限配置");
 		}
 
-		Log.d(TAG, "init < for ACCESS_MAP.size() = " + ACCESS_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
+		Log.d(TAG, "initAccess < for ACCESS_MAP.size() = " + ACCESS_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
 
-		ACCESS_MAP.clear();
+		if (isAll) {  // 全量更新
+			ACCESS_MAP.clear();
+		}
 
 		JSONObject item;
-		for (int i = 0; i < list.size(); i++) {
+		for (int i = 0; i < size; i++) {
 			item = list.getJSONObject(i);
 			if (item == null) {
 				continue;
@@ -215,7 +226,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 			APIJSONSQLConfig.TABLE_KEY_MAP.put(alias, name);
 		}
 
-		Log.d(TAG, "init  for /> ACCESS_MAP.size() = " + ACCESS_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
+		Log.d(TAG, "initAccess  for /> ACCESS_MAP.size() = " + ACCESS_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
 
 		return response;
 	}
@@ -251,23 +262,29 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @throws ServerException
 	 */
 	public static JSONObject initRequest(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+		return initRequest(shutdownWhenServerError, creator, null);
+	}
+	/**初始化，加载所有请求校验配置
+	 * @param shutdownWhenServerError 
+	 * @param creator 
+	 * @param table 表内自定义数据过滤条件
+	 * @return 
+	 * @throws ServerException
+	 */
+	public static JSONObject initRequest(boolean shutdownWhenServerError, APIJSONCreator creator, JSONObject table) throws ServerException {
 		if (creator == null) {
 			creator = APIJSON_CREATOR;
 		}
 		APIJSON_CREATOR = creator;
 
+		
+		boolean isAll = table == null || table.isEmpty();
+
+		JSONRequest requestItem = new JSONRequest();
+		requestItem.put(REQUEST_, isAll ? new JSONRequest().setOrder("version-,id+") : table);  // 方便查找
+
 		JSONRequest request = new JSONRequest();
-
-		{   //Request[]<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-			JSONRequest requestItem = new JSONRequest();
-
-			{   //Request<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-				requestItem.put(REQUEST_, new JSONRequest().setOrder("version-,id+"));  // 方便查找
-			}   //Request>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-			request.putAll(requestItem.toArray(0, 0, REQUEST_));
-
-		}   //Request[]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		request.putAll(requestItem.toArray(0, 0, REQUEST_));
 
 
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
@@ -277,17 +294,20 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		}
 
 		JSONArray list = response.getJSONArray(REQUEST_ + "[]");
-		if (list == null || list.isEmpty()) {
-			Log.w(TAG, "init list == null || list.isEmpty()，没有可用的权限配置");
+		int size = list == null ? 0 : list.size();
+		if (isAll && size <= 0) {
+			Log.w(TAG, "initRequest isAll && size <= 0，没有可用的权限配置");
 			throw new NullPointerException("没有可用的权限配置");
 		}
 
-		Log.d(TAG, "init < for REQUEST_MAP.size() = " + REQUEST_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
+		Log.d(TAG, "initRequest < for REQUEST_MAP.size() = " + REQUEST_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
 
-		REQUEST_MAP.clear();
+		if (isAll) {  // 全量更新
+			REQUEST_MAP.clear();
+		}
 
 		JSONObject item;
-		for (int i = 0; i < list.size(); i++) {
+		for (int i = 0; i < size; i++) {
 			item = list.getJSONObject(i);
 			if (item == null) {
 				continue;
@@ -295,19 +315,19 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 
 			String version = item.getString("version");
 			if (StringUtil.isEmpty(version, true)) {
-				Log.e(TAG, "init  for  StringUtil.isEmpty(version, true)，Request 表中的 version 不能为空！");
+				Log.e(TAG, "initRequest  for  StringUtil.isEmpty(version, true)，Request 表中的 version 不能为空！");
 				onServerError("服务器内部错误，Request 表中的 version 不能为空！", shutdownWhenServerError);
 			}
 
 			String method = item.getString("method");
 			if (StringUtil.isEmpty(method, true)) {
-				Log.e(TAG, "init  for  StringUtil.isEmpty(method, true)，Request 表中的 method 不能为空！");
+				Log.e(TAG, "initRequest  for  StringUtil.isEmpty(method, true)，Request 表中的 method 不能为空！");
 				onServerError("服务器内部错误，Request 表中的 method 不能为空！", shutdownWhenServerError);
 			}
 
 			String tag = item.getString("tag");
 			if (StringUtil.isEmpty(tag, true)) {
-				Log.e(TAG, "init  for  StringUtil.isEmpty(tag, true)，Request 表中的 tag 不能为空！");
+				Log.e(TAG, "initRequest  for  StringUtil.isEmpty(tag, true)，Request 表中的 tag 不能为空！");
 				onServerError("服务器内部错误，Request 表中的 tag 不能为空！", shutdownWhenServerError);
 			}
 
@@ -335,7 +355,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 			}
 
 			if (target == null || target.isEmpty()) {
-				Log.e(TAG, "init  for  target == null || target.isEmpty()");
+				Log.e(TAG, "initRequest  for  target == null || target.isEmpty()");
 				onServerError("服务器内部错误，Request 表中的 version = " + version + ", method = " + method + ", tag = " + tag +  " 对应的 structure 不能为空！", shutdownWhenServerError);
 			}
 
@@ -354,7 +374,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 			REQUEST_MAP.put(cacheKey, versionedMap);
 		}
 
-		Log.d(TAG, "init  for /> REQUEST_MAP.size() = " + REQUEST_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
+		Log.d(TAG, "initRequest  for /> REQUEST_MAP.size() = " + REQUEST_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
 
 		return response;
 	}
