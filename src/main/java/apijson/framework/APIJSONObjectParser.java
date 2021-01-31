@@ -35,13 +35,18 @@ public class APIJSONObjectParser extends AbstractObjectParser {
 	public static final String TAG = "APIJSONObjectParser";
 
 	/**for single object
-	 * @param parentPath
+	 * @param session
 	 * @param request
-	 * @param name
-	 * @throws Exception 
+	 * @param parentPath
+	 * @param arrayConfig
+	 * @param isSubquery
+	 * @param isTable
+	 * @param isArrayMainTable
+	 * @throws Exception
 	 */
-	public APIJSONObjectParser(HttpSession session, @NotNull JSONObject request, String parentPath, String name, SQLConfig arrayConfig, boolean isSubquery) throws Exception {
-		super(request, parentPath, name, arrayConfig, isSubquery);
+	public APIJSONObjectParser(HttpSession session, @NotNull JSONObject request, String parentPath, SQLConfig arrayConfig
+			, boolean isSubquery, boolean isTable, boolean isArrayMainTable) throws Exception {
+		super(request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable);
 	}
 
 	@Override
