@@ -14,10 +14,6 @@ limitations under the License.*/
 
 package apijson.framework;
 
-
-/**APIJSON 常量类
- * @author Lemon
- */
 import apijson.JSONResponse;
 import apijson.orm.JSONRequest;
 import apijson.orm.Visitor;
@@ -33,9 +29,12 @@ import apijson.orm.model.Response;
 import apijson.orm.model.SysColumn;
 import apijson.orm.model.SysTable;
 import apijson.orm.model.Table;
-import apijson.orm.model.Test;
 import apijson.orm.model.TestRecord;
 
+
+/**APIJSON 常量类
+ * @author Lemon
+ */
 public class APIJSONConstant {
 
 	public static final String DEFAULTS = "defaults";
@@ -66,7 +65,6 @@ public class APIJSONConstant {
 	public static final String SYS_COLUMN_;
 	public static final String SYS_TABLE_;
 	public static final String TABLE_;
-	public static final String TEST_;
 	public static final String TEST_RECORD_;
 	
 	public static final String VISITOR_;
@@ -84,7 +82,6 @@ public class APIJSONConstant {
 		SYS_COLUMN_ = SysColumn.class.getSimpleName();
 		SYS_TABLE_ = SysTable.class.getSimpleName();
 		TABLE_ = Table.class.getSimpleName();
-		TEST_ = Test.class.getSimpleName();
 		TEST_RECORD_ = TestRecord.class.getSimpleName();
 		
 		VISITOR_ = Visitor.class.getSimpleName();

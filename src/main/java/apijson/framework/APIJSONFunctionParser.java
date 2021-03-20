@@ -15,7 +15,6 @@ limitations under the License.*/
 package apijson.framework;
 
 import static apijson.framework.APIJSONConstant.FUNCTION_;
-import static apijson.framework.APIJSONConstant.REQUEST_;
 
 import java.io.IOException;
 import java.rmi.ServerException;
@@ -235,18 +234,28 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 
 		request.put("key", "key");
 		JSONObject object = new JSONObject();
-		object.put("key", true);
+		object.put("key", "success");
 		request.put("object", object);
 
 		if (function == null) {
 			function = new APIJSONFunctionParser(null, null, 1, null, null);
 		}
 
-		Log.i(TAG, "plus(1,-2) = " + function.invoke("plus(i0,i1)", request));
+		// 等数据库 Function 表加上 plus 配置再过两个以上迭代(应该是到 5.0)后再取消注释
+//		Log.i(TAG, "plus(1,-2) = " + function.invoke("plus(i0,i1)", request));
+//		AssertUtil.assertEqual(-1, function.invoke("plus(i0,i1)", request));
+		
 		Log.i(TAG, "count([1,2,4,10]) = " + function.invoke("countArray(array)", request));
+		AssertUtil.assertEqual(4, function.invoke("countArray(array)", request));
+		
 		Log.i(TAG, "isContain([1,2,4,10], 10) = " + function.invoke("isContain(array,id)", request));
+		AssertUtil.assertEqual(true, function.invoke("isContain(array,id)", request));
+
 		Log.i(TAG, "getFromArray([1,2,4,10], 0) = " + function.invoke("getFromArray(array,@position)", request));
-		Log.i(TAG, "getFromObject({key:true}, key) = " + function.invoke("getFromObject(object,key)", request));
+		AssertUtil.assertEqual(1, function.invoke("getFromArray(array,@position)", request));
+
+		Log.i(TAG, "getFromObject({key:\"success\"}, key) = " + function.invoke("getFromObject(object,key)", request));
+		AssertUtil.assertEqual("success", function.invoke("getFromObject(object,key)", request));
 
 	}
 

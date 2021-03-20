@@ -147,7 +147,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		}
 		APIJSON_CREATOR = creator;
 
-		
+
 		boolean isAll = table == null || table.isEmpty();
 
 		JSONObject access = isAll ? new JSONRequest() : table;
@@ -160,7 +160,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		JSONRequest request = new JSONRequest();
 		request.putAll(accessItem.toArray(0, 0, ACCESS_));
 
-		
+
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
 			Log.e(TAG, "\n\n\n\n\n !!!! 查询权限配置异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n");
@@ -277,7 +277,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		}
 		APIJSON_CREATOR = creator;
 
-		
+
 		boolean isAll = table == null || table.isEmpty();
 
 		JSONRequest requestItem = new JSONRequest();
@@ -380,61 +380,79 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	}
 
 
-	public static void test() {
+	public static void test() throws Exception {
 		testStructure();
 	}
 
-	static final String requestString = "{\"Comment\":{\"REFUSE\": \"id\", \"MUST\": \"userId,momentId,content\"}, \"INSERT\":{\"Comment:to\":{}}}";
-	static final String responseString = "{\"User\":{\"REMOVE\": \"phone\", \"REPLACE\":{\"sex\":2}, \"INSERT\":{\"name\":\"api\"}}, \"UPDATE\":{\"Comment:to\":{}}}";
+	static final String requestConfig = "{\"Comment\":{\"REFUSE\": \"id\", \"MUST\": \"userId,momentId,content\"}, \"INSERT\":{\"@role\":\"OWNER\"}}";
+	static final String responseConfig = "{\"User\":{\"REMOVE\": \"phone\", \"REPLACE\":{\"sex\":2}, \"INSERT\":{\"name\":\"api\"}, \"UPDATE\":{\"verifyURLList-()\":\"verifyURLList(pictureList)\"}}}";
 	/**
 	 * 测试 Request 和 Response 的数据结构校验
+	 * @throws Exception 
 	 */
-	public static void testStructure() {
+	public static void testStructure() throws Exception {
 		JSONObject request;
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"userId\":0}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
-		} catch (Exception e) {
-			e.printStackTrace();
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, APIJSON_CREATOR));
+		} catch (Throwable e) {
+			if (e instanceof IllegalArgumentException == false || "POST请求，Comment 里面不能缺少 momentId 等[userId,momentId,content]内的任何字段！".equals(e.getMessage()) == false) {
+				throw e;
+			}
+			Log.d(TAG, "测试 Operation.MUST 校验缺少字段：成功");
+		}
+		try {			
+			request = JSON.parseObject("{\"Comment\":{\"id\":0, \"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, APIJSON_CREATOR));
+		} catch (Throwable e) {
+			if (e instanceof IllegalArgumentException == false || "POST请求，/Comment 不能传 id ！".equals(e.getMessage()) == false) {
+				throw e;
+			}
+			Log.d(TAG, "测试 Operation.REFUSE 校验不允许传字段：成功");
 		}
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
-		} catch (Exception e) {
-			e.printStackTrace();
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, APIJSON_CREATOR));
+			AssertUtil.assertEqual("OWNER", request.getString("@role"));
+			Log.d(TAG, "测试 Operation.INSERT 不存在字段时插入：成功");
+		} catch (Throwable e) {
+			throw e;
 		}
-		try {
-			request = JSON.parseObject("{\"Comment\":{\"id\":0, \"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestString), request, APIJSON_CREATOR));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
 
 
 		JSONObject response;
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
-		} catch (Exception e) {
-			e.printStackTrace();
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, APIJSON_CREATOR, null));
+			AssertUtil.assertEqual("verifyURLList(pictureList)", response.getJSONObject("User").getString("verifyURLList-()"));
+			Log.d(TAG, "测试 Operation.UPDATE 强制插入/替换：成功");
+		} catch (Throwable e) {
+			throw e;
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\"}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
-		} catch (Exception e) {
-			e.printStackTrace();
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, APIJSON_CREATOR, null));
+			AssertUtil.assertEqual(null, response.getJSONObject("User").get("phone"));
+			Log.d(TAG, "测试 Operation.REMOVE 强制移除：成功");
+		} catch (Throwable e) {
+			throw e;
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\", \"sex\":1}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
-		} catch (Exception e) {
-			e.printStackTrace();
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, APIJSON_CREATOR, null));
+			AssertUtil.assertEqual("api", response.getJSONObject("User").get("name"));
+			Log.d(TAG, "测试 Operation.INSERT 不存在字段时插入：成功");
+		} catch (Throwable e) {
+			throw e;
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"id\":0, \"name\":\"tommy\", \"phone\":\"12345678\", \"sex\":1}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseString), response, APIJSON_CREATOR, null));
-		} catch (Exception e) {
-			e.printStackTrace();
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, APIJSON_CREATOR, null));
+			AssertUtil.assertEqual(2, response.getJSONObject("User").get("sex"));
+			Log.d(TAG, "测试 Operation.REPLACE 存在字段时替换：成功");
+		} catch (Throwable e) {
+			throw e;
 		}
 
 	}
