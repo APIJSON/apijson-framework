@@ -526,8 +526,16 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, schema, table);
 	}
 	@Override
+	public String getIdKey(String database, String schema, String datasource, String table) {
+		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, schema, datasource, table);
+	}
+	@Override
 	public String getUserIdKey(String database, String schema, String table) {
 		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, schema, table);
+	}
+	@Override
+	public String getUserIdKey(String database, String schema, String datasource, String table) {
+		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, schema, datasource, table);
 	}
 	@Override
 	public Object newId(RequestMethod method, String database, String schema, String table) {
