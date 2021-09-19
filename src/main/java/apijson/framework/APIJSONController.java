@@ -32,6 +32,7 @@ import static apijson.framework.APIJSONConstant.VISITOR_ID;
 
 import java.lang.reflect.Method;
 import java.rmi.ServerException;
+import java.util.Map;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletResponse;
@@ -40,10 +41,13 @@ import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSONObject;
 
+import apijson.JSON;
+import apijson.JSONRequest;
 import apijson.Log;
 import apijson.NotNull;
 import apijson.RequestMethod;
 import apijson.StringUtil;
+import apijson.orm.AbstractParser;
 import apijson.orm.Parser;
 import apijson.orm.Visitor;
 import unitauto.MethodUtil;
@@ -150,6 +154,106 @@ public class APIJSONController {
 	 */
 	public String delete(String request, HttpSession session) {
 		return parse(request, session, DELETE);
+	}
+
+
+	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	
+	public String parseByTag(RequestMethod method, String tag, Map<String, String> params, String request, HttpSession session) {
+		
+		JSONObject req = AbstractParser.wrapRequest(JSON.parseObject(request), tag, true);
+		if (req == null) {
+			req = new JSONObject(true);
+		}
+		if (params != null && params.isEmpty() == false) {
+			req.putAll(params);
+		}
+		
+		return newParser(session, method).parse(req);
+	}
+	
+//	/**获取列表
+//	 * @param request 只用String，避免encode后未decode
+//	 * @param session
+//	 * @return
+//	 * @see {@link RequestMethod#GET}
+//	 */
+//	public String listByTag(String tag, String request, HttpSession session) {
+//		return parseByTag(GET, tag + JSONRequest.KEY_ARRAY, request, session);
+//	}
+
+	/**获取
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#GET}
+	 */
+	public String getByTag(String tag, Map<String, String> params, String request, HttpSession session) {
+		return parseByTag(GET, tag, params, request, session);
+	}
+	
+
+	/**计数
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#HEAD}
+	 */
+	public String headByTag(String tag, Map<String, String> params, String request, HttpSession session) {
+		return parseByTag(HEAD, tag, params, request, session);
+	}
+
+	/**限制性GET，request和response都非明文，浏览器看不到，用于对安全性要求高的GET请求
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#GETS}
+	 */
+	public String getsByTag(String tag, Map<String, String> params, String request, HttpSession session) {
+		return parseByTag(GETS, tag, params, request, session);
+	}
+
+	/**限制性HEAD，request和response都非明文，浏览器看不到，用于对安全性要求高的HEAD请求
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#HEADS}
+	 */
+	public String headsByTag(String tag, Map<String, String> params, String request, HttpSession session) {
+		return parseByTag(HEADS, tag, params, request, session);
+	}
+
+	/**新增
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#POST}
+	 */
+	public String postByTag(String tag, Map<String, String> params, String request, HttpSession session) {
+		return parseByTag(POST, tag, params, request, session);
+	}
+
+	/**修改
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#PUT}
+	 */
+	public String putByTag(String tag, Map<String, String> params, String request, HttpSession session) {
+		return parseByTag(PUT, tag, params, request, session);
+	}
+
+	/**删除
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#DELETE}
+	 */
+	public String deleteByTag(String tag, Map<String, String> params, String request, HttpSession session) {
+		return parseByTag(DELETE, tag, params, request, session);
 	}
 
 
