@@ -164,7 +164,7 @@ public class APIJSONController {
 	
 	public String parseByTag(RequestMethod method, String tag, Map<String, String> params, String request, HttpSession session) {
 		
-		JSONObject req = AbstractParser.wrapRequest(JSON.parseObject(request), tag, true);
+		JSONObject req = AbstractParser.wrapRequest(method, tag, JSON.parseObject(request), false);
 		if (req == null) {
 			req = new JSONObject(true);
 		}
