@@ -36,7 +36,6 @@ import apijson.JSONResponse;
 import apijson.Log;
 import apijson.NotNull;
 import apijson.RequestMethod;
-import apijson.RequestRole;
 import apijson.StringUtil;
 import apijson.orm.AbstractVerifier;
 import apijson.orm.JSONRequest;
@@ -187,14 +186,14 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 				continue;
 			}
 
-			Map<RequestMethod, RequestRole[]> map = new HashMap<>();
-			map.put(RequestMethod.GET, JSON.parseObject(item.getString("get"), RequestRole[].class));
-			map.put(RequestMethod.HEAD, JSON.parseObject(item.getString("head"), RequestRole[].class));
-			map.put(RequestMethod.GETS, JSON.parseObject(item.getString("gets"), RequestRole[].class));
-			map.put(RequestMethod.HEADS, JSON.parseObject(item.getString("heads"), RequestRole[].class));
-			map.put(RequestMethod.POST, JSON.parseObject(item.getString("post"), RequestRole[].class));
-			map.put(RequestMethod.PUT, JSON.parseObject(item.getString("put"), RequestRole[].class));
-			map.put(RequestMethod.DELETE, JSON.parseObject(item.getString("delete"), RequestRole[].class));
+			Map<RequestMethod, String[]> map = new HashMap<>();
+			map.put(RequestMethod.GET, JSON.parseObject(item.getString("get"), String[].class));
+			map.put(RequestMethod.HEAD, JSON.parseObject(item.getString("head"), String[].class));
+			map.put(RequestMethod.GETS, JSON.parseObject(item.getString("gets"), String[].class));
+			map.put(RequestMethod.HEADS, JSON.parseObject(item.getString("heads"), String[].class));
+			map.put(RequestMethod.POST, JSON.parseObject(item.getString("post"), String[].class));
+			map.put(RequestMethod.PUT, JSON.parseObject(item.getString("put"), String[].class));
+			map.put(RequestMethod.DELETE, JSON.parseObject(item.getString("delete"), String[].class));
 
 			String name = item.getString("name");
 			String alias = item.getString("alias");
@@ -521,17 +520,10 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		return v == null ? 0 : v;
 	}
 
-	@Override
-	public String getIdKey(String database, String schema, String table) {
-		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, schema, table);
-	}
+
 	@Override
 	public String getIdKey(String database, String schema, String datasource, String table) {
 		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, schema, datasource, table);
-	}
-	@Override
-	public String getUserIdKey(String database, String schema, String table) {
-		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, schema, table);
 	}
 	@Override
 	public String getUserIdKey(String database, String schema, String datasource, String table) {

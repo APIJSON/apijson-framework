@@ -42,7 +42,6 @@ import javax.servlet.http.HttpSession;
 import com.alibaba.fastjson.JSONObject;
 
 import apijson.JSON;
-import apijson.JSONRequest;
 import apijson.Log;
 import apijson.NotNull;
 import apijson.RequestMethod;

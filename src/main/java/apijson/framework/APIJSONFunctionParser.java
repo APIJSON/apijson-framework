@@ -32,7 +32,7 @@ import apijson.JSONResponse;
 import apijson.Log;
 import apijson.NotNull;
 import apijson.RequestMethod;
-import apijson.RequestRole;
+import apijson.orm.AbstractVerifier;
 import apijson.StringUtil;
 import apijson.orm.AbstractFunctionParser;
 import apijson.orm.JSONRequest;
@@ -315,8 +315,8 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 */
 	public Object verifyAccess(@NotNull JSONObject request) throws Exception {
 		long userId = request.getLongValue(apijson.JSONObject.KEY_USER_ID);
-		RequestRole role = RequestRole.get(request.getString(apijson.JSONObject.KEY_ROLE));
-		if (role == RequestRole.OWNER && userId != APIJSONVerifier.getVisitorId(session)) {
+		String role = request.getString(apijson.JSONObject.KEY_ROLE);
+		if (AbstractVerifier.OWNER.equals(role) && userId != APIJSONVerifier.getVisitorId(session)) {
 			throw new IllegalAccessException("登录用户与角色OWNER不匹配！");
 		}
 		return null;
