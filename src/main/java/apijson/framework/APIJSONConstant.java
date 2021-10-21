@@ -25,7 +25,6 @@ import apijson.orm.model.Function;
 import apijson.orm.model.PgAttribute;
 import apijson.orm.model.PgClass;
 import apijson.orm.model.Request;
-import apijson.orm.model.Response;
 import apijson.orm.model.SysColumn;
 import apijson.orm.model.SysTable;
 import apijson.orm.model.Table;
@@ -60,7 +59,6 @@ public class APIJSONConstant {
 	public static final String FUNCTION_;
 	public static final String PG_ATTRIBUTE_;
 	public static final String PG_CLASS_;
-	public static final String RESPONSE_;
 	public static final String REQUEST_;
 	public static final String SYS_COLUMN_;
 	public static final String SYS_TABLE_;
@@ -78,7 +76,6 @@ public class APIJSONConstant {
 		PG_ATTRIBUTE_ = PgAttribute.class.getSimpleName();
 		PG_CLASS_ = PgClass.class.getSimpleName();
 		REQUEST_ = Request.class.getSimpleName();
-		RESPONSE_ = Response.class.getSimpleName();
 		SYS_COLUMN_ = SysColumn.class.getSimpleName();
 		SYS_TABLE_ = SysTable.class.getSimpleName();
 		TABLE_ = Table.class.getSimpleName();
