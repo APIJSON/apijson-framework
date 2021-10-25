@@ -31,11 +31,11 @@
 		</dependency>
 		
 		<!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.github.Tencent</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>4.7.2</version>
-		</dependency> -->
+			<version>4.8.0</version>
+		</dependency>
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
 		<dependency>
