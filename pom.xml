@@ -5,7 +5,7 @@
 
 	<groupId>apijson.framework</groupId>
 	<artifactId>apijson-framework</artifactId>
-	<version>4.7.2</version>
+	<version>4.8.0</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
