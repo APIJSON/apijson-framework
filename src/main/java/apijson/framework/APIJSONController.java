@@ -69,12 +69,19 @@ public class APIJSONController {
 		APIJSON_CREATOR = new APIJSONCreator();
 	}
 	
+	public String getRequestURL() {
+		return null;
+	}
 
 	public Parser<Long> newParser(HttpSession session, RequestMethod method) {
 		Parser<Long> parser = APIJSON_CREATOR.createParser();
 		parser.setMethod(method);
 		if (parser instanceof APIJSONParser) {
 			((APIJSONParser) parser).setSession(session);
+		}
+		// 可以更方便地通过日志排查错误
+		if (parser instanceof AbstractParser) {
+			((AbstractParser<?>) parser).setRequestURL(getRequestURL());
 		}
 		return parser;
 	}
