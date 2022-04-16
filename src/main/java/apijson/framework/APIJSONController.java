@@ -32,6 +32,8 @@ import static apijson.framework.APIJSONConstant.VISITOR_ID;
 
 import java.lang.reflect.Method;
 import java.rmi.ServerException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.AsyncContext;
@@ -65,8 +67,10 @@ public class APIJSONController {
 	
 	@NotNull
 	public static APIJSONCreator APIJSON_CREATOR;
+	public static List<String> APIJSON_METHODS;
 	static {
 		APIJSON_CREATOR = new APIJSONCreator();
+		APIJSON_METHODS = Arrays.asList("get", "head", "gets", "heads", "post", "put", "delete");
 	}
 	
 	public String getRequestURL() {
@@ -86,87 +90,9 @@ public class APIJSONController {
 		return parser;
 	}
 
-	public String parse(String request, HttpSession session, RequestMethod method) {
+	public String parse(RequestMethod method, String request, HttpSession session) {
 		return newParser(session, method).parse(request);
 	}
-
-	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-	/**获取
-	 * @param request 只用String，避免encode后未decode
-	 * @param session
-	 * @return
-	 * @see {@link RequestMethod#GET}
-	 */
-	public String get(String request, HttpSession session) {
-		return parse(request, session, GET);
-	}
-
-	/**计数
-	 * @param request 只用String，避免encode后未decode
-	 * @param session
-	 * @return
-	 * @see {@link RequestMethod#HEAD}
-	 */
-	public String head(String request, HttpSession session) {
-		return parse(request, session, HEAD);
-	}
-
-	/**限制性GET，request和response都非明文，浏览器看不到，用于对安全性要求高的GET请求
-	 * @param request 只用String，避免encode后未decode
-	 * @param session
-	 * @return
-	 * @see {@link RequestMethod#GETS}
-	 */
-	public String gets(String request, HttpSession session) {
-		return parse(request, session, GETS);
-	}
-
-	/**限制性HEAD，request和response都非明文，浏览器看不到，用于对安全性要求高的HEAD请求
-	 * @param request 只用String，避免encode后未decode
-	 * @param session
-	 * @return
-	 * @see {@link RequestMethod#HEADS}
-	 */
-	public String heads(String request, HttpSession session) {
-		return parse(request, session, HEADS);
-	}
-
-	/**新增
-	 * @param request 只用String，避免encode后未decode
-	 * @param session
-	 * @return
-	 * @see {@link RequestMethod#POST}
-	 */
-	public String post(String request, HttpSession session) {
-		return parse(request, session, POST);
-	}
-
-	/**修改
-	 * @param request 只用String，避免encode后未decode
-	 * @param session
-	 * @return
-	 * @see {@link RequestMethod#PUT}
-	 */
-	public String put(String request, HttpSession session) {
-		return parse(request, session, PUT);
-	}
-
-	/**删除
-	 * @param request 只用String，避免encode后未decode
-	 * @param session
-	 * @return
-	 * @see {@link RequestMethod#DELETE}
-	 */
-	public String delete(String request, HttpSession session) {
-		return parse(request, session, DELETE);
-	}
-
-
-	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	
 	public String parseByTag(RequestMethod method, String tag, Map<String, String> params, String request, HttpSession session) {
 		
@@ -180,6 +106,119 @@ public class APIJSONController {
 		
 		return newParser(session, method).parse(req);
 	}
+
+	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
+	 * @param method
+	 * @param tag
+	 * @param params
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	public String crud(String method, String request, HttpSession session) {
+		if (APIJSON_METHODS.contains(method)) {
+			return parse(RequestMethod.valueOf(method.toUpperCase()), request, session);
+		}
+		
+		return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method} 中 method 值 " + method
+				+ " 错误！只允许 " + APIJSON_METHODS + " 中的一个！")).toJSONString();
+	}
+
+	/**获取
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#GET}
+	 */
+	public String get(String request, HttpSession session) {
+		return parse(GET, request, session);
+	}
+
+	/**计数
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#HEAD}
+	 */
+	public String head(String request, HttpSession session) {
+		return parse(HEAD, request, session);
+	}
+
+	/**限制性GET，request和response都非明文，浏览器看不到，用于对安全性要求高的GET请求
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#GETS}
+	 */
+	public String gets(String request, HttpSession session) {
+		return parse(GETS, request, session);
+	}
+
+	/**限制性HEAD，request和response都非明文，浏览器看不到，用于对安全性要求高的HEAD请求
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#HEADS}
+	 */
+	public String heads(String request, HttpSession session) {
+		return parse(HEADS, request, session);
+	}
+
+	/**新增
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#POST}
+	 */
+	public String post(String request, HttpSession session) {
+		return parse(POST, request, session);
+	}
+
+	/**修改
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#PUT}
+	 */
+	public String put(String request, HttpSession session) {
+		return parse(PUT, request, session);
+	}
+
+	/**删除
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#DELETE}
+	 */
+	public String delete(String request, HttpSession session) {
+		return parse(DELETE, request, session);
+	}
+
+	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	
+	
+	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
+	 * @param method
+	 * @param tag
+	 * @param params
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	public String crudByTag(String method, String tag, Map<String, String> params, String request, HttpSession session) {
+		if (APIJSON_METHODS.contains(method)) {
+			return parseByTag(RequestMethod.valueOf(method.toUpperCase()), tag, params, request, session);
+		}
+		
+		return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 " + method
+				+ " 错误！只允许 " + APIJSON_METHODS + " 中的一个！")).toJSONString();
+	}
+
 	
 //	/**获取列表
 //	 * @param request 只用String，避免encode后未decode
@@ -261,7 +300,6 @@ public class APIJSONController {
 	public String deleteByTag(String tag, Map<String, String> params, String request, HttpSession session) {
 		return parseByTag(DELETE, tag, params, request, session);
 	}
-
 
 	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
