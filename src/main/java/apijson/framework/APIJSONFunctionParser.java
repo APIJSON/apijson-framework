@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -155,13 +157,11 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			throw new NullPointerException("没有可用的远程函数");
 		}
 		
-		if (table == null || table.isEmpty()) {  // 全量更新
-			FUNCTION_MAP.clear();
-		}
 
-		JSONObject item;
+		Map<String, JSONObject> newMap = new LinkedHashMap<>();
+
 		for (int i = 0; i < size; i++) {
-			item = list.getJSONObject(i);
+			JSONObject item = list.getJSONObject(i);
 			if (item == null) {
 				continue;
 			}
@@ -177,7 +177,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			//			demo.put(JSONRequest.KEY_TAG, item.getString(JSONRequest.KEY_TAG));
 			//			demo.put(JSONRequest.KEY_VERSION, item.getInteger(JSONRequest.KEY_VERSION));
 
-			FUNCTION_MAP.put(name, item);  //必须在测试 invoke 前！
+			newMap  .put(name, item);  //必须在测试 invoke 前！
 
 			String[] methods = StringUtil.split(item.getString("methods"));
 			JSONObject r = new APIJSONParser(
@@ -193,12 +193,19 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			}
 
 		}
+		
+		if (isAll) {
+			FUNCTION_MAP = newMap;
+		}
+		else {
+			FUNCTION_MAP.putAll(newMap);
+		}
 
 		return response;
 	}
 
 
-	private static void onServerError(String msg, boolean shutdown) throws ServerException {
+	protected static void onServerError(String msg, boolean shutdown) throws ServerException {
 		Log.e(TAG, "\n远程函数文档测试未通过！\n请新增 demo 里的函数，或修改 Function 表里的 demo 为已有的函数示例！\n保证前端看到的远程函数文档是正确的！！！\n\n原因：\n" + msg);
 
 		if (shutdown) {

@@ -5,7 +5,7 @@
 
 	<groupId>apijson.framework</groupId>
 	<artifactId>apijson-framework</artifactId>
-	<version>5.0.0</version>
+	<version>5.0.5</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
@@ -31,11 +31,11 @@
 		</dependency>
 		
 		<!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.github.Tencent</groupId>
 			<artifactId>APIJSON</artifactId>
 			<version>5.0.0</version>
-		</dependency>
+		</dependency> -->
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
 		<dependency>
@@ -55,12 +55,12 @@
 		<dependency>
 			<groupId>com.github.TommyLemon</groupId>
 			<artifactId>unitauto-java</artifactId>
-			<version>2.6.4</version>
+			<version>2.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.TommyLemon</groupId>
 			<artifactId>unitauto-jar</artifactId>
-			<version>2.6.4</version>
+			<version>2.7.2</version>
 		</dependency>
 		<!-- 单元测试：可使用 libs 目录的 unitauto-java.jar 和 unitauto-jar.jar 来替代，两种方式二选一 >>>>>>>>> -->
 

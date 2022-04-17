@@ -22,6 +22,7 @@ import static apijson.framework.APIJSONConstant.VISITOR_ID;
 import java.rmi.ServerException;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -174,14 +175,11 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		}
 
 		Log.d(TAG, "initAccess < for ACCESS_MAP.size() = " + ACCESS_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
-
-		if (isAll) {  // 全量更新
-			ACCESS_MAP.clear();
-		}
-
-		JSONObject item;
+		
+		Map<String, Map<RequestMethod, String[]>> newMap = new LinkedHashMap<>();
+		
 		for (int i = 0; i < size; i++) {
-			item = list.getJSONObject(i);
+			JSONObject item = list.getJSONObject(i);
 			if (item == null) {
 				continue;
 			}
@@ -212,19 +210,26 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 					onServerError("name: " + name + "不合法！字段 alias 的值为空时，name 必须为合法表名！", shutdownWhenServerError);
 				}
 
-				ACCESS_MAP.put(name, map);
+				newMap.put(name, map);
 			}
 			else {
 				if (JSONRequest.isTableKey(alias) == false) {
 					onServerError("alias: " + alias + "不合法！字段 alias 的值只能为 空 或者 合法表名！", shutdownWhenServerError);
 				}
 
-				ACCESS_MAP.put(alias, map);
+				newMap.put(alias, map);
 			}
 
 			APIJSONSQLConfig.TABLE_KEY_MAP.put(alias, name);
 		}
 
+		if (isAll) {  // 全量更新
+			ACCESS_MAP = newMap;
+		}
+		else {
+			ACCESS_MAP.putAll(newMap);
+		}
+		
 		Log.d(TAG, "initAccess  for /> ACCESS_MAP.size() = " + ACCESS_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
 
 		return response;
@@ -301,13 +306,10 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 
 		Log.d(TAG, "initRequest < for REQUEST_MAP.size() = " + REQUEST_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
 
-		if (isAll) {  // 全量更新
-			REQUEST_MAP.clear();
-		}
+		Map<String, SortedMap<Integer, JSONObject>> newMap = new LinkedHashMap<>();
 
-		JSONObject item;
 		for (int i = 0; i < size; i++) {
-			item = list.getJSONObject(i);
+			JSONObject item = list.getJSONObject(i);
 			if (item == null) {
 				continue;
 			}
@@ -359,7 +361,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 			}
 
 			String cacheKey = getCacheKeyForRequest(method, tag);
-			SortedMap<Integer, JSONObject> versionedMap = REQUEST_MAP.get(cacheKey);
+			SortedMap<Integer, JSONObject> versionedMap = newMap.get(cacheKey);
 			if (versionedMap == null) {
 				versionedMap = new TreeMap<>(new Comparator<Integer>() {
 
@@ -370,9 +372,16 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 				});
 			}
 			versionedMap.put(Integer.valueOf(version), item);
-			REQUEST_MAP.put(cacheKey, versionedMap);
+			newMap.put(cacheKey, versionedMap);
 		}
-
+		
+		if (isAll) {  // 全量更新
+			REQUEST_MAP = newMap;
+		}
+		else {
+			REQUEST_MAP.putAll(newMap);
+		}
+		
 		Log.d(TAG, "initRequest  for /> REQUEST_MAP.size() = " + REQUEST_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
 
 		return response;
@@ -458,7 +467,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 
 
 
-	private static void onServerError(String msg, boolean shutdown) throws ServerException {
+	protected static void onServerError(String msg, boolean shutdown) throws ServerException {
 		Log.e(TAG, "\n权限配置文档测试未通过！\n请修改 Access 表里的记录！\n保证前端看到的权限配置文档是正确的！！！\n\n原因：\n" + msg);
 
 		if (shutdown) {

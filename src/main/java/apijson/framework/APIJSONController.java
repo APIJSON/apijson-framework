@@ -22,6 +22,7 @@ import static apijson.RequestMethod.HEADS;
 import static apijson.RequestMethod.POST;
 import static apijson.RequestMethod.PUT;
 import static apijson.framework.APIJSONConstant.ACCESS_;
+import static apijson.framework.APIJSONConstant.METHODS;
 import static apijson.framework.APIJSONConstant.DEFAULTS;
 import static apijson.framework.APIJSONConstant.FORMAT;
 import static apijson.framework.APIJSONConstant.FUNCTION_;
@@ -32,8 +33,6 @@ import static apijson.framework.APIJSONConstant.VISITOR_ID;
 
 import java.lang.reflect.Method;
 import java.rmi.ServerException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.AsyncContext;
@@ -67,10 +66,8 @@ public class APIJSONController {
 	
 	@NotNull
 	public static APIJSONCreator APIJSON_CREATOR;
-	public static List<String> APIJSON_METHODS;
 	static {
 		APIJSON_CREATOR = new APIJSONCreator();
-		APIJSON_METHODS = Arrays.asList("get", "head", "gets", "heads", "post", "put", "delete");
 	}
 	
 	public String getRequestURL() {
@@ -118,12 +115,12 @@ public class APIJSONController {
 	 * @return
 	 */
 	public String crud(String method, String request, HttpSession session) {
-		if (APIJSON_METHODS.contains(method)) {
+		if (METHODS.contains(method)) {
 			return parse(RequestMethod.valueOf(method.toUpperCase()), request, session);
 		}
 		
 		return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method} 中 method 值 " + method
-				+ " 错误！只允许 " + APIJSON_METHODS + " 中的一个！")).toJSONString();
+				+ " 错误！只允许 " + METHODS + " 中的一个！")).toJSONString();
 	}
 
 	/**获取
@@ -211,12 +208,12 @@ public class APIJSONController {
 	 * @return
 	 */
 	public String crudByTag(String method, String tag, Map<String, String> params, String request, HttpSession session) {
-		if (APIJSON_METHODS.contains(method)) {
+		if (METHODS.contains(method)) {
 			return parseByTag(RequestMethod.valueOf(method.toUpperCase()), tag, params, request, session);
 		}
 		
 		return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 " + method
-				+ " 错误！只允许 " + APIJSON_METHODS + " 中的一个！")).toJSONString();
+				+ " 错误！只允许 " + METHODS + " 中的一个！")).toJSONString();
 	}
 
 	
@@ -402,7 +399,7 @@ public class APIJSONController {
 			public void complete(JSONObject data, Method method, InterfaceProxy proxy, Object... extras) throws Exception {
 				
 				ServletResponse servletResponse = called[0] ? null : asyncContext.getResponse();
-				if (servletResponse == null || servletResponse.isCommitted()) {  // isCommitted 在高并发时可能不准，导致写入多次
+				if (servletResponse == null) {  //  || servletResponse.isCommitted()) {  // isCommitted 在高并发时可能不准，导致写入多次
                     			Log.w(TAG, "invokeMethod  listener.complete  servletResponse == null || servletResponse.isCommitted() >> return;");
                     			return;
 				}

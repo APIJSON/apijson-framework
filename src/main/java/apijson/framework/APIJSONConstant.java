@@ -14,6 +14,9 @@ limitations under the License.*/
 
 package apijson.framework;
 
+import java.util.Arrays;
+import java.util.List;
+
 import apijson.JSONResponse;
 import apijson.orm.JSONRequest;
 import apijson.orm.Visitor;
@@ -66,6 +69,8 @@ public class APIJSONConstant {
 	public static final String TEST_RECORD_;
 	
 	public static final String VISITOR_;
+	
+	public static final List<String> METHODS;
 
 	static {
 		ACCESS_ = Access.class.getSimpleName();
@@ -82,8 +87,8 @@ public class APIJSONConstant {
 		TEST_RECORD_ = TestRecord.class.getSimpleName();
 		
 		VISITOR_ = Visitor.class.getSimpleName();
+		
+		METHODS = Arrays.asList("get", "head", "gets", "heads", "post", "put", "delete");
 	}
-	
-
 
 }
