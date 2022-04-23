@@ -136,7 +136,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 
 
 		boolean isAll = table == null || table.isEmpty();
-		
+
 		JSONObject function = isAll ? new JSONRequest() : table;
 		JSONRequest functionItem = new JSONRequest();
 		functionItem.put(FUNCTION_, function);
@@ -156,9 +156,12 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			Log.w(TAG, "init isAll && size <= 0，，没有可用的远程函数");
 			throw new NullPointerException("没有可用的远程函数");
 		}
-		
 
-		Map<String, JSONObject> newMap = new LinkedHashMap<>();
+
+		if (isAll) {  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！
+			FUNCTION_MAP = new LinkedHashMap<>();
+		}
+		Map<String, JSONObject> newMap = FUNCTION_MAP;  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ new LinkedHashMap<>();
 
 		for (int i = 0; i < size; i++) {
 			JSONObject item = list.getJSONObject(i);
@@ -177,7 +180,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			//			demo.put(JSONRequest.KEY_TAG, item.getString(JSONRequest.KEY_TAG));
 			//			demo.put(JSONRequest.KEY_VERSION, item.getInteger(JSONRequest.KEY_VERSION));
 
-			newMap  .put(name, item);  //必须在测试 invoke 前！
+			newMap.put(name, item);  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ 
 
 			String[] methods = StringUtil.split(item.getString("methods"));
 			JSONObject r = new APIJSONParser(
@@ -193,13 +196,14 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			}
 
 		}
-		
-		if (isAll) {
-			FUNCTION_MAP = newMap;
-		}
-		else {
-			FUNCTION_MAP.putAll(newMap);
-		}
+
+		// 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ 
+		//		if (isAll) {
+		//			FUNCTION_MAP = newMap;
+		//		}
+		//		else {
+		//			FUNCTION_MAP.putAll(newMap);
+		//		}
 
 		return response;
 	}
@@ -249,12 +253,12 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		}
 
 		// 等数据库 Function 表加上 plus 配置再过两个以上迭代(应该是到 5.0)后再取消注释
-//		Log.i(TAG, "plus(1,-2) = " + function.invoke("plus(i0,i1)", request));
-//		AssertUtil.assertEqual(-1, function.invoke("plus(i0,i1)", request));
-		
+		//		Log.i(TAG, "plus(1,-2) = " + function.invoke("plus(i0,i1)", request));
+		//		AssertUtil.assertEqual(-1, function.invoke("plus(i0,i1)", request));
+
 		Log.i(TAG, "count([1,2,4,10]) = " + function.invoke("countArray(array)", request));
 		AssertUtil.assertEqual(4, function.invoke("countArray(array)", request));
-		
+
 		Log.i(TAG, "isContain([1,2,4,10], 10) = " + function.invoke("isContain(array,id)", request));
 		AssertUtil.assertEqual(true, function.invoke("isContain(array,id)", request));
 
