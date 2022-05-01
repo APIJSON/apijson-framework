@@ -37,8 +37,9 @@ import apijson.orm.SQLConfig;
 public class APIJSONSQLConfig extends AbstractSQLConfig {
 	public static final String TAG = "APIJSONSQLConfig";
 
-	public static Callback SIMPLE_CALLBACK;
-	public static APIJSONCreator APIJSON_CREATOR;
+	public static Callback<? extends Object> SIMPLE_CALLBACK;
+	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
+	
 	static {
 		DEFAULT_DATABASE = DATABASE_MYSQL;  //TODO 默认数据库类型，改成你自己的
 		DEFAULT_SCHEMA = "sys";  //TODO 默认模式名，改成你自己的，默认情况是 MySQL: sys, PostgreSQL: public, SQL Server: dbo, Oracle: 
@@ -49,14 +50,17 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		//		TABLE_KEY_MAP.put(User.class.getSimpleName(), "apijson_user");
 		//		TABLE_KEY_MAP.put(Privacy.class.getSimpleName(), "apijson_privacy");
 
-		APIJSON_CREATOR = new APIJSONCreator();
+		APIJSON_CREATOR = new APIJSONCreator<>();
 
-		SIMPLE_CALLBACK = new SimpleCallback() {
+		SIMPLE_CALLBACK = new SimpleCallback<Object>() {
 
 			@Override
-			public SQLConfig getSQLConfig(RequestMethod method, String database, String schema, String table) {
+			public SQLConfig getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
 				SQLConfig config = APIJSON_CREATOR.createSQLConfig();
 				config.setMethod(method);
+				config.setDatabase(database);
+				config.setDatasource(datasource);
+				config.setSchema(schema);
 				config.setTable(table);
 				return config;
 			}

@@ -61,28 +61,29 @@ import unitauto.MethodUtil.InterfaceProxy;
  * <br > 3.调试方便 - 建议使用 APIAuto-机器学习自动化接口管理工具(https://github.com/TommyLemon/APIAuto)
  * @author Lemon
  */
-public class APIJSONController {
+public class APIJSONController<T extends Object> {
 	public static final String TAG = "APIJSONController";
 	
 	@NotNull
-	public static APIJSONCreator APIJSON_CREATOR;
+	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
 	static {
-		APIJSON_CREATOR = new APIJSONCreator();
+		APIJSON_CREATOR = new APIJSONCreator<>();
 	}
 	
 	public String getRequestURL() {
 		return null;
 	}
 
-	public Parser<Long> newParser(HttpSession session, RequestMethod method) {
-		Parser<Long> parser = APIJSON_CREATOR.createParser();
+	public Parser<T> newParser(HttpSession session, RequestMethod method) {
+		@SuppressWarnings("unchecked")
+		Parser<T> parser = (Parser<T>) APIJSON_CREATOR.createParser();
 		parser.setMethod(method);
 		if (parser instanceof APIJSONParser) {
-			((APIJSONParser) parser).setSession(session);
+			((APIJSONParser<T>) parser).setSession(session);
 		}
 		// 可以更方便地通过日志排查错误
 		if (parser instanceof AbstractParser) {
-			((AbstractParser<?>) parser).setRequestURL(getRequestURL());
+			((AbstractParser<T>) parser).setRequestURL(getRequestURL());
 		}
 		return parser;
 	}

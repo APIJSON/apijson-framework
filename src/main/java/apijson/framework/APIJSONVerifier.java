@@ -46,7 +46,7 @@ import apijson.orm.Visitor;
 /**权限验证器
  * @author Lemon
  */
-public class APIJSONVerifier extends AbstractVerifier<Long> {
+public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	public static final String TAG = "APIJSONVerifier";
 
 	//	由 init 方法读取数据库 Access 表来替代手动输入配置
@@ -61,9 +61,9 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	//		ACCESS_MAP.put(Login.class.getSimpleName(), getAccessMap(Login.class.getAnnotation(MethodAccess.class)));
 	//	}
 
-	public static APIJSONCreator APIJSON_CREATOR;
+	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
 	static {
-		APIJSON_CREATOR = new APIJSONCreator();
+		APIJSON_CREATOR = new APIJSONCreator<>();
 	}
 
 	/**初始化，加载所有权限配置和请求校验配置
@@ -86,7 +86,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(APIJSONCreator creator) throws ServerException {
+	public static <T> JSONObject init(APIJSONCreator<T> creator) throws ServerException {
 		return init(false, creator);
 	}
 	/**初始化，加载所有权限配置和请求校验配置
@@ -95,7 +95,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+	public static <T> JSONObject init(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		JSONObject result = new JSONObject(true);
 		result.put(ACCESS_, initAccess(shutdownWhenServerError, creator));
 		result.put(REQUEST_, initRequest(shutdownWhenServerError, creator));
@@ -122,7 +122,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initAccess(APIJSONCreator creator) throws ServerException {
+	public static <T> JSONObject initAccess(APIJSONCreator<T> creator) throws ServerException {
 		return initAccess(false, creator);
 	}
 	/**初始化，加载所有权限配置
@@ -131,7 +131,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initAccess(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+	public static <T> JSONObject initAccess(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		return initAccess(shutdownWhenServerError, creator, null);
 	}
 	/**初始化，加载所有权限配置
@@ -141,9 +141,10 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initAccess(boolean shutdownWhenServerError, APIJSONCreator creator, JSONObject table) throws ServerException {
+	@SuppressWarnings("unchecked")
+	public static <T> JSONObject initAccess(boolean shutdownWhenServerError, APIJSONCreator<T> creator, JSONObject table) throws ServerException {
 		if (creator == null) {
-			creator = APIJSON_CREATOR;
+			creator = (APIJSONCreator<T>) APIJSON_CREATOR;
 		}
 		APIJSON_CREATOR = creator;
 
@@ -177,6 +178,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 		Log.d(TAG, "initAccess < for ACCESS_MAP.size() = " + ACCESS_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
 		
 		Map<String, Map<RequestMethod, String[]>> newMap = new LinkedHashMap<>();
+		Map<String, String> newTKMap = new LinkedHashMap<>();
 		
 		for (int i = 0; i < size; i++) {
 			JSONObject item = list.getJSONObject(i);
@@ -220,14 +222,16 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 				newMap.put(alias, map);
 			}
 
-			APIJSONSQLConfig.TABLE_KEY_MAP.put(alias, name);
+			newTKMap.put(alias, name);
 		}
 
 		if (isAll) {  // 全量更新
 			ACCESS_MAP = newMap;
+			APIJSONSQLConfig.TABLE_KEY_MAP = newTKMap;
 		}
 		else {
 			ACCESS_MAP.putAll(newMap);
+			APIJSONSQLConfig.TABLE_KEY_MAP.putAll(newTKMap);
 		}
 		
 		Log.d(TAG, "initAccess  for /> ACCESS_MAP.size() = " + ACCESS_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
@@ -256,7 +260,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initRequest(APIJSONCreator creator) throws ServerException {
+	public static <T> JSONObject initRequest(APIJSONCreator<T> creator) throws ServerException {
 		return initRequest(false, creator);
 	}
 	/**初始化，加载所有请求校验配置
@@ -265,7 +269,7 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initRequest(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+	public static <T> JSONObject initRequest(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		return initRequest(shutdownWhenServerError, creator, null);
 	}
 	/**初始化，加载所有请求校验配置
@@ -275,9 +279,10 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject initRequest(boolean shutdownWhenServerError, APIJSONCreator creator, JSONObject table) throws ServerException {
+	@SuppressWarnings("unchecked")
+	public static <T> JSONObject initRequest(boolean shutdownWhenServerError, APIJSONCreator<T> creator, JSONObject table) throws ServerException {
 		if (creator == null) {
-			creator = APIJSON_CREATOR;
+			creator = (APIJSONCreator<T>) APIJSON_CREATOR;
 		}
 		APIJSON_CREATOR = creator;
 
@@ -479,10 +484,11 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 
 
 
+	@SuppressWarnings("unchecked")
 	@NotNull
 	@Override
-	public APIJSONParser createParser() {
-		APIJSONParser parser = (APIJSONParser) APIJSON_CREATOR.createParser();
+	public APIJSONParser<T> createParser() {
+		APIJSONParser<T> parser = (APIJSONParser<T>) APIJSON_CREATOR.createParser();
 		parser.setVisitor(visitor);
 		return parser;
 	}
@@ -504,30 +510,28 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	 * @param session
 	 * @return 
 	 */
-	public static long getVisitorId(HttpSession session) {
+	@SuppressWarnings("unchecked")
+	public static <T extends Object> T getVisitorId(HttpSession session) {
 		if (session == null) {
-			return 0;
+			return null;
 		}
-		Long id = (Long) session.getAttribute(VISITOR_ID);
+		
+		T id = (T) session.getAttribute(VISITOR_ID);
 		if (id == null) {
-			Visitor<Long> v = getVisitor(session);
-			id = v == null ? 0 : value(v.getId());
+			id = (T) getVisitor(session);
 			session.setAttribute(VISITOR_ID, id);
 		}
-		return value(id);
+		return id;
 	}
 	/**获取来访用户
 	 * @param session
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static Visitor<Long> getVisitor(HttpSession session) {
-		return session == null ? null : (Visitor<Long>) session.getAttribute(VISITOR_);
+	public static <T extends Object> Visitor<T> getVisitor(HttpSession session) {
+		return session == null ? null : (Visitor<T>) session.getAttribute(VISITOR_);
 	}
 
-	public static long value(Long v) {
-		return v == null ? 0 : v;
-	}
 
 
 	@Override
@@ -538,9 +542,10 @@ public class APIJSONVerifier extends AbstractVerifier<Long> {
 	public String getUserIdKey(String database, String schema, String datasource, String table) {
 		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, schema, datasource, table);
 	}
+	@SuppressWarnings("unchecked")
 	@Override
-	public Object newId(RequestMethod method, String database, String schema, String table) {
-		return APIJSONSQLConfig.SIMPLE_CALLBACK.newId(method, database, schema, table);
+	public T newId(RequestMethod method, String database, String schema, String datasource, String table) {
+		return (T) APIJSONSQLConfig.SIMPLE_CALLBACK.newId(method, database, schema, datasource, table);
 	}
 
 

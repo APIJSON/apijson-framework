@@ -27,11 +27,11 @@ import apijson.orm.VerifierCreator;
 /**APIJSON相关创建器
  * @author Lemon
  */
-public class APIJSONCreator implements ParserCreator<Long>, VerifierCreator<Long>, SQLCreator {
+public class APIJSONCreator<T> implements ParserCreator<T>, VerifierCreator<T>, SQLCreator {
 
 	@Override
-	public Parser<Long> createParser() {
-		return new APIJSONParser();
+	public Parser<T> createParser() {
+		return new APIJSONParser<>();
 	}
 
 	@Override
@@ -40,8 +40,8 @@ public class APIJSONCreator implements ParserCreator<Long>, VerifierCreator<Long
 	}
 
 	@Override
-	public Verifier<Long> createVerifier() {
-		return new APIJSONVerifier();
+	public Verifier<T> createVerifier() {
+		return new APIJSONVerifier<>();
 	}
 	
 	@Override

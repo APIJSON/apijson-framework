@@ -28,9 +28,9 @@ public class APIJSONApplication {
 	public static final String TAG = "APIJSONApplication";
 	
 	@NotNull
-	public static APIJSONCreator DEFAULT_APIJSON_CREATOR;
+	public static APIJSONCreator<? extends Object>  DEFAULT_APIJSON_CREATOR;
 	static {
-		DEFAULT_APIJSON_CREATOR = new APIJSONCreator();
+		DEFAULT_APIJSON_CREATOR = new APIJSONCreator<>();
 	}
 
 
@@ -54,7 +54,7 @@ public class APIJSONApplication {
 	 * @return 
 	 * @throws Exception
 	 */
-	public static void init(@NotNull APIJSONCreator creator) throws Exception {
+	public static <T extends Object> void init(@NotNull APIJSONCreator<T> creator) throws Exception {
 		init(true, creator);
 	}
 	/**初始化，加载所有配置并校验
@@ -63,7 +63,7 @@ public class APIJSONApplication {
 	 * @return 
 	 * @throws Exception
 	 */
-	public static void init(boolean shutdownWhenServerError, @NotNull APIJSONCreator creator) throws Exception {
+	public static <T extends Object> void init(boolean shutdownWhenServerError, @NotNull APIJSONCreator<T> creator) throws Exception {
 		System.out.println("\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<< APIJSON 开始启动 >>>>>>>>>>>>>>>>>>>>>>>>\n");
 		DEFAULT_APIJSON_CREATOR = creator;
 

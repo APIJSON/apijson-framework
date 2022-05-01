@@ -14,12 +14,17 @@ limitations under the License.*/
 
 package apijson.framework;
 
+import static apijson.RequestMethod.DELETE;
+import static apijson.RequestMethod.GET;
+import static apijson.RequestMethod.GETS;
+import static apijson.RequestMethod.HEAD;
+import static apijson.RequestMethod.HEADS;
+import static apijson.RequestMethod.POST;
+import static apijson.RequestMethod.PUT;
 import static apijson.framework.APIJSONConstant.FUNCTION_;
 
 import java.io.IOException;
 import java.rmi.ServerException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +39,6 @@ import apijson.JSONResponse;
 import apijson.Log;
 import apijson.NotNull;
 import apijson.RequestMethod;
-import apijson.orm.AbstractVerifier;
 import apijson.StringUtil;
 import apijson.orm.AbstractFunctionParser;
 import apijson.orm.JSONRequest;
@@ -49,9 +53,12 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	public static final String TAG = "APIJSONFunctionParser";
 
 	@NotNull
-	public static APIJSONCreator APIJSON_CREATOR;
+	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
+	@NotNull
+	public static final String[] ALL_METHODS;
 	static {
-		APIJSON_CREATOR = new APIJSONCreator();
+		APIJSON_CREATOR = new APIJSONCreator<>();
+		ALL_METHODS = new String[]{ GET.name(), HEAD.name(), GETS.name(), HEADS.name(), POST.name(), PUT.name(), DELETE.name() };
 	}
 
 	private HttpSession session;
@@ -109,7 +116,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(APIJSONCreator creator) throws ServerException {
+	public static <T extends Object> JSONObject init(APIJSONCreator<T> creator) throws ServerException {
 		return init(false, creator);
 	}
 	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
@@ -118,7 +125,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator) throws ServerException {
+	public static <T extends Object> JSONObject init(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		return init(shutdownWhenServerError, creator, null);
 	}
 	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
@@ -128,9 +135,10 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 * @return 
 	 * @throws ServerException
 	 */
-	public static JSONObject init(boolean shutdownWhenServerError, APIJSONCreator creator, JSONObject table) throws ServerException {
+	@SuppressWarnings("unchecked")
+	public static <T extends Object> JSONObject init(boolean shutdownWhenServerError, APIJSONCreator<T> creator, JSONObject table) throws ServerException {
 		if (creator == null) {
-			creator = APIJSON_CREATOR;
+			creator = (APIJSONCreator<T>) APIJSON_CREATOR;
 		}
 		APIJSON_CREATOR = creator;
 
@@ -145,7 +153,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		request.putAll(functionItem.toArray(0, 0, FUNCTION_));
 
 
-		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(true).parseResponse(request);
+		JSONObject response = creator.createParser().setMethod(GET).setNeedVerify(true).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
 			onServerError("\n\n\n\n\n !!!! 查询远程函数异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n", shutdownWhenServerError);
 		}
@@ -158,7 +166,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		}
 
 
-		if (isAll) {  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！
+		if (isAll) {  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ 如果要做成完全校验通过才更新 FUNCTION_MAP，但又不提供 忽略校验 参数，似乎无解
 			FUNCTION_MAP = new LinkedHashMap<>();
 		}
 		Map<String, JSONObject> newMap = FUNCTION_MAP;  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ new LinkedHashMap<>();
@@ -183,18 +191,23 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			newMap.put(name, item);  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ 
 
 			String[] methods = StringUtil.split(item.getString("methods"));
-			JSONObject r = new APIJSONParser(
-					methods == null || methods.length <= 0 ? RequestMethod.GET : RequestMethod.valueOf(methods[0])
-							, false
-					)
-					.setTag(item.getString(JSONRequest.KEY_TAG))
-					.setVersion(item.getIntValue(JSONRequest.KEY_VERSION))
-					.parseResponse(demo);
 
-			if (JSONResponse.isSuccess(r) == false) {
-				onServerError(JSONResponse.getMsg(r), shutdownWhenServerError);
+			if (methods == null || methods.length <= 0) {
+				methods = ALL_METHODS;
 			}
 
+			for (String method : methods) {
+				JSONObject r = APIJSON_CREATOR.createParser()
+						.setMethod(RequestMethod.valueOf(method))
+						.setNeedVerify(false)
+						.setTag(item.getString(JSONRequest.KEY_TAG))
+						.setVersion(item.getIntValue(JSONRequest.KEY_VERSION))
+						.parseResponse(demo);
+
+				if (JSONResponse.isSuccess(r) == false) {
+					onServerError(JSONResponse.getMsg(r), shutdownWhenServerError);
+				}
+			}
 		}
 
 		// 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ 
@@ -308,32 +321,6 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	private static String getFunctionCall(String name, String arguments) {
 		return name + "(" + StringUtil.getTrimedString(arguments) + ")";
 	}
-
-	/**TODO 仅用来测试 "key-()":"getIdList()" 和 "key()":"getIdList()"
-	 * @param request
-	 * @return JSONArray 只能用JSONArray，用long[]会在SQLConfig解析崩溃
-	 * @throws Exception
-	 */
-	public JSONArray getIdList(@NotNull JSONObject request) {
-		return new JSONArray(new ArrayList<Object>(Arrays.asList(12, 15, 301, 82001, 82002, 38710)));
-	}
-
-
-	/**TODO 仅用来测试 "key-()":"verifyAccess()"
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
-	public Object verifyAccess(@NotNull JSONObject request) throws Exception {
-		long userId = request.getLongValue(apijson.JSONObject.KEY_USER_ID);
-		String role = request.getString(apijson.JSONObject.KEY_ROLE);
-		if (AbstractVerifier.OWNER.equals(role) && userId != APIJSONVerifier.getVisitorId(session)) {
-			throw new IllegalAccessException("登录用户与角色OWNER不匹配！");
-		}
-		return null;
-	}
-
-
 
 
 	public double plus(@NotNull JSONObject request, String i0, String i1) {

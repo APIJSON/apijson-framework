@@ -38,13 +38,13 @@ import apijson.orm.Verifier;
 /**请求解析器
  * @author Lemon
  */
-public class APIJSONParser extends AbstractParser<Long> {
+public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 	public static final String TAG = "APIJSONParser";
 
 	@NotNull
-	public static APIJSONCreator APIJSON_CREATOR;
+	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
 	static {
-		APIJSON_CREATOR = new APIJSONCreator();
+		APIJSON_CREATOR = new APIJSONCreator<>();
 	}
 	
 	
@@ -62,24 +62,26 @@ public class APIJSONParser extends AbstractParser<Long> {
 	public HttpSession getSession() {
 		return session;
 	}
-	public APIJSONParser setSession(HttpSession session) {
+	public APIJSONParser<T> setSession(HttpSession session) {
 		this.session = session;
 		setVisitor(APIJSONVerifier.getVisitor(session));
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Parser<Long> createParser() {
-		return APIJSON_CREATOR.createParser();
+	public Parser<T> createParser() {
+		return (Parser<T>) APIJSON_CREATOR.createParser();
 	}
 	@Override
 	public FunctionParser createFunctionParser() {
 		return APIJSON_CREATOR.createFunctionParser();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Verifier<Long> createVerifier() {
-		return APIJSON_CREATOR.createVerifier();
+	public Verifier<T> createVerifier() {
+		return (Verifier<T>) APIJSON_CREATOR.createVerifier();
 	}
 	
 	@Override
