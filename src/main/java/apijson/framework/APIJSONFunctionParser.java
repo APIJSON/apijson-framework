@@ -146,6 +146,10 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		boolean isAll = table == null || table.isEmpty();
 
 		JSONObject function = isAll ? new JSONRequest() : table;
+		if (Log.DEBUG == false) {
+			function.put(APIJSONConstant.KEY_DEBUG, 0);
+		}
+		
 		JSONRequest functionItem = new JSONRequest();
 		functionItem.put(FUNCTION_, function);
 

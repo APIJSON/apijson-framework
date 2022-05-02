@@ -38,6 +38,7 @@ import apijson.orm.model.TestRecord;
  * @author Lemon
  */
 public class APIJSONConstant {
+	public static String KEY_DEBUG = "debug";
 
 	public static final String DEFAULTS = "defaults";
 	public static final String USER_ = "User";

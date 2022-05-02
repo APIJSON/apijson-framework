@@ -153,7 +153,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 		JSONObject access = isAll ? new JSONRequest() : table;
 		if (Log.DEBUG == false) {
-			access.put("debug", 0);
+			access.put(APIJSONConstant.KEY_DEBUG, 0);
 		}
 		JSONRequest accessItem = new JSONRequest();
 		accessItem.put(ACCESS_, access);
@@ -288,9 +288,13 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 
 		boolean isAll = table == null || table.isEmpty();
+		JSONObject requestTable = isAll ? new JSONRequest().setOrder("version-,id+") : table;
+		if (Log.DEBUG == false) {
+			requestTable.put(APIJSONConstant.KEY_DEBUG, 0);
+		}
 
 		JSONRequest requestItem = new JSONRequest();
-		requestItem.put(REQUEST_, isAll ? new JSONRequest().setOrder("version-,id+") : table);  // 方便查找
+		requestItem.put(REQUEST_, requestTable);  // 方便查找
 
 		JSONRequest request = new JSONRequest();
 		request.putAll(requestItem.toArray(0, 0, REQUEST_));
