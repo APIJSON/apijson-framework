@@ -172,7 +172,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
 			Log.w(TAG, "initAccess isAll && size <= 0，，没有可用的权限配置");
-			throw new NullPointerException("没有可用的权限配置");
+			return response;
 		}
 
 		Log.d(TAG, "initAccess < for ACCESS_MAP.size() = " + ACCESS_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
@@ -302,15 +302,15 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 		JSONObject response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
-			Log.e(TAG, "\n\n\n\n\n !!!! 查询权限配置异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n");
-			onServerError("查询权限配置异常 !", shutdownWhenServerError);
+			Log.e(TAG, "\n\n\n\n\n !!!! 查询请求校验规则配置异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n");
+			onServerError("查询请求校验规则配置异常 !", shutdownWhenServerError);
 		}
 
 		JSONArray list = response.getJSONArray(REQUEST_ + "[]");
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
-			Log.w(TAG, "initRequest isAll && size <= 0，没有可用的权限配置");
-			throw new NullPointerException("没有可用的权限配置");
+			Log.w(TAG, "initRequest isAll && size <= 0，没有可用的请求校验规则配置");
+			return response;
 		}
 
 		Log.d(TAG, "initRequest < for REQUEST_MAP.size() = " + REQUEST_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
@@ -477,7 +477,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 
 	protected static void onServerError(String msg, boolean shutdown) throws ServerException {
-		Log.e(TAG, "\n权限配置文档测试未通过！\n请修改 Access 表里的记录！\n保证前端看到的权限配置文档是正确的！！！\n\n原因：\n" + msg);
+		Log.e(TAG, "\n校验配置测试未通过！\n请修改 Access/Request 表里的记录！\n保证所有配置都是正确的！！！\n\n原因：\n" + msg);
 
 		if (shutdown) {
 			System.exit(1);	

@@ -166,7 +166,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
 			Log.w(TAG, "init isAll && size <= 0，，没有可用的远程函数");
-			throw new NullPointerException("没有可用的远程函数");
+			return response;
 		}
 
 
