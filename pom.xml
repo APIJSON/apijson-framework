@@ -5,11 +5,11 @@
 
 	<groupId>apijson.framework</groupId>
 	<artifactId>apijson-framework</artifactId>
-	<version>5.0.5</version>
+	<version>5.1.0</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
-	<description>APIJSON Server Framework</description>
+	<description>APIJSON Server Framework, simplify use for APIJSON</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,11 +31,11 @@
 		</dependency>
 		
 		<!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.github.Tencent</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>5.0.0</version>
-		</dependency> -->
+			<version>5.1.0</version>
+		</dependency>
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
 		<dependency>
