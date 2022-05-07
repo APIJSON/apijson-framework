@@ -2,6 +2,9 @@
 腾讯 [APIJSON](https://github.com/Tencent/APIJSON) 服务端框架，通过数据库表配置角色权限、参数校验等，简化使用。<br />
 Tencent [APIJSON](https://github.com/Tencent/APIJSON) Server Framework for configuring access of roles and validation of arguments in database tables,  then using APIJSON easier.
 
+![image](https://user-images.githubusercontent.com/5738175/167259883-e5fff2f4-b3e8-4b2f-a597-d851004c3393.png)
+![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
+
 ### Maven
 #### 1. 在 pom.xml 中添加 JitPack 仓库
 #### 1. Add the JitPack repository to pom.xml
