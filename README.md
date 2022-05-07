@@ -101,8 +101,12 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSOND
 #### Access: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
 ![image](https://user-images.githubusercontent.com/5738175/167259883-e5fff2f4-b3e8-4b2f-a597-d851004c3393.png)
 
+![image](https://user-images.githubusercontent.com/5738175/167261523-59abf4ba-e211-49f9-92bd-a79384bb757f.png)
+
 #### Request: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
 ![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
+
+![image](https://user-images.githubusercontent.com/5738175/167261490-3f3e02e8-5843-4db7-8915-f961d35bb482.png)
 
 <br />
 <br />
