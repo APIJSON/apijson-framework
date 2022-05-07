@@ -24,10 +24,13 @@ Tencent [APIJSON](https://github.com/Tencent/APIJSON) Server Framework for confi
 		</repository>
 	</repositories>
 ```
+
+![image](https://user-images.githubusercontent.com/5738175/167260996-58f39eeb-607d-44a3-b297-36d25c7ece19.png)
+
 <br />
 
-#### 2. 在 pom.xml 中添加 apijson-orm 依赖
-#### 2. Add the apijson-orm dependency to pom.xml
+#### 2. 在 pom.xml 中添加 apijson-framework 依赖
+#### 2. Add the apijson-framework dependency to pom.xml
 ```xml
 	<dependency>
 	    <groupId>com.github.APIJSON</groupId>
@@ -35,6 +38,12 @@ Tencent [APIJSON](https://github.com/Tencent/APIJSON) Server Framework for confi
 	    <version>LATEST</version>
 	</dependency>
 ```
+
+![image](https://user-images.githubusercontent.com/5738175/167261052-263ee9b4-aae5-4c51-b4d2-6a0446fc4152.png)
+
+<br />
+
+https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONDemo/pom.xml
 
 <br />
 <br />
