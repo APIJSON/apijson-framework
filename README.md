@@ -85,6 +85,7 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSOND
 				return new DemoSQLConfig();
 			}
 		};
+	}
 ```
 
 <br />
