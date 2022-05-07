@@ -123,7 +123,7 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSOND
 #### Request: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
 ![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
 
-![image](https://user-images.githubusercontent.com/5738175/167261490-3f3e02e8-5843-4db7-8915-f961d35bb482.png)
+![image](https://user-images.githubusercontent.com/5738175/167262762-2c2a1c58-e7bf-4352-a7b9-fcbb0fa67f7f.png)
 
 <br />
 <br />
