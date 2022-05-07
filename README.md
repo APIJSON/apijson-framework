@@ -8,6 +8,11 @@ Tencent [APIJSON](https://github.com/Tencent/APIJSON) Server Framework for confi
 #### Request: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
 ![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
 
+<br />
+
+## 添加依赖
+## Add Dependency
+
 ### Maven
 #### 1. 在 pom.xml 中添加 JitPack 仓库
 #### 1. Add the JitPack repository to pom.xml
@@ -55,4 +60,34 @@ Tencent [APIJSON](https://github.com/Tencent/APIJSON) Server Framework for confi
 	}
 ```
 
-<br /><br />
+<br />
+<br />
+<br />
+
+## 初始化
+## Initialization
+1.在你项目的主程序启动类 Application 的 static {} 代码块配置 APIJSONApplication.DEFAULT_APIJSON_CREATOR，至少重写 createSQLConfig 方法返回你自己继承 APIJSONSQLConfig 的子类 <br />
+
+1.Configure APIJSONApplication.DEFAULT_APIJSON_CREATOR in static {} of your Application, at least override createSQLConfig method and return your SQLConfig extends APIJSONSQLConfig. <br />
+
+<br />
+
+2.在你项目的主程序启动类 Application 的 main 方法里 SpringApplication.run 后调用 APIJSONApplication.init <br />
+
+2.Call APIJSONApplication.init after SpringApplication.run in main method of your Application <br />
+
+<br />
+
+见 [apijson.framework](/src/main/java/apijson/framework) 里各个类的注释及 [APIJSONDemo](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONDemo) 的 [DemoApplication](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONDemo/src/main/java/apijson/demo/DemoApplication.java) <br />
+
+See document in [apijson.framework](/src/main/java/apijson/framework) classes and [DemoApplication](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONDemo/src/main/java/apijson/demo/DemoApplication.java) in [APIJSONDemo](https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONDemo)
+
+![image](https://user-images.githubusercontent.com/5738175/167260539-27d7e13b-27b9-43ad-925e-3f79c99e8ac9.png)
+
+<br />
+<br />
+<br />
+
+#### 对你有用的话点右上角 ⭐Star 支持一下，谢谢 ^_^
+#### Please ⭐Star this project ^_^
+https://github.com/APIJSON/apijson-framework
