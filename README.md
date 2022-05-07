@@ -95,6 +95,19 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSOND
 <br />
 <br />
 
+## 使用
+## Usage
+
+#### Access: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
+![image](https://user-images.githubusercontent.com/5738175/167259883-e5fff2f4-b3e8-4b2f-a597-d851004c3393.png)
+
+#### Request: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
+![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
+
+<br />
+<br />
+<br />
+
 #### 点右上角 ⭐Star 支持一下，谢谢 ^_^
 #### Please ⭐Star this project ^_^
 https://github.com/APIJSON/apijson-framework
