@@ -77,10 +77,27 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSOND
 #### 1.在你项目的主程序启动类 Application 的 static {} 代码块配置 APIJSONApplication.DEFAULT_APIJSON_CREATOR，至少重写 createSQLConfig 方法返回你自己继承 APIJSONSQLConfig 的子类
 #### 1.Configure APIJSONApplication.DEFAULT_APIJSON_CREATOR in static {} of your Application, at least override createSQLConfig method and return your SQLConfig extends APIJSONSQLConfig.
 
+```java
+	static {
+		APIJSONApplication.DEFAULT_APIJSON_CREATOR = new APIJSONCreator<Long>() {
+			@Override
+			public SQLConfig createSQLConfig() {
+				return new DemoSQLConfig();
+			}
+		};
+```
+
 <br />
 
 #### 2.在你项目的主程序启动类 Application 的 main 方法里 SpringApplication.run 后调用 APIJSONApplication.init
 #### 2.Call APIJSONApplication.init after SpringApplication.run in main method of your Application
+
+```java
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(DemoApplication.class, args);
+		APIJSONApplication.init();
+	}
+```
 
 <br />
 
