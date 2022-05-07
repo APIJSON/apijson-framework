@@ -25,7 +25,7 @@ Tencent [APIJSON](https://github.com/Tencent/APIJSON) Server Framework for confi
 	</repositories>
 ```
 
-![image](https://user-images.githubusercontent.com/5738175/167260996-58f39eeb-607d-44a3-b297-36d25c7ece19.png)
+![image](https://user-images.githubusercontent.com/5738175/167261102-12f7f4d6-7895-4d79-a50e-076f93fca6d7.png)
 
 <br />
 
