@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.2.79</version>
+			<version>1.2.83</version>
 		</dependency>
 		
 		<!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
