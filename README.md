@@ -126,7 +126,7 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSOND
 ![image](https://user-images.githubusercontent.com/5738175/167262762-2c2a1c58-e7bf-4352-a7b9-fcbb0fa67f7f.png)
 
 <br />
-有问题可以去 Tencennt/APIJSON 提 issue <br />
+有问题可以去 Tencent/APIJSON 提 issue <br />
 https://github.com/Tencent/APIJSON/issues/36
 
 <br />
