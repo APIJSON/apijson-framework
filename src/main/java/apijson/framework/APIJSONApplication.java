@@ -73,70 +73,68 @@ public class APIJSONApplication {
 		APIJSONController.APIJSON_CREATOR = creator;
 
 
-		System.out.println("\n\n\n开始初始化: Access 权限校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-		try {
-			APIJSONVerifier.initAccess(shutdownWhenServerError, creator);
-		}
-		catch (Throwable e) {
-			e.printStackTrace();
-			if (shutdownWhenServerError) {
-				onServerError("权Access 限校验配置 初始化失败！", shutdownWhenServerError);
-			}
-		}
-		System.out.println("\n完成初始化: Access 权限校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
-		
-		
-		System.out.println("\n\n\n开始初始化: Function 远程函数配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-		try {
-			APIJSONFunctionParser.init(shutdownWhenServerError, creator);
-		}
-		catch (Throwable e) {
-			e.printStackTrace();
-			if (shutdownWhenServerError) {
-				onServerError("Function 远程函数配置 初始化失败！", shutdownWhenServerError);
-			}
-		}
-		System.out.println("\n完成初始化: Function 远程函数配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
-		System.out.println("开始测试: Function 远程函数 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-		try {
-			APIJSONFunctionParser.test();
-		}
-		catch (Throwable e) {
-			e.printStackTrace();
-			if (shutdownWhenServerError) {
-				onServerError("Function 远程函数配置 测试失败！", shutdownWhenServerError);
-			}
-		}
-		System.out.println("\n完成测试: Function 远程函数 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        if (APIJSONVerifier.ENABLE_VERIFY_ROLE) {
+            System.out.println("\n\n\n开始初始化: Access 权限校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+            try {
+                APIJSONVerifier.initAccess(shutdownWhenServerError, creator);
+            } catch (Throwable e) {
+                e.printStackTrace();
+                if (shutdownWhenServerError) {
+                    onServerError("权Access 限校验配置 初始化失败！", shutdownWhenServerError);
+                }
+            }
+            System.out.println("\n完成初始化: Access 权限校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        }
 
 
+        if (APIJSONFunctionParser.ENABLE_REMOTE_FUNCTION) {
+            System.out.println("\n\n\n开始初始化: Function 远程函数配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+            try {
+                APIJSONFunctionParser.init(shutdownWhenServerError, creator);
+            } catch (Throwable e) {
+                e.printStackTrace();
+                if (shutdownWhenServerError) {
+                    onServerError("Function 远程函数配置 初始化失败！", shutdownWhenServerError);
+                }
+            }
+            System.out.println("\n完成初始化: Function 远程函数配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-		System.out.println("\n\n\n开始初始化: Request 请求参数校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-		try {
-			APIJSONVerifier.initRequest(shutdownWhenServerError, creator);
-		}
-		catch (Throwable e) {
-			e.printStackTrace();
-			if (shutdownWhenServerError) {
-				onServerError("Request 请求参数校验配置 初始化失败！", shutdownWhenServerError);
-			}
-		}
-		System.out.println("\n完成初始化: Request 请求参数校验校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+            System.out.println("开始测试: Function 远程函数 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+            try {
+                APIJSONFunctionParser.test();
+            } catch (Throwable e) {
+                e.printStackTrace();
+                if (shutdownWhenServerError) {
+                    onServerError("Function 远程函数配置 测试失败！", shutdownWhenServerError);
+                }
+            }
+            System.out.println("\n完成测试: Function 远程函数 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        }
 
-		System.out.println("\n\n\n开始测试: Request 请求参数校验 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-		try {
-			APIJSONVerifier.testStructure();
-		}
-		catch (Throwable e) {
-			e.printStackTrace();
-			if (shutdownWhenServerError) {
-				onServerError("Request 请求参数校验 测试失败！", shutdownWhenServerError);
-			}
-		}
-		System.out.println("\n完成测试: Request 请求参数校验 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
+        if (APIJSONVerifier.ENABLE_VERIFY_CONTENT) {
+            System.out.println("\n\n\n开始初始化: Request 请求参数校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+            try {
+                APIJSONVerifier.initRequest(shutdownWhenServerError, creator);
+            } catch (Throwable e) {
+                e.printStackTrace();
+                if (shutdownWhenServerError) {
+                    onServerError("Request 请求参数校验配置 初始化失败！", shutdownWhenServerError);
+                }
+            }
+            System.out.println("\n完成初始化: Request 请求参数校验校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+            System.out.println("\n\n\n开始测试: Request 请求参数校验 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+            try {
+                APIJSONVerifier.testStructure();
+            } catch (Throwable e) {
+                e.printStackTrace();
+                if (shutdownWhenServerError) {
+                    onServerError("Request 请求参数校验 测试失败！", shutdownWhenServerError);
+                }
+            }
+            System.out.println("\n完成测试: Request 请求参数校验 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        }
 
 
 

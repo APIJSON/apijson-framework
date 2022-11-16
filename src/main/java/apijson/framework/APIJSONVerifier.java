@@ -97,8 +97,12 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	 */
 	public static <T> JSONObject init(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		JSONObject result = new JSONObject(true);
-		result.put(ACCESS_, initAccess(shutdownWhenServerError, creator));
-		result.put(REQUEST_, initRequest(shutdownWhenServerError, creator));
+        if (ENABLE_VERIFY_ROLE) {
+            result.put(ACCESS_, initAccess(shutdownWhenServerError, creator));
+        }
+        if (ENABLE_VERIFY_CONTENT) {
+            result.put(REQUEST_, initRequest(shutdownWhenServerError, creator));
+        }
 		return result;
 	}
 

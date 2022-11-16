@@ -150,35 +150,36 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		//if (Log.DEBUG == false) {
 		//	function.put(APIJSONConstant.KEY_DEBUG, 0);
 		//}
-		//
+        //
 		//JSONRequest functionItem = new JSONRequest();
 		//functionItem.put(FUNCTION_, function);
         //
-        //JSONObject script = isAll ? new JSONRequest() : table;
-        ////if (Log.DEBUG == false) {
-        ////    script.put(APIJSONConstant.KEY_DEBUG, 0);
-        ////}
+        //JSONObject script = new JSONRequest(); // isAll ? new JSONRequest() : table;
+        //script.put("simple", 0);
+        //if (Log.DEBUG == false) {
+        //    script.put(APIJSONConstant.KEY_DEBUG, 0);
+        //}
+        // 不能用这个来优化，因为可能配置了不校验远程函数是否存在
         //{   // name{}@ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        //    JSONRequest nameInAt = new JSONRequest();
-        //    nameInAt.put("from", "Function");
-        //    {   // Function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        //        JSONRequest fun = new JSONRequest();
-        //        fun.setColumn("name");
-        //        nameInAt.put("Function", fun);
-        //    }   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        //
-        //    script.put("simple", 0);
-        //    script.put("name{}@", nameInAt);
+            //JSONRequest nameInAt = new JSONRequest();
+            //nameInAt.put("from", "Function");
+            //{   // Function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            //    JSONRequest fun = new JSONRequest();
+            //    fun.setColumn("name");
+            //    nameInAt.put("Function", fun);
+            //}   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+            //script.put("name{}@", nameInAt);
         //}   // name{}@ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        //
+
 		//JSONRequest scriptItem = new JSONRequest();
         //scriptItem.put(SCRIPT_, script);
-        //
+
 		JSONObject request = new JSONObject();
 		//request.putAll(functionItem.toArray(0, 0, FUNCTION_));
 		//request.putAll(scriptItem.toArray(0, 0, SCRIPT_));
 
-        // TODO 用这个来优化
+        // 可以用它，因为 Function 表必须存在，没有绕过校验的配置 // 不能用这个来优化，因为可能配置了不校验远程函数是否存在
         {   // [] <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
             JSONRequest item = new JSONRequest();
 
@@ -187,14 +188,14 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
                 if (Log.DEBUG == false) {
                     function.put(APIJSONConstant.KEY_DEBUG, 0);
                 }
-                item.put("Function", function);
+                item.put(FUNCTION_, function);
             }   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-            {   // Script <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            if (ENABLE_SCRIPT_FUNCTION) { // Script <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                 JSONRequest script = new JSONRequest();
                 script.put("name@", "/Function/name");
                 script.put("simple", 0);
-                item.put("Script", script);
+                item.put(SCRIPT_, script);
             }   // Script >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
             request.putAll(item.toArray(0, 0));
@@ -206,7 +207,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			onServerError("\n\n\n\n\n !!!! 查询远程函数异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n", shutdownWhenServerError);
 		}
 
-        JSONArray scriptList = response.getJSONArray("[]"); // .getJSONArray(SCRIPT_ + "[]");
+        JSONArray scriptList = response.getJSONArray(SCRIPT_ + "[]");
         if (scriptList != null && scriptList.isEmpty() == false) {
             if (isAll) {
                 SCRIPT_MAP = new LinkedHashMap<>();
@@ -215,7 +216,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
             for (int i = 0; i < scriptList.size(); i++) {
                 JSONObject item = scriptList.getJSONObject(i);
                 item = item == null ? null : item.getJSONObject(SCRIPT_);
-                if (item == null) {
+                if (item == null) { // 关联查不到很正常
                     continue;
                 }
 
@@ -233,7 +234,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
             }
         }
 
-		JSONArray list = scriptList; // response.getJSONArray(FUNCTION_ + "[]");
+		JSONArray list = response.getJSONArray(FUNCTION_ + "[]");
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
 			Log.w(TAG, "init isAll && size <= 0，，没有可用的远程函数");

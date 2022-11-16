@@ -323,8 +323,15 @@ public class APIJSONController<T extends Object> {
 
 		if (reloadAll || "ACCESS".equals(type)) {
 			try {
-				result.put(ACCESS_, APIJSONVerifier.initAccess());
-			} catch (ServerException e) {
+                if (reloadAll == false && APIJSONVerifier.ENABLE_VERIFY_ROLE == false) {
+                    throw new UnsupportedOperationException("AbstractVerifier.ENABLE_VERIFY_ROLE == false 时不支持校验角色权限！" +
+                            "如需支持则设置 AbstractVerifier.ENABLE_VERIFY_ROLE = true ！");
+                }
+
+                if (APIJSONVerifier.ENABLE_VERIFY_ROLE) {
+                    result.put(ACCESS_, APIJSONVerifier.initAccess());
+                }
+            } catch (ServerException e) {
 				e.printStackTrace();
 				result.put(ACCESS_, APIJSONParser.newErrorResult(e));
 			}
@@ -332,7 +339,14 @@ public class APIJSONController<T extends Object> {
 
 		if (reloadAll || "FUNCTION".equals(type)) {
 			try {
-				result.put(FUNCTION_, APIJSONFunctionParser.init());
+                if (reloadAll == false && APIJSONFunctionParser.ENABLE_REMOTE_FUNCTION == false) {
+                    throw new UnsupportedOperationException("AbstractFunctionParser.ENABLE_REMOTE_FUNCTION" +
+                            " == false 时不支持远程函数！如需支持则设置 AbstractFunctionParser.ENABLE_REMOTE_FUNCTION = true ！");
+                }
+
+                if (APIJSONFunctionParser.ENABLE_REMOTE_FUNCTION) {
+                    result.put(FUNCTION_, APIJSONFunctionParser.init());
+                }
 			} catch (ServerException e) {
 				e.printStackTrace();
 				result.put(FUNCTION_, APIJSONParser.newErrorResult(e));
@@ -341,7 +355,14 @@ public class APIJSONController<T extends Object> {
 
 		if (reloadAll || "REQUEST".equals(type)) {
 			try {
-				result.put(REQUEST_, APIJSONVerifier.initRequest());
+                if (reloadAll == false && APIJSONVerifier.ENABLE_VERIFY_CONTENT == false) {
+                    throw new UnsupportedOperationException("AbstractVerifier.ENABLE_VERIFY_CONTENT == false 时不支持校验请求传参内容！" +
+                            "如需支持则设置 AbstractVerifier.ENABLE_VERIFY_CONTENT = true ！");
+                }
+
+                if (APIJSONVerifier.ENABLE_VERIFY_CONTENT) {
+                    result.put(REQUEST_, APIJSONVerifier.initRequest());
+                }
 			} catch (ServerException e) {
 				e.printStackTrace();
 				result.put(REQUEST_, APIJSONParser.newErrorResult(e));
