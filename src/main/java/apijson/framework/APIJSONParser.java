@@ -122,7 +122,7 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 		return functionParser;
 	}
 	@Override
-	public Object onFunctionParse(String key, String function, String parentPath, String currentName, JSONObject currentObject) throws Exception {
+	public Object onFunctionParse(String key, String function, String parentPath, String currentName, JSONObject currentObject, boolean containRaw) throws Exception {
 		if (functionParser == null) {
 			functionParser = createFunctionParser();
 			functionParser.setMethod(getMethod());
@@ -139,7 +139,7 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 		functionParser.setCurrentName(currentName);
 		functionParser.setCurrentObject(currentObject);
 		
-		return functionParser.invoke(function, currentObject);
+		return functionParser.invoke(function, currentObject, containRaw);
 	}
 
 

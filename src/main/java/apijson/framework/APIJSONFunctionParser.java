@@ -69,8 +69,8 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	public APIJSONFunctionParser(HttpSession session) {
 		this(null, null, 0, null, session);
 	}
-	public APIJSONFunctionParser(RequestMethod method, String tag, int version, JSONObject request, HttpSession session) {
-		super(method, tag, version, request);
+	public APIJSONFunctionParser(RequestMethod method, String tag, int version, JSONObject curObj, HttpSession session) {
+		super(method, tag, version, curObj);
 		setSession(session);
 	}
 	public HttpSession getSession() {
@@ -370,28 +370,28 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 
 
 	/**获取远程函数的demo，如果没有就自动补全
-	 * @param request
+	 * @param curObj
 	 * @return
 	 * @throws ServerException 
 	 */
-	public JSONObject getFunctionDemo(@NotNull JSONObject request) {
-		JSONObject demo = JSON.parseObject(request.getString("demo"));
+	public JSONObject getFunctionDemo(@NotNull JSONObject curObj) {
+		JSONObject demo = JSON.parseObject(curObj.getString("demo"));
 		if (demo == null) {
 			demo = new JSONObject();
 		}
 		if (demo.containsKey("result()") == false) {
-			demo.put("result()", getFunctionCall(request.getString("name"), request.getString("arguments")));
+			demo.put("result()", getFunctionCall(curObj.getString("name"), curObj.getString("arguments")));
 		}
 		return demo;
 	}
 
 	/**获取远程函数的demo，如果没有就自动补全
-	 * @param request
+	 * @param curObj
 	 * @return
 	 */
-	public String getFunctionDetail(@NotNull JSONObject request) {
-		return getFunctionCall(request.getString("name"), request.getString("arguments"))
-				+ ": " + StringUtil.getTrimedString(request.getString("detail"));
+	public String getFunctionDetail(@NotNull JSONObject curObj) {
+		return getFunctionCall(curObj.getString("name"), curObj.getString("arguments"))
+				+ ": " + StringUtil.getTrimedString(curObj.getString("detail"));
 	}
 	/**获取函数调用代码
 	 * @param name
@@ -403,146 +403,159 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	}
 
 
-	public double plus(@NotNull JSONObject request, String i0, String i1) {
-		return request.getDoubleValue(i0) + request.getDoubleValue(i1);
+	public double plus(@NotNull JSONObject curObj, String i0, String i1) {
+		return curObj.getDoubleValue(i0) + curObj.getDoubleValue(i1);
 	}
-	public double minus(@NotNull JSONObject request, String i0, String i1) {
-		return request.getDoubleValue(i0) - request.getDoubleValue(i1);
+	public double minus(@NotNull JSONObject curObj, String i0, String i1) {
+		return curObj.getDoubleValue(i0) - curObj.getDoubleValue(i1);
 	}
-	public double multiply(@NotNull JSONObject request, String i0, String i1) {
-		return request.getDoubleValue(i0) * request.getDoubleValue(i1);
+	public double multiply(@NotNull JSONObject curObj, String i0, String i1) {
+		return curObj.getDoubleValue(i0) * curObj.getDoubleValue(i1);
 	}
-	public double divide(@NotNull JSONObject request, String i0, String i1) {
-		return request.getDoubleValue(i0) / request.getDoubleValue(i1);
+	public double divide(@NotNull JSONObject curObj, String i0, String i1) {
+		return curObj.getDoubleValue(i0) / curObj.getDoubleValue(i1);
+	}
+
+	public double plus(@NotNull JSONObject curObj, Number n0, Number n1) {
+		return n0.doubleValue() + n1.doubleValue();
+	}
+	public double minus(@NotNull JSONObject curObj, Number n0, Number n1) {
+		return n0.doubleValue() - n1.doubleValue();
+	}
+	public double multiply(@NotNull JSONObject curObj, Number n0, Number n1) {
+		return n0.doubleValue() * n1.doubleValue();
+	}
+	public double divide(@NotNull JSONObject curObj, Number n0, Number n1) {
+		return n0.doubleValue() / n1.doubleValue();
 	}
 
 	//判断是否为空 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**判断array是否为空
-	 * @param request
+	 * @param curObj
 	 * @param array
 	 * @return
 	 */
-	public boolean isArrayEmpty(@NotNull JSONObject request, String array) {
-		return BaseModel.isEmpty(request.getJSONArray(array));
+	public boolean isArrayEmpty(@NotNull JSONObject curObj, String array) {
+		return BaseModel.isEmpty(curObj.getJSONArray(array));
 	}
 	/**判断object是否为空
-	 * @param request
+	 * @param curObj
 	 * @param object
 	 * @return
 	 */
-	public boolean isObjectEmpty(@NotNull JSONObject request, String object) {
-		return BaseModel.isEmpty(request.getJSONObject(object)); 
+	public boolean isObjectEmpty(@NotNull JSONObject curObj, String object) {
+		return BaseModel.isEmpty(curObj.getJSONObject(object)); 
 	}
 	//判断是否为空 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 	//判断是否为包含 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**判断array是否包含value
-	 * @param request
+	 * @param curObj
 	 * @param array
 	 * @param value
 	 * @return
 	 */
-	public boolean isContain(@NotNull JSONObject request, String array, String value) {
+	public boolean isContain(@NotNull JSONObject curObj, String array, String value) {
 		//解决isContain((List<Long>) [82001,...], (Integer) 82001) == false及类似问题, list元素可能是从数据库查到的bigint类型的值
-		//		return BaseModel.isContain(request.getJSONArray(array), request.get(value));
+		//		return BaseModel.isContain(curObj.getJSONArray(array), curObj.get(value));
 
-		//不用准确的的 request.getString(value).getClass() ，因为Long值转Integer崩溃，而且转成一种类型本身就和字符串对比效果一样了。
-		List<String> list = com.alibaba.fastjson.JSON.parseArray(request.getString(array), String.class);
-		return list != null && list.contains(request.getString(value));
+		//不用准确的的 curObj.getString(value).getClass() ，因为Long值转Integer崩溃，而且转成一种类型本身就和字符串对比效果一样了。
+		List<String> list = com.alibaba.fastjson.JSON.parseArray(curObj.getString(array), String.class);
+		return list != null && list.contains(curObj.getString(value));
 	}
 	/**判断object是否包含key
-	 * @param request
+	 * @param curObj
 	 * @param object
 	 * @param key
 	 * @return
 	 */
-	public boolean isContainKey(@NotNull JSONObject request, String object, String key) { 
-		return BaseModel.isContainKey(request.getJSONObject(object), request.getString(key)); 
+	public boolean isContainKey(@NotNull JSONObject curObj, String object, String key) { 
+		return BaseModel.isContainKey(curObj.getJSONObject(object), curObj.getString(key)); 
 	}
 	/**判断object是否包含value
-	 * @param request
+	 * @param curObj
 	 * @param object
 	 * @param value
 	 * @return
 	 */
-	public boolean isContainValue(@NotNull JSONObject request, String object, String value) { 
-		return BaseModel.isContainValue(request.getJSONObject(object), request.get(value));
+	public boolean isContainValue(@NotNull JSONObject curObj, String object, String value) { 
+		return BaseModel.isContainValue(curObj.getJSONObject(object), curObj.get(value));
 	}
 	//判断是否为包含 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 	//获取集合长度 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**获取数量
-	 * @param request
+	 * @param curObj
 	 * @param array
 	 * @return
 	 */
-	public int countArray(@NotNull JSONObject request, String array) { 
-		return BaseModel.count(request.getJSONArray(array)); 
+	public int countArray(@NotNull JSONObject curObj, String array) { 
+		return BaseModel.count(curObj.getJSONArray(array)); 
 	}
 	/**获取数量
-	 * @param request
+	 * @param curObj
 	 * @param object
 	 * @return
 	 */
-	public int countObject(@NotNull JSONObject request, String object) {
-		return BaseModel.count(request.getJSONObject(object)); 
+	public int countObject(@NotNull JSONObject curObj, String object) {
+		return BaseModel.count(curObj.getJSONObject(object)); 
 	}
 	//获取集合长度 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 	//根据键获取值 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**获取
-	 ** @param request
+	 ** @param curObj
 	 * @param array
 	 * @param position 支持直接传数字，例如 getFromArray(array,0) ；或者引用当前对象的值，例如 "@position": 0, "result()": "getFromArray(array,@position)"
 	 * @return
 	 */
-	public Object getFromArray(@NotNull JSONObject request, String array, String position) {
+	public Object getFromArray(@NotNull JSONObject curObj, String array, String position) {
 		int p;
 		try {
 			p = Integer.parseInt(position);
 		} catch (Exception e) {
-			p = request.getIntValue(position);
+			p = curObj.getIntValue(position);
 		}
-		return BaseModel.get(request.getJSONArray(array), p); 
+		return BaseModel.get(curObj.getJSONArray(array), p); 
 	}
 	/**获取
-	 * @param request
+	 * @param curObj
 	 * @param object
 	 * @param key
 	 * @return
 	 */
-	public Object getFromObject(@NotNull JSONObject request, String object, String key) { 
-		return BaseModel.get(request.getJSONObject(object), request.getString(key));
+	public Object getFromObject(@NotNull JSONObject curObj, String object, String key) { 
+		return BaseModel.get(curObj.getJSONObject(object), curObj.getString(key));
 	}
 	//根据键获取值 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 	//根据键移除值 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**移除
-	 ** @param request
+	 ** @param curObj
 	 * @param array
 	 * @param position 支持直接传数字，例如 getFromArray(array,0) ；或者引用当前对象的值，例如 "@position": 0, "result()": "getFromArray(array,@position)"
 	 * @return
 	 */
-	public Object removeIndex(@NotNull JSONObject request, String position) {
+	public Object removeIndex(@NotNull JSONObject curObj, String position) {
 		int p;
 		try {
 			p = Integer.parseInt(position);
 		} catch (Exception e) {
-			p = request.getIntValue(position);
+			p = curObj.getIntValue(position);
 		}
-		request.remove(p); 
+		curObj.remove(p); 
 		return null;
 	}
 	/**移除
-	 * @param request
+	 * @param curObj
 	 * @param object
 	 * @param key
 	 * @return
 	 */
-	public Object removeKey(@NotNull JSONObject request, String key) { 
-		request.remove(key);
+	public Object removeKey(@NotNull JSONObject curObj, String key) { 
+		curObj.remove(key);
 		return null;
 	}
 	//根据键获取值 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -551,72 +564,72 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 
 	//获取非基本类型对应基本类型的非空值 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**获取非空值
-	 * @param request
+	 * @param curObj
 	 * @param value
 	 * @return
 	 */
-	public boolean booleanValue(@NotNull JSONObject request, String value) { 
-		return request.getBooleanValue(value);
+	public boolean booleanValue(@NotNull JSONObject curObj, String value) { 
+		return curObj.getBooleanValue(value);
 	}
 	/**获取非空值
-	 * @param request
+	 * @param curObj
 	 * @param value
 	 * @return
 	 */
-	public int intValue(@NotNull JSONObject request, String value) {  
-		return request.getIntValue(value);
+	public int intValue(@NotNull JSONObject curObj, String value) {  
+		return curObj.getIntValue(value);
 	}
 	/**获取非空值
-	 * @param request
+	 * @param curObj
 	 * @param value
 	 * @return
 	 */
-	public long longValue(@NotNull JSONObject request, String value) {   
-		return request.getLongValue(value);
+	public long longValue(@NotNull JSONObject curObj, String value) {   
+		return curObj.getLongValue(value);
 	}
 	/**获取非空值
-	 * @param request
+	 * @param curObj
 	 * @param value
 	 * @return
 	 */
-	public float floatValue(@NotNull JSONObject request, String value) {  
-		return request.getFloatValue(value);
+	public float floatValue(@NotNull JSONObject curObj, String value) {  
+		return curObj.getFloatValue(value);
 	}
 	/**获取非空值
-	 * @param request
+	 * @param curObj
 	 * @param value
 	 * @return
 	 */
-	public double doubleValue(@NotNull JSONObject request, String value) {    
-		return request.getDoubleValue(value); 
+	public double doubleValue(@NotNull JSONObject curObj, String value) {    
+		return curObj.getDoubleValue(value); 
 	}
 	//获取非基本类型对应基本类型的非空值 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 	/**获取value，当value为null时获取defaultValue
-	 * @param request
+	 * @param curObj
 	 * @param value
 	 * @param defaultValue
-	 * @return v == null ? request.get(defaultValue) : v
+	 * @return v == null ? curObj.get(defaultValue) : v
 	 */
-	public Object getWithDefault(@NotNull JSONObject request, String value, String defaultValue) {    
-		Object v = request.get(value); 
-		return v == null ? request.get(defaultValue) : v; 
+	public Object getWithDefault(@NotNull JSONObject curObj, String value, String defaultValue) {    
+		Object v = curObj.get(value); 
+		return v == null ? curObj.get(defaultValue) : v; 
 	}
 
 
 
 	/**获取方法参数的定义
-	 * @param request
+	 * @param curObj
 	 * @return
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalArgumentException 
 	 */
-	public String getMethodArguments(@NotNull JSONObject request) throws IllegalArgumentException, ClassNotFoundException, IOException {
-		return getMethodArguments(request, "methodArgs");
+	public String getMethodArguments(@NotNull JSONObject curObj) throws IllegalArgumentException, ClassNotFoundException, IOException {
+		return getMethodArguments(curObj, "methodArgs");
 	}
 	/**获取方法参数的定义
-	 * @param request
+	 * @param curObj
 	 * @param requestKey
 	 * @param methodArgs
 	 * @return
@@ -624,11 +637,11 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public String getMethodArguments(@NotNull JSONObject request, String methodArgsKey) throws IllegalArgumentException, ClassNotFoundException, IOException {
-		JSONObject obj = request.getJSONObject("request");
+	public String getMethodArguments(@NotNull JSONObject curObj, String methodArgsKey) throws IllegalArgumentException, ClassNotFoundException, IOException {
+		JSONObject obj = curObj.getJSONObject("request");
 		String argsStr = obj == null ? null : obj.getString(methodArgsKey);
 		if (StringUtil.isEmpty(argsStr, true)) {
-			argsStr = request.getString(methodArgsKey);
+			argsStr = curObj.getString(methodArgsKey);
 		}
 		List<Argument> methodArgs = JSON.parseArray(removeComment(argsStr), Argument.class);
 		if (methodArgs == null || methodArgs.isEmpty()) {
@@ -679,37 +692,53 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	}
 
 
-	/**获取方法的定义
-	 * @param request
-	 * @return
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalArgumentException 
+	/**改用 getMethodDefinition
 	 */
-	public String getMethodDefination(@NotNull JSONObject request)
+    @Deprecated
+	public String getMethodDefination(@NotNull JSONObject curObj)
 			throws IllegalArgumentException, ClassNotFoundException, IOException {
-		//		request.put("arguments", removeComment(request.getString("methodArgs")));
-		return getMethodDefination(request, "method", "arguments", "genericType", "genericExceptions", "Java");
+		//		curObj.put("arguments", removeComment(curObj.getString("methodArgs")));
+		return getMethodDefination(curObj, "method", "arguments", "genericType", "genericExceptions", "Java");
 	}
+
 	/**获取方法的定义
-	 * @param request
+	 * @param curObj
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalArgumentException
+	 */
+	public String getMethodDefinition(@NotNull JSONObject curObj)
+			throws IllegalArgumentException, ClassNotFoundException, IOException {
+		//		curObj.put("arguments", removeComment(curObj.getString("methodArgs")));
+		return getMethodDefinition(curObj, "method", "arguments", "genericType", "genericExceptions", "Java");
+	}
+    /**改用 getMethodDefinition
+     */
+    @Deprecated
+	public String getMethodDefination(@NotNull JSONObject curObj, String method, String arguments
+            , String type, String exceptions, String language) throws IllegalArgumentException {
+        return getMethodDefinition(curObj, method, arguments, type, exceptions, language);
+    }
+	/**获取方法的定义
+	 * @param curObj
 	 * @param method
 	 * @param arguments
 	 * @param type
 	 * @return method(argType0,argType1...): returnType
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalArgumentException 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalArgumentException
 	 */
-	public String getMethodDefination(@NotNull JSONObject request, String method, String arguments, String type, String exceptions, String language)
-			throws IllegalArgumentException, ClassNotFoundException, IOException {
-		String n = request.getString(method);
+	public String getMethodDefinition(@NotNull JSONObject curObj, String method, String arguments
+            , String type, String exceptions, String language) throws IllegalArgumentException {
+		String n = curObj.getString(method);
 		if (StringUtil.isEmpty(n, true)) {
 			throw new NullPointerException("getMethodDefination  StringUtil.isEmpty(methodArgs, true) !");
 		}
-		String a = request.getString(arguments);
-		String t = request.getString(type);
-		String e = request.getString(exceptions);
+		String a = curObj.getString(arguments);
+		String t = curObj.getString(type);
+		String e = curObj.getString(exceptions);
 
 		if (language == null) {
 			language = "";
@@ -728,16 +757,16 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	/**
 	 * methodArgs 和 classArgs 都可以带注释
 	 */
-	public String getMethodRequest(@NotNull JSONObject request) {
-		String req = request.getString("request");
+	public String getMethodRequest(@NotNull JSONObject curObj) {
+		String req = curObj.getString("request");
 		if (StringUtil.isEmpty(req, true) == false) {
 			return req;
 		}
 
 		req = "{";
-		Boolean isStatic = request.getBoolean("static");
-		String methodArgs = request.getString("methodArgs");
-		String classArgs = request.getString("classArgs");
+		Boolean isStatic = curObj.getBoolean("static");
+		String methodArgs = curObj.getString("methodArgs");
+		String classArgs = curObj.getString("classArgs");
 
 		boolean comma = false;
 		if (isStatic != null && isStatic) {
