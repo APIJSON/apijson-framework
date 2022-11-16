@@ -207,11 +207,12 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			onServerError("\n\n\n\n\n !!!! 查询远程函数异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n", shutdownWhenServerError);
 		}
 
-        JSONArray scriptList = response.getJSONArray(SCRIPT_ + "[]");
+        JSONArray scriptList = response.getJSONArray("[]"); // response.getJSONArray(SCRIPT_ + "[]");
         if (scriptList != null && scriptList.isEmpty() == false) {
-            if (isAll) {
-                SCRIPT_MAP = new LinkedHashMap<>();
-            }
+            //if (isAll) {
+            //    SCRIPT_MAP = new LinkedHashMap<>();
+            //}
+            Map<String, JSONObject> newMap = new LinkedHashMap<>();
 
             for (int i = 0; i < scriptList.size(); i++) {
                 JSONObject item = scriptList.getJSONObject(i);
@@ -230,11 +231,13 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
                     onServerError("Script 表字段 script 的值 " + s + " 不合法！不能为空！", shutdownWhenServerError);
                 }
 
-                SCRIPT_MAP.put(n, item);
+                newMap.put(n, item);
             }
+
+            SCRIPT_MAP = newMap;
         }
 
-		JSONArray list = response.getJSONArray(FUNCTION_ + "[]");
+		JSONArray list = scriptList; // response.getJSONArray(FUNCTION_ + "[]");
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
 			Log.w(TAG, "init isAll && size <= 0，，没有可用的远程函数");
