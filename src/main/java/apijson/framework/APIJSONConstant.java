@@ -28,6 +28,7 @@ import apijson.orm.model.Function;
 import apijson.orm.model.PgAttribute;
 import apijson.orm.model.PgClass;
 import apijson.orm.model.Request;
+import apijson.orm.model.Script;
 import apijson.orm.model.SysColumn;
 import apijson.orm.model.SysTable;
 import apijson.orm.model.Table;
@@ -61,6 +62,7 @@ public class APIJSONConstant {
 	public static final String DOCUMENT_;
 	public static final String EXTENDED_PROPERTY_;
 	public static final String FUNCTION_;
+	public static final String SCRIPT_;
 	public static final String PG_ATTRIBUTE_;
 	public static final String PG_CLASS_;
 	public static final String REQUEST_;
@@ -79,6 +81,7 @@ public class APIJSONConstant {
 		DOCUMENT_ = Document.class.getSimpleName();
 		EXTENDED_PROPERTY_ = ExtendedProperty.class.getSimpleName();
 		FUNCTION_ = Function.class.getSimpleName();
+		SCRIPT_ = Script.class.getSimpleName();
 		PG_ATTRIBUTE_ = PgAttribute.class.getSimpleName();
 		PG_CLASS_ = PgClass.class.getSimpleName();
 		REQUEST_ = Request.class.getSimpleName();

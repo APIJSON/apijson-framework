@@ -22,6 +22,7 @@ import static apijson.RequestMethod.HEADS;
 import static apijson.RequestMethod.POST;
 import static apijson.RequestMethod.PUT;
 import static apijson.framework.APIJSONConstant.FUNCTION_;
+import static apijson.framework.APIJSONConstant.SCRIPT_;
 
 import java.io.IOException;
 import java.rmi.ServerException;
@@ -145,16 +146,59 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 
 		boolean isAll = table == null || table.isEmpty();
 
-		JSONObject function = isAll ? new JSONRequest() : table;
-		if (Log.DEBUG == false) {
-			function.put(APIJSONConstant.KEY_DEBUG, 0);
-		}
-		
-		JSONRequest functionItem = new JSONRequest();
-		functionItem.put(FUNCTION_, function);
+		//JSONObject function = isAll ? new JSONRequest() : table;
+		//if (Log.DEBUG == false) {
+		//	function.put(APIJSONConstant.KEY_DEBUG, 0);
+		//}
+		//
+		//JSONRequest functionItem = new JSONRequest();
+		//functionItem.put(FUNCTION_, function);
+        //
+        //JSONObject script = isAll ? new JSONRequest() : table;
+        ////if (Log.DEBUG == false) {
+        ////    script.put(APIJSONConstant.KEY_DEBUG, 0);
+        ////}
+        //{   // name{}@ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        //    JSONRequest nameInAt = new JSONRequest();
+        //    nameInAt.put("from", "Function");
+        //    {   // Function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        //        JSONRequest fun = new JSONRequest();
+        //        fun.setColumn("name");
+        //        nameInAt.put("Function", fun);
+        //    }   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        //
+        //    script.put("simple", 0);
+        //    script.put("name{}@", nameInAt);
+        //}   // name{}@ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        //
+		//JSONRequest scriptItem = new JSONRequest();
+        //scriptItem.put(SCRIPT_, script);
+        //
+		JSONObject request = new JSONObject();
+		//request.putAll(functionItem.toArray(0, 0, FUNCTION_));
+		//request.putAll(scriptItem.toArray(0, 0, SCRIPT_));
 
-		JSONObject request = new JSONObject(); 
-		request.putAll(functionItem.toArray(0, 0, FUNCTION_));
+        // TODO 用这个来优化
+        {   // [] <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            JSONRequest item = new JSONRequest();
+
+            {   // Function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                JSONObject function = isAll ? new JSONRequest() : table;
+                if (Log.DEBUG == false) {
+                    function.put(APIJSONConstant.KEY_DEBUG, 0);
+                }
+                item.put("Function", function);
+            }   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+            {   // Script <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                JSONRequest script = new JSONRequest();
+                script.put("name@", "/Function/name");
+                script.put("simple", 0);
+                item.put("Script", script);
+            }   // Script >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+            request.putAll(item.toArray(0, 0));
+        }   // [] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 		JSONObject response = creator.createParser().setMethod(GET).setNeedVerify(true).parseResponse(request);
@@ -162,7 +206,34 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			onServerError("\n\n\n\n\n !!!! 查询远程函数异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n", shutdownWhenServerError);
 		}
 
-		JSONArray list = response.getJSONArray(FUNCTION_ + "[]");
+        JSONArray scriptList = response.getJSONArray("[]"); // .getJSONArray(SCRIPT_ + "[]");
+        if (scriptList != null && scriptList.isEmpty() == false) {
+            if (isAll) {
+                SCRIPT_MAP = new LinkedHashMap<>();
+            }
+
+            for (int i = 0; i < scriptList.size(); i++) {
+                JSONObject item = scriptList.getJSONObject(i);
+                item = item == null ? null : item.getJSONObject(SCRIPT_);
+                if (item == null) {
+                    continue;
+                }
+
+                String n = item == null ? null : item.getString("name");
+                if (StringUtil.isName(n) == false) {
+                    onServerError("Script 表字段 name 的值 " + n + " 不合法！必须为合法的方法名字符串！", shutdownWhenServerError);
+                }
+
+                String s = item == null ? null : item.getString("script");
+                if (StringUtil.isEmpty(s, true)) {
+                    onServerError("Script 表字段 script 的值 " + s + " 不合法！不能为空！", shutdownWhenServerError);
+                }
+
+                SCRIPT_MAP.put(n, item);
+            }
+        }
+
+		JSONArray list = scriptList; // response.getJSONArray(FUNCTION_ + "[]");
 		int size = list == null ? 0 : list.size();
 		if (isAll && size <= 0) {
 			Log.w(TAG, "init isAll && size <= 0，，没有可用的远程函数");
@@ -177,6 +248,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 
 		for (int i = 0; i < size; i++) {
 			JSONObject item = list.getJSONObject(i);
+            item = item == null ? null : item.getJSONObject(FUNCTION_);
 			if (item == null) {
 				continue;
 			}
