@@ -21,6 +21,7 @@ import static apijson.RequestMethod.HEAD;
 import static apijson.RequestMethod.HEADS;
 import static apijson.RequestMethod.POST;
 import static apijson.RequestMethod.PUT;
+import static apijson.RequestMethod.CRUD;
 import static apijson.framework.APIJSONConstant.ACCESS_;
 import static apijson.framework.APIJSONConstant.METHODS;
 import static apijson.framework.APIJSONConstant.DEFAULTS;
@@ -192,6 +193,16 @@ public class APIJSONController<T extends Object> {
 	 */
 	public String delete(String request, HttpSession session) {
 		return parse(DELETE, request, session);
+	}
+	
+	/**支持全局事物、批量执行多条语句
+	 * @param request 只用String，避免encode后未decode
+	 * @param session
+	 * @return
+	 * @see {@link RequestMethod#GET}
+	 */
+	public String crud(String request, HttpSession session) {
+		return parse(CRUD, request, session);
 	}
 
 	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
