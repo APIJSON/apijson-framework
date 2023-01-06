@@ -20,6 +20,7 @@ import static apijson.framework.APIJSONConstant.USER_;
 import static apijson.framework.APIJSONConstant.USER_ID;
 
 import java.util.List;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -253,5 +254,13 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		return newSQLConfig(method, table, alias, request, joinList, isProcedure, SIMPLE_CALLBACK);
 	}
 
+	@Override
+	public boolean isFakeDelete() {
+		return false;
+	}
 
+	@Override
+	public void onFakeDelete(Map<String, Object> map) {
+		
+	}
 }

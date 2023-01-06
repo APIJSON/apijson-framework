@@ -182,6 +182,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 		Log.d(TAG, "initAccess < for ACCESS_MAP.size() = " + ACCESS_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
 		
 		Map<String, Map<RequestMethod, String[]>> newMap = new LinkedHashMap<>();
+		Map<String, Map<String, Object>> fakeDeleteMap = new LinkedHashMap<>();
 		Map<String, String> newTKMap = new LinkedHashMap<>();
 		
 		for (int i = 0; i < size; i++) {
@@ -198,9 +199,18 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 			map.put(RequestMethod.POST, JSON.parseObject(item.getString("post"), String[].class));
 			map.put(RequestMethod.PUT, JSON.parseObject(item.getString("put"), String[].class));
 			map.put(RequestMethod.DELETE, JSON.parseObject(item.getString("delete"), String[].class));
-
+			
 			String name = item.getString("name");
 			String alias = item.getString("alias");
+			
+			Map<String, Object> fakemap = new HashMap<>();
+			if(StringUtil.isNotEmpty(item.getString("deletedKey"), true)) {
+				if (StringUtil.isEmpty(item.getString("deletedValue"), true)) {
+					onServerError("Access表 id= "+ item.getString("id") +", deletedKey,deletedValue 的值不能为空！", shutdownWhenServerError);
+				}
+				fakemap.put("deletedKey", item.getString("deletedKey"));
+				fakemap.put("deletedValue", item.getString("deletedValue"));
+			}
 
 			/**TODO 
 			 * 以下判断写得比较复杂，因为表设计不够好，但为了兼容旧版 APIJSON 服务 和 APIAuto 工具而保留了下来。
@@ -217,6 +227,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 				}
 
 				newMap.put(name, map);
+				fakeDeleteMap.put(name, fakemap);
 			}
 			else {
 				if (JSONRequest.isTableKey(alias) == false) {
@@ -224,6 +235,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 				}
 
 				newMap.put(alias, map);
+				fakeDeleteMap.put(alias, fakemap);
 			}
 
 			newTKMap.put(alias, name);
@@ -231,10 +243,12 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 		if (isAll) {  // 全量更新
 			ACCESS_MAP = newMap;
+			ACCESS_FAKE_DELETE_MAP = fakeDeleteMap;
 			APIJSONSQLConfig.TABLE_KEY_MAP = newTKMap;
 		}
 		else {
 			ACCESS_MAP.putAll(newMap);
+			ACCESS_FAKE_DELETE_MAP.putAll(fakeDeleteMap);
 			APIJSONSQLConfig.TABLE_KEY_MAP.putAll(newTKMap);
 		}
 		
