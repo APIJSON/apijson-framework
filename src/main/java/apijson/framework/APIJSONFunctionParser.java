@@ -26,6 +26,7 @@ import static apijson.framework.APIJSONConstant.SCRIPT_;
 
 import java.io.IOException;
 import java.rmi.ServerException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,8 @@ import apijson.RequestMethod;
 import apijson.StringUtil;
 import apijson.orm.AbstractFunctionParser;
 import apijson.orm.JSONRequest;
+import apijson.orm.script.JavaScriptExecutor;
+import apijson.orm.script.ScriptExecutor;
 import unitauto.MethodUtil;
 import unitauto.MethodUtil.Argument;
 
@@ -206,7 +209,17 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		if (JSONResponse.isSuccess(response) == false) {
 			onServerError("\n\n\n\n\n !!!! 查询远程函数异常 !!!\n" + response.getString(JSONResponse.KEY_MSG) + "\n\n\n\n\n", shutdownWhenServerError);
 		}
+		
+		//初始化默认脚本引擎,避免增量
+		if(SCRIPT_EXECUTOR_MAP.get("js") == null || isAll) {
+			ScriptExecutor javaScriptExecutor = new JavaScriptExecutor();
+			javaScriptExecutor.init();
+			SCRIPT_EXECUTOR_MAP.put("js", javaScriptExecutor);
+			SCRIPT_EXECUTOR_MAP.put("JavaScript", javaScriptExecutor);
+			SCRIPT_EXECUTOR_MAP.put("javascript", javaScriptExecutor);
+		}
 
+		Map<String, JSONObject> scriptMap = new HashMap<>();
         JSONArray scriptList = response.getJSONArray("[]"); // response.getJSONArray(SCRIPT_ + "[]");
         if (scriptList != null && scriptList.isEmpty() == false) {
             //if (isAll) {
@@ -230,11 +243,10 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
                 if (StringUtil.isEmpty(s, true)) {
                     onServerError("Script 表字段 script 的值 " + s + " 不合法！不能为空！", shutdownWhenServerError);
                 }
-
                 newMap.put(n, item);
             }
 
-            SCRIPT_MAP = newMap;
+            scriptMap = newMap;
         }
 
 		JSONArray list = scriptList; // response.getJSONArray(FUNCTION_ + "[]");
@@ -267,7 +279,15 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			}
 			//			demo.put(JSONRequest.KEY_TAG, item.getString(JSONRequest.KEY_TAG));
 			//			demo.put(JSONRequest.KEY_VERSION, item.getInteger(JSONRequest.KEY_VERSION));
-
+			//加载脚本
+			if (item.get("language") != null) {
+				String language = item.getString("language");
+				if(SCRIPT_EXECUTOR_MAP.get(language) == null) {
+					onServerError("找不到脚本语言 " + language + " 对应的执行引擎！请先依赖相关库并在后端 APIJSONFunctionParser 中注册！", shutdownWhenServerError);
+				}
+				ScriptExecutor scriptExecutor = SCRIPT_EXECUTOR_MAP.get(language);
+				scriptExecutor.load(name, scriptMap.get(name).getString("script"));
+			}
 			newMap.put(name, item);  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ 
 
 			String[] methods = StringUtil.split(item.getString("methods"));
