@@ -5,7 +5,7 @@
 
 	<groupId>apijson.framework</groupId>
 	<artifactId>apijson-framework</artifactId>
-	<version>5.5.0</version>
+	<version>6.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
@@ -34,8 +34,7 @@
 		<dependency>
 			<groupId>com.github.Tencent</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>5.5.0</version>
-            <type>jar</type>
+			<version>6.0.0</version>
 		</dependency>
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->

@@ -211,7 +211,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		}
 		
 		//初始化默认脚本引擎,避免增量
-		if(SCRIPT_EXECUTOR_MAP.get("js") == null || isAll) {
+		if (isAll || SCRIPT_EXECUTOR_MAP.get("js") == null) {
 			ScriptExecutor javaScriptExecutor = new JavaScriptExecutor();
 			javaScriptExecutor.init();
 			SCRIPT_EXECUTOR_MAP.put("js", javaScriptExecutor);
@@ -234,12 +234,12 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
                     continue;
                 }
 
-                String n = item == null ? null : item.getString("name");
+                String n = item.getString("name");
                 if (StringUtil.isName(n) == false) {
                     onServerError("Script 表字段 name 的值 " + n + " 不合法！必须为合法的方法名字符串！", shutdownWhenServerError);
                 }
 
-                String s = item == null ? null : item.getString("script");
+                String s = item.getString("script");
                 if (StringUtil.isEmpty(s, true)) {
                     onServerError("Script 表字段 script 的值 " + s + " 不合法！不能为空！", shutdownWhenServerError);
                 }
@@ -282,7 +282,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			//加载脚本
 			if (item.get("language") != null) {
 				String language = item.getString("language");
-				if(SCRIPT_EXECUTOR_MAP.get(language) == null) {
+				if (SCRIPT_EXECUTOR_MAP.get(language) == null) {
 					onServerError("找不到脚本语言 " + language + " 对应的执行引擎！请先依赖相关库并在后端 APIJSONFunctionParser 中注册！", shutdownWhenServerError);
 				}
 				ScriptExecutor scriptExecutor = SCRIPT_EXECUTOR_MAP.get(language);
@@ -554,7 +554,6 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	//根据键移除值 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**移除
 	 ** @param curObj
-	 * @param array
 	 * @param position 支持直接传数字，例如 getFromArray(array,0) ；或者引用当前对象的值，例如 "@position": 0, "result()": "getFromArray(array,@position)"
 	 * @return
 	 */
@@ -570,7 +569,6 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	}
 	/**移除
 	 * @param curObj
-	 * @param object
 	 * @param key
 	 * @return
 	 */
@@ -650,8 +648,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	}
 	/**获取方法参数的定义
 	 * @param curObj
-	 * @param requestKey
-	 * @param methodArgs
+	 * @param methodArgsKey
 	 * @return
 	 * @throws IllegalArgumentException
 	 * @throws ClassNotFoundException
