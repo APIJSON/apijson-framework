@@ -18,6 +18,8 @@ import java.rmi.ServerException;
 
 import apijson.Log;
 import apijson.NotNull;
+import apijson.orm.AbstractFunctionParser;
+import apijson.orm.script.ScriptExecutor;
 
 
 /**启动入口 Application
@@ -154,4 +156,8 @@ public class APIJSONApplication {
 		}
 	}
 
+	public static void addScriptExecutor(String language, ScriptExecutor scriptExecutor) {
+		scriptExecutor.init();
+		AbstractFunctionParser.SCRIPT_EXECUTOR_MAP.put(language, scriptExecutor);
+	}
 }
