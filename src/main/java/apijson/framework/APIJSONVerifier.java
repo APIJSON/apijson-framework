@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpSession;
+
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -41,6 +41,7 @@ import apijson.StringUtil;
 import apijson.orm.AbstractVerifier;
 import apijson.orm.JSONRequest;
 import apijson.orm.Visitor;
+import jakarta.servlet.http.HttpSession;
 
 
 /**权限验证器
