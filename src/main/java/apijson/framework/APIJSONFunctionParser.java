@@ -712,8 +712,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	/**改用 getMethodDefinition
 	 */
     @Deprecated
-	public String getMethodDefination(@NotNull JSONObject curObj)
-			throws IllegalArgumentException, ClassNotFoundException, IOException {
+	public String getMethodDefination(@NotNull JSONObject curObj) throws IllegalArgumentException {
 		//		curObj.put("arguments", removeComment(curObj.getString("methodArgs")));
 		return getMethodDefination(curObj, "method", "arguments", "genericType", "genericExceptions", "Java");
 	}
@@ -725,8 +724,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	 * @throws ClassNotFoundException
 	 * @throws IllegalArgumentException
 	 */
-	public String getMethodDefinition(@NotNull JSONObject curObj)
-			throws IllegalArgumentException, ClassNotFoundException, IOException {
+	public String getMethodDefinition(@NotNull JSONObject curObj) throws IllegalArgumentException {
 		//		curObj.put("arguments", removeComment(curObj.getString("methodArgs")));
 		return getMethodDefinition(curObj, "method", "arguments", "genericType", "genericExceptions", "Java");
 	}
