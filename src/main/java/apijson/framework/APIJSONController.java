@@ -36,10 +36,7 @@ import java.lang.reflect.Method;
 import java.rmi.ServerException;
 import java.util.Map;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -51,6 +48,10 @@ import apijson.StringUtil;
 import apijson.orm.AbstractParser;
 import apijson.orm.Parser;
 import apijson.orm.Visitor;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import unitauto.MethodUtil;
 import unitauto.MethodUtil.InterfaceProxy;
 

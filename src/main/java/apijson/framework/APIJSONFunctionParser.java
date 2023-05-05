@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
+
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -46,6 +46,7 @@ import apijson.orm.AbstractFunctionParser;
 import apijson.orm.JSONRequest;
 import apijson.orm.script.JavaScriptExecutor;
 import apijson.orm.script.ScriptExecutor;
+import jakarta.servlet.http.HttpSession;
 import unitauto.MethodUtil;
 import unitauto.MethodUtil.Argument;
 
