@@ -21,6 +21,7 @@ import static apijson.framework.APIJSONConstant.VERSION;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -32,7 +33,6 @@ import apijson.orm.Parser;
 import apijson.orm.SQLConfig;
 import apijson.orm.SQLExecutor;
 import apijson.orm.Verifier;
-import jakarta.servlet.http.HttpSession;
 
 
 /**请求解析器

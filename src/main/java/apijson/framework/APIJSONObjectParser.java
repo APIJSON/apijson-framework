@@ -16,6 +16,7 @@ package apijson.framework;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -25,7 +26,6 @@ import apijson.orm.AbstractObjectParser;
 import apijson.orm.AbstractParser;
 import apijson.orm.Join;
 import apijson.orm.SQLConfig;
-import jakarta.servlet.http.HttpSession;
 
 
 /**简化Parser，getObject和getArray(getArrayConfig)都能用
