@@ -296,12 +296,13 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 				methods = ALL_METHODS;
 			}
 
+			demo.put(JSONRequest.KEY_TAG, item.get(JSONRequest.KEY_TAG));
+			demo.put(JSONRequest.KEY_VERSION, item.get(JSONRequest.KEY_VERSION));
+
 			for (String method : methods) {
 				JSONObject r = APIJSON_CREATOR.createParser()
 						.setMethod(RequestMethod.valueOf(method))
 						.setNeedVerify(false)
-						.setTag(item.getString(JSONRequest.KEY_TAG))
-						.setVersion(item.getIntValue(JSONRequest.KEY_VERSION))
 						.parseResponse(demo);
 
 				if (JSONResponse.isSuccess(r) == false) {
