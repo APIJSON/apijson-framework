@@ -20,15 +20,12 @@ import static apijson.framework.APIJSONConstant.VISITOR_;
 import static apijson.framework.APIJSONConstant.VISITOR_ID;
 
 import java.rmi.ServerException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.servlet.http.HttpSession;
 
+import apijson.column.ColumnUtil;
+import apijson.orm.*;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -38,9 +35,6 @@ import apijson.Log;
 import apijson.NotNull;
 import apijson.RequestMethod;
 import apijson.StringUtil;
-import apijson.orm.AbstractVerifier;
-import apijson.orm.JSONRequest;
-import apijson.orm.Visitor;
 
 
 /**权限验证器
@@ -48,6 +42,8 @@ import apijson.orm.Visitor;
  */
 public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	public static final String TAG = "APIJSONVerifier";
+
+	public static boolean ENABLE_VERIFY_COLUMN = true;
 
 	//	由 init 方法读取数据库 Access 表来替代手动输入配置
 	//	// <TableName, <METHOD, allowRoles>>
@@ -62,37 +58,41 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	//	}
 
 	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
+
 	static {
 		APIJSON_CREATOR = new APIJSONCreator<>();
 	}
 
 	/**初始化，加载所有权限配置和请求校验配置
-	 * @return 
+	 * @return
 	 * @throws ServerException
 	 */
 	public static JSONObject init() throws ServerException {
 		return init(false);
 	}
+
 	/**初始化，加载所有权限配置和请求校验配置
-	 * @param shutdownWhenServerError 
-	 * @return 
+	 * @param shutdownWhenServerError
+	 * @return
 	 * @throws ServerException
 	 */
 	public static JSONObject init(boolean shutdownWhenServerError) throws ServerException {
 		return init(shutdownWhenServerError, null);
 	}
+
 	/**初始化，加载所有权限配置和请求校验配置
-	 * @param creator 
-	 * @return 
+	 * @param creator
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <T> JSONObject init(APIJSONCreator<T> creator) throws ServerException {
 		return init(false, creator);
 	}
+
 	/**初始化，加载所有权限配置和请求校验配置
-	 * @param shutdownWhenServerError 
-	 * @param creator 
-	 * @return 
+	 * @param shutdownWhenServerError
+	 * @param creator
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <T> JSONObject init(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
@@ -107,42 +107,46 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	}
 
 	/**初始化，加载所有权限配置
-	 * @return 
+	 * @return
 	 * @throws ServerException
 	 */
 	public static JSONObject initAccess() throws ServerException {
 		return initAccess(false);
 	}
+
 	/**初始化，加载所有权限配置
-	 * @param shutdownWhenServerError 
-	 * @return 
+	 * @param shutdownWhenServerError
+	 * @return
 	 * @throws ServerException
 	 */
 	public static JSONObject initAccess(boolean shutdownWhenServerError) throws ServerException {
 		return initAccess(shutdownWhenServerError, null);
 	}
+
 	/**初始化，加载所有权限配置
-	 * @param creator 
-	 * @return 
+	 * @param creator
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <T> JSONObject initAccess(APIJSONCreator<T> creator) throws ServerException {
 		return initAccess(false, creator);
 	}
+
 	/**初始化，加载所有权限配置
-	 * @param shutdownWhenServerError 
-	 * @param creator 
-	 * @return 
+	 * @param shutdownWhenServerError
+	 * @param creator
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <T> JSONObject initAccess(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		return initAccess(shutdownWhenServerError, creator, null);
 	}
+
 	/**初始化，加载所有权限配置
-	 * @param shutdownWhenServerError 
-	 * @param creator 
+	 * @param shutdownWhenServerError
+	 * @param creator
 	 * @param table 表内自定义数据过滤条件
-	 * @return 
+	 * @return
 	 * @throws ServerException
 	 */
 	@SuppressWarnings("unchecked")
@@ -180,11 +184,13 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 		}
 
 		Log.d(TAG, "initAccess < for ACCESS_MAP.size() = " + ACCESS_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
-		
+
 		Map<String, Map<RequestMethod, String[]>> newMap = new LinkedHashMap<>();
 		Map<String, Map<String, Object>> fakeDeleteMap = new LinkedHashMap<>();
 		Map<String, String> newTKMap = new LinkedHashMap<>();
-		
+
+		SortedMap<Integer, Map<String, List<String>>> versionedTableColumnMap = new TreeMap<>(ColumnUtil.DESC_COMPARATOR);
+		SortedMap<Integer, Map<String, Map<String, String>>> versionedKeyColumnMap = new TreeMap<>(ColumnUtil.DESC_COMPARATOR);
 		for (int i = 0; i < size; i++) {
 			JSONObject item = list.getJSONObject(i);
 			if (item == null) {
@@ -199,10 +205,10 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 			map.put(RequestMethod.POST, JSON.parseObject(item.getString("post"), String[].class));
 			map.put(RequestMethod.PUT, JSON.parseObject(item.getString("put"), String[].class));
 			map.put(RequestMethod.DELETE, JSON.parseObject(item.getString("delete"), String[].class));
-			
+
 			String name = item.getString("name");
 			String alias = item.getString("alias");
-			
+
 			Map<String, Object> fakemap = new HashMap<>();
 			if(StringUtil.isNotEmpty(item.getString("deletedKey"), true)) {
 				if (StringUtil.isEmpty(item.getString("deletedValue"), true)) {
@@ -212,7 +218,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 				fakemap.put("deletedValue", item.getString("deletedValue"));
 			}
 
-			/**TODO 
+			/**TODO
 			 * 以下判断写得比较复杂，因为表设计不够好，但为了兼容旧版 APIJSON 服务 和 APIAuto 工具而保留了下来。
 			 * 如果是 name 为接口传参的 表对象 的 key，对应一个可缺省的 tableName，判断就会简单不少。
 			 */
@@ -226,32 +232,93 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 					onServerError("name: " + name + "不合法！字段 alias 的值为空时，name 必须为合法表名！", shutdownWhenServerError);
 				}
 
-				newMap.put(name, map);
-				fakeDeleteMap.put(name, fakemap);
-			}
-			else {
-				if (JSONRequest.isTableKey(alias) == false) {
-					onServerError("alias: " + alias + "不合法！字段 alias 的值只能为 空 或者 合法表名！", shutdownWhenServerError);
-				}
-
-				newMap.put(alias, map);
-				fakeDeleteMap.put(alias, fakemap);
+				alias = name;
+			} else if (JSONRequest.isTableKey(alias) == false) {
+				onServerError("alias: " + alias + "不合法！字段 alias 的值只能为 空 或者 合法表名！", shutdownWhenServerError);
 			}
 
+			newMap.put(alias, map);
+			fakeDeleteMap.put(alias, fakemap);
 			newTKMap.put(alias, name);
+
+			if (ENABLE_VERIFY_COLUMN) {
+				JSONObject columns = item.getJSONObject("columns");
+				Set<Map.Entry<String, Object>> set = columns == null ? null : columns.entrySet();
+				if (set != null) {
+
+					for (Map.Entry<String, Object> entry : set) {
+						Integer version = entry == null ? null : Integer.valueOf(entry.getKey()); // null is not possible
+						Object val = version == null ? null : entry.getValue();
+						if (val == null) {
+							continue;
+						}
+
+						Map<String, Map<String, String>> kcm = new LinkedHashMap<>(); // versionedKeyColumnMap.get(version);
+						Map<String, String> cm = new LinkedHashMap<>(); // kcm.get(alias);
+
+						String[] cs = StringUtil.split(String.valueOf(val));
+						List<String> l = new ArrayList<>();
+						for (int j = 0; j < cs.length; j++) {
+							String s = cs[j];
+							Entry<String, String> ety = Pair.parseEntry(s, true);
+							String k = ety == null ? null : ety.getKey();
+							String v = ety == null ? null : ety.getValue();
+							if (StringUtil.isName(k) == false || (v != null && StringUtil.isName(v) == false)) {
+								throw new IllegalArgumentException("后端 Access 表中 name: " + name + " 对应 columns 字段的值 "
+										+ version + ":value 中第 " + j + " 个字段 column:alias 中字符 " + s + " 不合法！"
+										+ "alias 可缺省，但 column, alias 都必须为合法的变量名！"
+										+ " ！ ！ety == null || StringUtil.isName(ety.getKey()) == false "
+										+ " || (ety.getValue() != null && StringUtil.isName(ety.getValue()) == false)");
+							}
+
+							l.add(k);
+
+							cm.put(v == null ? k : v, k);
+
+//							if (v != null) {
+////								if (kcm == null) {
+////									kcm = new LinkedHashMap<>();
+////								}
+////								if (m == null) {
+////									m = new LinkedHashMap<>();
+////									kcm.put(alias, m);
+////								}
+//								cm.put(v, k);
+//							}
+						}
+
+						Map<String, List<String>> m = new LinkedHashMap<>();
+						m.put(alias, l);
+						versionedTableColumnMap.put(version, m);
+
+						kcm.put(alias, cm);
+						versionedKeyColumnMap.put(version, kcm);
+					}
+				}
+			}
 		}
 
 		if (isAll) {  // 全量更新
 			ACCESS_MAP = newMap;
 			ACCESS_FAKE_DELETE_MAP = fakeDeleteMap;
 			APIJSONSQLConfig.TABLE_KEY_MAP = newTKMap;
-		}
-		else {
+		} else {
 			ACCESS_MAP.putAll(newMap);
 			ACCESS_FAKE_DELETE_MAP.putAll(fakeDeleteMap);
 			APIJSONSQLConfig.TABLE_KEY_MAP.putAll(newTKMap);
 		}
-		
+
+		if (ENABLE_VERIFY_COLUMN) {
+			if (isAll) { // 全量更新
+				ColumnUtil.VERSIONED_TABLE_COLUMN_MAP = versionedTableColumnMap;
+				ColumnUtil.VERSIONED_KEY_COLUMN_MAP = versionedKeyColumnMap;
+			} else {
+				ColumnUtil.VERSIONED_TABLE_COLUMN_MAP.putAll(versionedTableColumnMap);
+				ColumnUtil.VERSIONED_KEY_COLUMN_MAP.putAll(versionedKeyColumnMap);
+			}
+			ColumnUtil.init();
+		}
+
 		Log.d(TAG, "initAccess  for /> ACCESS_MAP.size() = " + ACCESS_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
 
 		return response;
@@ -259,42 +326,46 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 
 	/**初始化，加载所有请求校验配置
-	 * @return 
+	 * @return
 	 * @throws ServerException
 	 */
 	public static JSONObject initRequest() throws ServerException {
 		return initRequest(false);
 	}
+
 	/**初始化，加载所有请求校验配置
-	 * @param shutdownWhenServerError 
-	 * @return 
+	 * @param shutdownWhenServerError
+	 * @return
 	 * @throws ServerException
 	 */
 	public static JSONObject initRequest(boolean shutdownWhenServerError) throws ServerException {
 		return initRequest(shutdownWhenServerError, null);
 	}
+
 	/**初始化，加载所有请求校验配置
-	 * @param creator 
-	 * @return 
+	 * @param creator
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <T> JSONObject initRequest(APIJSONCreator<T> creator) throws ServerException {
 		return initRequest(false, creator);
 	}
+
 	/**初始化，加载所有请求校验配置
-	 * @param shutdownWhenServerError 
-	 * @param creator 
-	 * @return 
+	 * @param shutdownWhenServerError
+	 * @param creator
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <T> JSONObject initRequest(boolean shutdownWhenServerError, APIJSONCreator<T> creator) throws ServerException {
 		return initRequest(shutdownWhenServerError, creator, null);
 	}
+
 	/**初始化，加载所有请求校验配置
-	 * @param shutdownWhenServerError 
-	 * @param creator 
+	 * @param shutdownWhenServerError
+	 * @param creator
 	 * @param table 表内自定义数据过滤条件
-	 * @return 
+	 * @return
 	 * @throws ServerException
 	 */
 	@SuppressWarnings("unchecked")
@@ -372,9 +443,8 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 					if (apijson.JSONObject.isTableKey(key)) {
 						if (isArrayKey) { //自动为 tag = Comment:[] 的 { ... } 新增键值对 "Comment[]":[] 为 { "Comment[]":[], ... }
-							target.put(key + "[]", new JSONArray()); 
-						}
-						else { //自动为 tag = Comment 的 { ... } 包一层为 { "Comment": { ... } }
+							target.put(key + "[]", new JSONArray());
+						} else { //自动为 tag = Comment 的 { ... } 包一层为 { "Comment": { ... } }
 							target = new JSONObject(true);
 							target.put(tag, structure);
 						}
@@ -401,14 +471,13 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 			versionedMap.put(Integer.valueOf(version), item);
 			newMap.put(cacheKey, versionedMap);
 		}
-		
+
 		if (isAll) {  // 全量更新
 			REQUEST_MAP = newMap;
-		}
-		else {
+		} else {
 			REQUEST_MAP.putAll(newMap);
 		}
-		
+
 		Log.d(TAG, "initRequest  for /> REQUEST_MAP.size() = " + REQUEST_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
 
 		return response;
@@ -421,9 +490,10 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 	static final String requestConfig = "{\"Comment\":{\"REFUSE\": \"id\", \"MUST\": \"userId,momentId,content\"}, \"INSERT\":{\"@role\":\"OWNER\"}}";
 	static final String responseConfig = "{\"User\":{\"REMOVE\": \"phone\", \"REPLACE\":{\"sex\":2}, \"INSERT\":{\"name\":\"api\"}, \"UPDATE\":{\"verifyURLList-()\":\"verifyURLList(pictureList)\"}}}";
+
 	/**
 	 * 测试 Request 和 Response 的数据结构校验
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static void testStructure() throws Exception {
 		JSONObject request;
@@ -436,7 +506,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 			}
 			Log.d(TAG, "测试 Operation.MUST 校验缺少字段：成功");
 		}
-		try {			
+		try {
 			request = JSON.parseObject("{\"Comment\":{\"id\":0, \"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
 			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, APIJSON_CREATOR));
 		} catch (Throwable e) {
@@ -453,7 +523,6 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 		} catch (Throwable e) {
 			throw e;
 		}
-
 
 
 		JSONObject response;
@@ -493,17 +562,15 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	}
 
 
-
 	protected static void onServerError(String msg, boolean shutdown) throws ServerException {
 		Log.e(TAG, "\n校验配置测试未通过！\n请修改 Access/Request 表里的记录！\n保证所有配置都是正确的！！！\n\n原因：\n" + msg);
 
 		if (shutdown) {
-			System.exit(1);	
+			System.exit(1);
 		} else {
 			throw new ServerException(msg);
 		}
 	}
-
 
 
 	@SuppressWarnings("unchecked")
@@ -516,7 +583,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	}
 
 	/**登录校验
-	 * @author 
+	 * @author
 	 * @modifier Lemon
 	 * @param session
 	 * @throws Exception
@@ -530,14 +597,14 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	/**获取来访用户的id
 	 * @author Lemon
 	 * @param session
-	 * @return 
+	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends Object> T getVisitorId(HttpSession session) {
 		if (session == null) {
 			return null;
 		}
-		
+
 		T id = (T) session.getAttribute(VISITOR_ID);
 		if (id == null) {
 			id = (T) getVisitor(session);
@@ -545,6 +612,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 		}
 		return id;
 	}
+
 	/**获取来访用户
 	 * @param session
 	 * @return
@@ -555,15 +623,16 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 	}
 
 
-
 	@Override
 	public String getIdKey(String database, String schema, String datasource, String table) {
 		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, schema, datasource, table);
 	}
+
 	@Override
 	public String getUserIdKey(String database, String schema, String datasource, String table) {
 		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, schema, datasource, table);
 	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public T newId(RequestMethod method, String database, String schema, String datasource, String table) {

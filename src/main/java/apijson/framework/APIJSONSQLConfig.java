@@ -22,6 +22,7 @@ import static apijson.framework.APIJSONConstant.USER_ID;
 import java.util.List;
 import java.util.Map;
 
+import apijson.column.ColumnUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -37,6 +38,8 @@ import apijson.orm.SQLConfig;
  */
 public class APIJSONSQLConfig extends AbstractSQLConfig {
 	public static final String TAG = "APIJSONSQLConfig";
+
+	public static boolean ENABLE_COLUMN_CONFIG = false;
 
 	public static Callback<? extends Object> SIMPLE_CALLBACK;
 	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
@@ -261,6 +264,22 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 
 	@Override
 	public void onFakeDelete(Map<String, Object> map) {
-		
 	}
+
+	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
+	@Override
+	public AbstractSQLConfig setColumn(List<String> column) {
+		if (ENABLE_COLUMN_CONFIG) {
+			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion());
+		}
+		return super.setColumn(column);
+	}
+	@Override
+	public String getKey(String key) {
+		if (ENABLE_COLUMN_CONFIG) {
+			key = ColumnUtil.compatInputKey(key, getTable(), getMethod(), getVersion(), ! isConfigTable());
+		}
+		return super.getKey(key);
+	}
+
 }

@@ -36,6 +36,11 @@
 			<artifactId>APIJSON</artifactId>
 			<version>6.1.0</version>
 		</dependency>
+		<!--		<dependency>-->
+		<!--			<groupId>com.github.APIJSON</groupId>-->
+		<!--			<artifactId>apijson-column</artifactId>-->
+		<!--			<version>1.6.0</version>-->
+		<!--		</dependency>-->
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
 		<dependency>

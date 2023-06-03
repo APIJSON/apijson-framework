@@ -20,6 +20,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 
+import apijson.column.ColumnUtil;
 import org.postgresql.util.PGobject;
 
 import com.alibaba.fastjson.JSONObject;
@@ -94,5 +95,17 @@ public class APIJSONSQLExecutor extends AbstractSQLExecutor {
 		return value instanceof PGobject ? JSON.parse(((PGobject) value).getValue()) : value;
 	}
 
+	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
+	@Override
+	protected String getKey(SQLConfig config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition, JSONObject table,
+			int columnIndex, Map<String, JSONObject> childMap) throws Exception {
+
+		String key = super.getKey(config, rs, rsmd, tablePosition, table, columnIndex, childMap);
+		if (APIJSONSQLConfig.ENABLE_COLUMN_CONFIG) {
+			return ColumnUtil.compatOutputKey(key, config.getTable(), config.getMethod());
+		}
+
+		return key;
+	}
 
 }

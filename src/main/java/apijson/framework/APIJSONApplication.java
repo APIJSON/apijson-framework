@@ -82,7 +82,7 @@ public class APIJSONApplication {
             } catch (Throwable e) {
                 e.printStackTrace();
                 if (shutdownWhenServerError) {
-                    onServerError("权Access 限校验配置 初始化失败！", shutdownWhenServerError);
+                    onServerError("Access 权限校验配置 初始化失败！", shutdownWhenServerError);
                 }
             }
             System.out.println("\n完成初始化: Access 权限校验配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
