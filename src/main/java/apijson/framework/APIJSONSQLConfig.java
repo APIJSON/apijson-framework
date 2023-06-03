@@ -164,31 +164,6 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		return null;
 	}
 
-	//取消注释后，默认的数据库类型会由 MySQL 改为 PostgreSQL
-	//	@Override
-	//	public String getDatabase() {
-	//		String db = super.getDatabase();
-	//		return db == null ? DATABASE_POSTGRESQL : db;
-	//	}
-
-	//如果确定只用一种数据库，可以重写方法，这种数据库直接 return true，其它数据库直接 return false，来减少判断，提高性能
-	//	@Override
-	//	public boolean isMySQL() {
-	//		return true;
-	//	}
-	//	@Override
-	//	public boolean isPostgreSQL() {
-	//		return false;
-	//	}
-	//	@Override
-	//	public boolean isSQLServer() {
-	//		return false;
-	//	}
-	//	@Override
-	//	public boolean isOracle() {
-	//		return false;
-	//	}
-
 	/**获取 APIJSON 配置表所在数据库模式 database，默认与业务表一块
 	 * @return
 	 */
@@ -270,7 +245,7 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 	@Override
 	public AbstractSQLConfig setColumn(List<String> column) {
 		if (ENABLE_COLUMN_CONFIG) {
-			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion());
+			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion(), ! isConfigTable());
 		}
 		return super.setColumn(column);
 	}
