@@ -232,14 +232,6 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		return newSQLConfig(method, table, alias, request, joinList, isProcedure, SIMPLE_CALLBACK);
 	}
 
-	@Override
-	public boolean isFakeDelete() {
-		return false;
-	}
-
-	@Override
-	public void onFakeDelete(Map<String, Object> map) {
-	}
 
 	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
 	@Override

@@ -210,12 +210,23 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 			String alias = item.getString("alias");
 
 			Map<String, Object> fakemap = new HashMap<>();
-			if(StringUtil.isNotEmpty(item.getString("deletedKey"), true)) {
-				if (StringUtil.isEmpty(item.getString("deletedValue"), true)) {
-					onServerError("Access表 id= "+ item.getString("id") +", deletedKey,deletedValue 的值不能为空！", shutdownWhenServerError);
+			String deletedKey = item.getString(AbstractSQLConfig.KEY_DELETED_KEY);
+			if(StringUtil.isNotEmpty(deletedKey, true)) {
+				boolean containNotDeletedValue = item.containsKey(AbstractSQLConfig.KEY_NOT_DELETED_VALUE);
+				Object deletedValue = item.getString(AbstractSQLConfig.KEY_DELETED_VALUE);
+				if (containNotDeletedValue == false && StringUtil.isEmpty(deletedValue, true)) {
+					onServerError(
+							"Access表 id = " + item.getString("id") + " 对应的 "
+							+ AbstractSQLConfig.KEY_DELETED_VALUE + " 的值不能为空！或者必须包含字段 "
+							+ AbstractSQLConfig.KEY_NOT_DELETED_VALUE + " ！"
+							, shutdownWhenServerError
+					);
 				}
-				fakemap.put("deletedKey", item.getString("deletedKey"));
-				fakemap.put("deletedValue", item.getString("deletedValue"));
+				fakemap.put(AbstractSQLConfig.KEY_DELETED_KEY, deletedKey);
+				fakemap.put(AbstractSQLConfig.KEY_DELETED_VALUE, deletedValue);
+				if (containNotDeletedValue) {
+					fakemap.put(AbstractSQLConfig.KEY_NOT_DELETED_VALUE, item.get(AbstractSQLConfig.KEY_NOT_DELETED_VALUE));
+				}
 			}
 
 			/**TODO
