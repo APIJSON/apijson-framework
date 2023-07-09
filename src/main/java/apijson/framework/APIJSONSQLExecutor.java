@@ -35,7 +35,7 @@ import apijson.orm.SQLConfig;
 /**executor for query(read) or update(write) MySQL database
  * @author Lemon
  */
-public class APIJSONSQLExecutor extends AbstractSQLExecutor {
+public class APIJSONSQLExecutor<T extends Object> extends AbstractSQLExecutor<T> {
 	public static final String TAG = "APIJSONSQLExecutor";
 
 	static {

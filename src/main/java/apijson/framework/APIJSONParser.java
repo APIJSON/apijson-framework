@@ -125,6 +125,7 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 	public Object onFunctionParse(String key, String function, String parentPath, String currentName, JSONObject currentObject, boolean containRaw) throws Exception {
 		if (functionParser == null) {
 			functionParser = createFunctionParser();
+			functionParser.setParser(this);
 			functionParser.setMethod(getMethod());
 			functionParser.setTag(getTag());
 			functionParser.setVersion(getVersion());
@@ -157,11 +158,11 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 			//				return super.newQueryConfig();
 			//			}
 
-			//导致最多评论的(Strong 30个)的那个动态详情界面Android(82001)无姓名和头像，即User=null
+			// 导致最多评论的(Strong 30个)的那个动态详情界面Android(82001)无姓名和头像，即User=null
 			//			@Override
 			//			protected void onComplete() {
 			//				if (response != null) {
-			//					putQueryResult(path, response);//解决获取关联数据时requestObject里不存在需要的关联数据
+			//					putQueryResult(path, response); // 解决获取关联数据时requestObject里不存在需要的关联数据
 			//				}
 			//			}
 
@@ -179,13 +180,6 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 		}
 		super.onVerifyContent();
 	}
-
-
-	//	//可重写来设置最大查询数量
-	//	@Override
-	//	public int getMaxQueryCount() {
-	//		return 50;
-	//	}
 	
 
 }

@@ -36,7 +36,7 @@ import apijson.orm.SQLConfig;
  * TiDB 用法和 MySQL 一致
  * @author Lemon
  */
-public class APIJSONSQLConfig extends AbstractSQLConfig {
+public class APIJSONSQLConfig<T extends Object> extends AbstractSQLConfig<T> {
 	public static final String TAG = "APIJSONSQLConfig";
 
 	public static boolean ENABLE_COLUMN_CONFIG = false;
@@ -241,6 +241,7 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		}
 		return super.setColumn(column);
 	}
+
 	@Override
 	public String getKey(String key) {
 		if (ENABLE_COLUMN_CONFIG) {
