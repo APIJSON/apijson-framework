@@ -18,20 +18,17 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import apijson.orm.*;
 import com.alibaba.fastjson.JSONObject;
 
 import apijson.NotNull;
 import apijson.RequestMethod;
-import apijson.orm.AbstractObjectParser;
-import apijson.orm.AbstractParser;
-import apijson.orm.Join;
-import apijson.orm.SQLConfig;
 
 
 /**简化Parser，getObject和getArray(getArrayConfig)都能用
  * @author Lemon
  */
-public class APIJSONObjectParser extends AbstractObjectParser {
+public class APIJSONObjectParser<T extends Object> extends AbstractObjectParser<T> {
 	public static final String TAG = "APIJSONObjectParser";
 
 	/**for single object
@@ -44,26 +41,26 @@ public class APIJSONObjectParser extends AbstractObjectParser {
 	 * @param isArrayMainTable
 	 * @throws Exception
 	 */
-	public APIJSONObjectParser(HttpSession session, @NotNull JSONObject request, String parentPath, SQLConfig arrayConfig
+	public APIJSONObjectParser(HttpSession session, @NotNull JSONObject request, String parentPath, SQLConfig<T> arrayConfig
 			, boolean isSubquery, boolean isTable, boolean isArrayMainTable) throws Exception {
 		super(request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable);
 	}
 
 	@Override
-	public APIJSONObjectParser setMethod(RequestMethod method) {
+	public APIJSONObjectParser<T> setMethod(RequestMethod method) {
 		super.setMethod(method);
 		return this;
 	}
 
 	@Override
-	public APIJSONObjectParser setParser(AbstractParser<?> parser) {
+	public APIJSONObjectParser<T> setParser(Parser<T> parser) {
 		super.setParser(parser);
 		return this;
 	}
 
 
 	@Override
-	public SQLConfig newSQLConfig(RequestMethod method, String table, String alias, JSONObject request, List<Join> joinList, boolean isProcedure) throws Exception {
+	public SQLConfig<T> newSQLConfig(RequestMethod method, String table, String alias, JSONObject request, List<Join> joinList, boolean isProcedure) throws Exception {
 		return APIJSONSQLConfig.newSQLConfig(method, table, alias, request, joinList, isProcedure);
 	}
 

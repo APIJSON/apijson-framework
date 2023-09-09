@@ -145,10 +145,10 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 
 
 	@Override
-	public APIJSONObjectParser createObjectParser(JSONObject request, String parentPath, SQLConfig arrayConfig
+	public APIJSONObjectParser<T> createObjectParser(JSONObject request, String parentPath, SQLConfig<T> arrayConfig
 			, boolean isSubquery, boolean isTable, boolean isArrayMainTable) throws Exception {
 
-		return new APIJSONObjectParser(getSession(), request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable) {
+		return new APIJSONObjectParser<T>(getSession(), request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable) {
 
 			//			@Override
 			//			protected APIJSONSQLConfig newQueryConfig() {

@@ -59,8 +59,8 @@ public class APIJSONSQLConfig<T extends Object> extends AbstractSQLConfig<T> {
 		SIMPLE_CALLBACK = new SimpleCallback<Object>() {
 
 			@Override
-			public SQLConfig getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
-				SQLConfig config = APIJSON_CREATOR.createSQLConfig();
+			public SQLConfig<Object> getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
+				SQLConfig<Object> config = APIJSON_CREATOR.createSQLConfig();
 				config.setMethod(method);
 				config.setDatabase(database);
 				config.setDatasource(datasource);
@@ -228,14 +228,14 @@ public class APIJSONSQLConfig<T extends Object> extends AbstractSQLConfig<T> {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static SQLConfig newSQLConfig(RequestMethod method, String table, String alias, JSONObject request, List<Join> joinList, boolean isProcedure) throws Exception {
-		return newSQLConfig(method, table, alias, request, joinList, isProcedure, SIMPLE_CALLBACK);
+	public static <T extends Object> SQLConfig<T> newSQLConfig(RequestMethod method, String table, String alias, JSONObject request, List<Join> joinList, boolean isProcedure) throws Exception {
+		return (SQLConfig<T>) newSQLConfig(method, table, alias, request, joinList, isProcedure, SIMPLE_CALLBACK);
 	}
 
 
 	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
 	@Override
-	public AbstractSQLConfig setColumn(List<String> column) {
+	public AbstractSQLConfig<T> setColumn(List<String> column) {
 		if (ENABLE_COLUMN_CONFIG) {
 			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion(), ! isConfigTable());
 		}

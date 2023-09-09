@@ -73,7 +73,7 @@ public class APIJSONSQLExecutor<T extends Object> extends AbstractSQLExecutor<T>
 
 
 	@Override
-	public PreparedStatement setArgument(@NotNull SQLConfig config, @NotNull PreparedStatement statement, int index, Object value) throws SQLException {
+	public PreparedStatement setArgument(@NotNull SQLConfig<T> config, @NotNull PreparedStatement statement, int index, Object value) throws SQLException {
 		if (config.isPostgreSQL() && JSON.isBooleanOrNumberOrString(value) == false) {
 			PGobject o = new PGobject();
 			o.setType("jsonb");
@@ -87,7 +87,7 @@ public class APIJSONSQLExecutor<T extends Object> extends AbstractSQLExecutor<T>
 
 
 	@Override
-	protected Object getValue(SQLConfig config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition,
+	protected Object getValue(SQLConfig<T> config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition,
 			JSONObject table, int columnIndex, String lable, Map<String, JSONObject> childMap) throws Exception {
 		
 		Object value = super.getValue(config, rs, rsmd, tablePosition, table, columnIndex, lable, childMap);
@@ -97,7 +97,7 @@ public class APIJSONSQLExecutor<T extends Object> extends AbstractSQLExecutor<T>
 
 	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
 	@Override
-	protected String getKey(SQLConfig config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition, JSONObject table,
+	protected String getKey(SQLConfig<T> config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition, JSONObject table,
 			int columnIndex, Map<String, JSONObject> childMap) throws Exception {
 
 		String key = super.getKey(config, rs, rsmd, tablePosition, table, columnIndex, childMap);
