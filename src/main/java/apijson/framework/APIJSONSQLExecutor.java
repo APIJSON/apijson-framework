@@ -20,6 +20,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 
+import apijson.column.ColumnUtil;
 import org.postgresql.util.PGobject;
 
 import com.alibaba.fastjson.JSONObject;
@@ -34,7 +35,7 @@ import apijson.orm.SQLConfig;
 /**executor for query(read) or update(write) MySQL database
  * @author Lemon
  */
-public class APIJSONSQLExecutor extends AbstractSQLExecutor {
+public class APIJSONSQLExecutor<T extends Object> extends AbstractSQLExecutor<T> {
 	public static final String TAG = "APIJSONSQLExecutor";
 
 	static {
@@ -72,7 +73,7 @@ public class APIJSONSQLExecutor extends AbstractSQLExecutor {
 
 
 	@Override
-	public PreparedStatement setArgument(@NotNull SQLConfig config, @NotNull PreparedStatement statement, int index, Object value) throws SQLException {
+	public PreparedStatement setArgument(@NotNull SQLConfig<T> config, @NotNull PreparedStatement statement, int index, Object value) throws SQLException {
 		if (config.isPostgreSQL() && JSON.isBooleanOrNumberOrString(value) == false) {
 			PGobject o = new PGobject();
 			o.setType("jsonb");
@@ -86,7 +87,7 @@ public class APIJSONSQLExecutor extends AbstractSQLExecutor {
 
 
 	@Override
-	protected Object getValue(SQLConfig config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition,
+	protected Object getValue(SQLConfig<T> config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition,
 			JSONObject table, int columnIndex, String lable, Map<String, JSONObject> childMap) throws Exception {
 		
 		Object value = super.getValue(config, rs, rsmd, tablePosition, table, columnIndex, lable, childMap);
@@ -94,5 +95,17 @@ public class APIJSONSQLExecutor extends AbstractSQLExecutor {
 		return value instanceof PGobject ? JSON.parse(((PGobject) value).getValue()) : value;
 	}
 
+	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
+	@Override
+	protected String getKey(SQLConfig<T> config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition, JSONObject table,
+			int columnIndex, Map<String, JSONObject> childMap) throws Exception {
+
+		String key = super.getKey(config, rs, rsmd, tablePosition, table, columnIndex, childMap);
+		if (APIJSONSQLConfig.ENABLE_COLUMN_CONFIG) {
+			return ColumnUtil.compatOutputKey(key, config.getTable(), config.getMethod());
+		}
+
+		return key;
+	}
 
 }

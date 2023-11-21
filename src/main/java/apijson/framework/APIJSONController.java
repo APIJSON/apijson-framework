@@ -36,7 +36,10 @@ import java.lang.reflect.Method;
 import java.rmi.ServerException;
 import java.util.Map;
 
-
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -48,10 +51,6 @@ import apijson.StringUtil;
 import apijson.orm.AbstractParser;
 import apijson.orm.Parser;
 import apijson.orm.Visitor;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import unitauto.MethodUtil;
 import unitauto.MethodUtil.InterfaceProxy;
 
@@ -109,7 +108,7 @@ public class APIJSONController<T extends Object> {
 
 	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一些路由解析性能来提升一点开发效率
+	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一点路由解析性能来提升一些开发效率
 	 * @param method
 	 * @param tag
 	 * @param params

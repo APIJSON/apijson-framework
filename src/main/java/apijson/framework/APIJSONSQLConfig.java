@@ -22,6 +22,7 @@ import static apijson.framework.APIJSONConstant.USER_ID;
 import java.util.List;
 import java.util.Map;
 
+import apijson.column.ColumnUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -35,8 +36,10 @@ import apijson.orm.SQLConfig;
  * TiDB 用法和 MySQL 一致
  * @author Lemon
  */
-public class APIJSONSQLConfig extends AbstractSQLConfig {
+public class APIJSONSQLConfig<T extends Object> extends AbstractSQLConfig<T> {
 	public static final String TAG = "APIJSONSQLConfig";
+
+	public static boolean ENABLE_COLUMN_CONFIG = false;
 
 	public static Callback<? extends Object> SIMPLE_CALLBACK;
 	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
@@ -56,8 +59,8 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		SIMPLE_CALLBACK = new SimpleCallback<Object>() {
 
 			@Override
-			public SQLConfig getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
-				SQLConfig config = APIJSON_CREATOR.createSQLConfig();
+			public SQLConfig<Object> getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
+				SQLConfig<Object> config = APIJSON_CREATOR.createSQLConfig();
 				config.setMethod(method);
 				config.setDatabase(database);
 				config.setDatasource(datasource);
@@ -161,31 +164,6 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 		return null;
 	}
 
-	//取消注释后，默认的数据库类型会由 MySQL 改为 PostgreSQL
-	//	@Override
-	//	public String getDatabase() {
-	//		String db = super.getDatabase();
-	//		return db == null ? DATABASE_POSTGRESQL : db;
-	//	}
-
-	//如果确定只用一种数据库，可以重写方法，这种数据库直接 return true，其它数据库直接 return false，来减少判断，提高性能
-	//	@Override
-	//	public boolean isMySQL() {
-	//		return true;
-	//	}
-	//	@Override
-	//	public boolean isPostgreSQL() {
-	//		return false;
-	//	}
-	//	@Override
-	//	public boolean isSQLServer() {
-	//		return false;
-	//	}
-	//	@Override
-	//	public boolean isOracle() {
-	//		return false;
-	//	}
-
 	/**获取 APIJSON 配置表所在数据库模式 database，默认与业务表一块
 	 * @return
 	 */
@@ -250,17 +228,26 @@ public class APIJSONSQLConfig extends AbstractSQLConfig {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static SQLConfig newSQLConfig(RequestMethod method, String table, String alias, JSONObject request, List<Join> joinList, boolean isProcedure) throws Exception {
-		return newSQLConfig(method, table, alias, request, joinList, isProcedure, SIMPLE_CALLBACK);
+	public static <T extends Object> SQLConfig<T> newSQLConfig(RequestMethod method, String table, String alias, JSONObject request, List<Join> joinList, boolean isProcedure) throws Exception {
+		return (SQLConfig<T>) newSQLConfig(method, table, alias, request, joinList, isProcedure, SIMPLE_CALLBACK);
+	}
+
+
+	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
+	@Override
+	public AbstractSQLConfig<T> setColumn(List<String> column) {
+		if (ENABLE_COLUMN_CONFIG) {
+			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion(), ! isConfigTable());
+		}
+		return super.setColumn(column);
 	}
 
 	@Override
-	public boolean isFakeDelete() {
-		return false;
+	public String getKey(String key) {
+		if (ENABLE_COLUMN_CONFIG) {
+			key = ColumnUtil.compatInputKey(key, getTable(), getMethod(), getVersion(), ! isConfigTable());
+		}
+		return super.getKey(key);
 	}
 
-	@Override
-	public void onFakeDelete(Map<String, Object> map) {
-		
-	}
 }

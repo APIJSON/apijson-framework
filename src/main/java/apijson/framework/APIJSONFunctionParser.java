@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-
+import jakarta.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -46,7 +46,6 @@ import apijson.orm.AbstractFunctionParser;
 import apijson.orm.JSONRequest;
 import apijson.orm.script.JavaScriptExecutor;
 import apijson.orm.script.ScriptExecutor;
-import jakarta.servlet.http.HttpSession;
 import unitauto.MethodUtil;
 import unitauto.MethodUtil.Argument;
 
@@ -54,7 +53,7 @@ import unitauto.MethodUtil.Argument;
 /**可远程调用的函数类
  * @author Lemon
  */
-public class APIJSONFunctionParser extends AbstractFunctionParser {
+public class APIJSONFunctionParser<T extends Object> extends AbstractFunctionParser<T> {
 	public static final String TAG = "APIJSONFunctionParser";
 
 	@NotNull
@@ -80,23 +79,23 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	public HttpSession getSession() {
 		return session;
 	}
-	public APIJSONFunctionParser setSession(HttpSession session) {
+	public APIJSONFunctionParser<T> setSession(HttpSession session) {
 		this.session = session;
 		return this;
 	}
 
 	@Override
-	public APIJSONFunctionParser setMethod(RequestMethod method) {
+	public APIJSONFunctionParser<T> setMethod(RequestMethod method) {
 		super.setMethod(method);
 		return this;
 	}
 	@Override
-	public APIJSONFunctionParser setTag(String tag) {
+	public APIJSONFunctionParser<T> setTag(String tag) {
 		super.setTag(tag);
 		return this;
 	}
 	@Override
-	public APIJSONFunctionParser setVersion(int version) {
+	public APIJSONFunctionParser<T> setVersion(int version) {
 		super.setVersion(version);
 		return this;
 	}
@@ -284,7 +283,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 			if (item.get("language") != null) {
 				String language = item.getString("language");
 				if (SCRIPT_EXECUTOR_MAP.get(language) == null) {
-					onServerError("找不到脚本语言 " + language + " 对应的执行引擎！请先依赖相关库并在后端 APIJSONFunctionParser 中注册！", shutdownWhenServerError);
+					onServerError("找不到脚本语言 " + language + " 对应的执行引擎！请先依赖相关库并在后端 APIJSONFunctionParser<T> 中注册！", shutdownWhenServerError);
 				}
 				ScriptExecutor scriptExecutor = SCRIPT_EXECUTOR_MAP.get(language);
 				scriptExecutor.load(name, scriptMap.get(name).getString("script"));
@@ -297,12 +296,13 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 				methods = ALL_METHODS;
 			}
 
+			demo.put(JSONRequest.KEY_TAG, item.get(JSONRequest.KEY_TAG));
+			demo.put(JSONRequest.KEY_VERSION, item.get(JSONRequest.KEY_VERSION));
+
 			for (String method : methods) {
 				JSONObject r = APIJSON_CREATOR.createParser()
 						.setMethod(RequestMethod.valueOf(method))
 						.setNeedVerify(false)
-						.setTag(item.getString(JSONRequest.KEY_TAG))
-						.setVersion(item.getIntValue(JSONRequest.KEY_VERSION))
 						.parseResponse(demo);
 
 				if (JSONResponse.isSuccess(r) == false) {
@@ -337,7 +337,7 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	public static void test() throws Exception {
 		test(null);
 	}
-	public static void test(APIJSONFunctionParser function) throws Exception {
+	public static <T extends Object> void test(APIJSONFunctionParser<T> function) throws Exception {
 		int i0 = 1, i1 = -2;
 		JSONObject request = new JSONObject(); 
 		request.put("id", 10);
@@ -710,14 +710,6 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 	}
 
 
-	/**改用 getMethodDefinition
-	 */
-    @Deprecated
-	public String getMethodDefination(@NotNull JSONObject curObj) throws IllegalArgumentException {
-		//		curObj.put("arguments", removeComment(curObj.getString("methodArgs")));
-		return getMethodDefination(curObj, "method", "arguments", "genericType", "genericExceptions", "Java");
-	}
-
 	/**获取方法的定义
 	 * @param curObj
 	 * @return
@@ -729,13 +721,6 @@ public class APIJSONFunctionParser extends AbstractFunctionParser {
 		//		curObj.put("arguments", removeComment(curObj.getString("methodArgs")));
 		return getMethodDefinition(curObj, "method", "arguments", "genericType", "genericExceptions", "Java");
 	}
-    /**改用 getMethodDefinition
-     */
-    @Deprecated
-	public String getMethodDefination(@NotNull JSONObject curObj, String method, String arguments
-            , String type, String exceptions, String language) throws IllegalArgumentException {
-        return getMethodDefinition(curObj, method, arguments, type, exceptions, language);
-    }
 	/**获取方法的定义
 	 * @param curObj
 	 * @param method
