@@ -110,8 +110,6 @@ public class APIJSONController<T extends Object> {
 
 	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一点路由解析性能来提升一些开发效率
 	 * @param method
-	 * @param tag
-	 * @param params
 	 * @param request
 	 * @param session
 	 * @return
@@ -316,7 +314,6 @@ public class APIJSONController<T extends Object> {
 
 
 	/**重新加载配置
-	 * @param request
 	 * @return
 	 * @see
 	 * <pre>

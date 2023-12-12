@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>apijson.framework</groupId>
-	<artifactId>apijson-framework-spring-boot3</artifactId>
-	<version>6.2.0</version>
+	<artifactId>apijson-framework</artifactId>
+	<version>6.3.0</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
@@ -38,12 +38,12 @@
 		<dependency>
 			<groupId>com.github.Tencent</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>6.2.0</version>
+			<version>6.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.APIJSON</groupId>
 			<artifactId>apijson-column</artifactId>
-			<version>1.7.0</version>
+			<version>1.8.0</version>
 		</dependency>
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
@@ -64,12 +64,12 @@
 		<dependency>
 			<groupId>com.github.TommyLemon</groupId>
 			<artifactId>unitauto-java</artifactId>
-			<version>2.9.0</version>
+			<version>3.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.TommyLemon</groupId>
 			<artifactId>unitauto-jar</artifactId>
-			<version>2.9.0</version>
+			<version>3.0.5</version>
 		</dependency>
 		<!-- 单元测试：可使用 libs 目录的 unitauto-java.jar 和 unitauto-jar.jar 来替代，两种方式二选一 >>>>>>>>> -->
 
