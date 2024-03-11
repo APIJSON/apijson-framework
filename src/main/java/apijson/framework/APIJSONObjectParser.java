@@ -42,8 +42,8 @@ public class APIJSONObjectParser<T extends Object> extends AbstractObjectParser<
 	 * @throws Exception
 	 */
 	public APIJSONObjectParser(HttpSession session, @NotNull JSONObject request, String parentPath, SQLConfig<T> arrayConfig
-			, boolean isSubquery, boolean isTable, boolean isArrayMainTable) throws Exception {
-		super(request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable);
+			, boolean isSubQuery, boolean isTable, boolean isArrayMainTable) throws Exception {
+		super(request, parentPath, arrayConfig, isSubQuery, isTable, isArrayMainTable);
 	}
 
 	@Override
