@@ -29,7 +29,7 @@ public class AssertUtil {
 			return;
 		}
 
-		if (a == null || b == null || a.equals(b) == false) {
+		if (a == null || !a.equals(b)) {
 			throw new AssertionError(errorMessage == null ? "assert fail: a != b" : errorMessage);
 		}
 	}
