@@ -5,7 +5,7 @@
 
 	<groupId>apijson.framework</groupId>
 	<artifactId>apijson-framework</artifactId>
-	<version>6.4.3-springboot3</version>
+	<version>6.4.4-springboot3</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>com.github.APIJSON</groupId>
 			<artifactId>apijson-column</artifactId>
-			<version>1.8.0</version>
+			<version>1.9.3-springboot3</version>
 		</dependency>
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
