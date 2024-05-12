@@ -36,10 +36,10 @@ import java.lang.reflect.Method;
 import java.rmi.ServerException;
 import java.util.Map;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -110,8 +110,6 @@ public class APIJSONController<T extends Object> {
 
 	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一点路由解析性能来提升一些开发效率
 	 * @param method
-	 * @param tag
-	 * @param params
 	 * @param request
 	 * @param session
 	 * @return
@@ -316,7 +314,6 @@ public class APIJSONController<T extends Object> {
 
 
 	/**重新加载配置
-	 * @param request
 	 * @return
 	 * @see
 	 * <pre>
