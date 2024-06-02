@@ -188,6 +188,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 		Map<String, Map<RequestMethod, String[]>> newMap = new LinkedHashMap<>();
 		Map<String, Map<String, Object>> fakeDeleteMap = new LinkedHashMap<>();
 		Map<String, String> newTKMap = new LinkedHashMap<>();
+		Map<String, String> tableSchemaMap = new LinkedHashMap<>();
 
 		SortedMap<Integer, Map<String, List<String>>> versionedTableColumnMap = new TreeMap<>(ColumnUtil.DESC_COMPARATOR);
 		SortedMap<Integer, Map<String, Map<String, String>>> versionedKeyColumnMap = new TreeMap<>(ColumnUtil.DESC_COMPARATOR);
@@ -208,6 +209,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 
 			String name = item.getString("name");
 			String alias = item.getString("alias");
+			String schema = item.getString("schema");
 
 			Map<String, Object> fakemap = new HashMap<>();
 			String deletedKey = item.getString(AbstractSQLConfig.KEY_DELETED_KEY);
@@ -251,6 +253,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 			newMap.put(alias, map);
 			fakeDeleteMap.put(alias, fakemap);
 			newTKMap.put(alias, name);
+			tableSchemaMap.put(alias,schema);
 
 			if (ENABLE_VERIFY_COLUMN) {
 				JSONObject columns = item.getJSONObject("columns");
@@ -313,10 +316,12 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 			ACCESS_MAP = newMap;
 			ACCESS_FAKE_DELETE_MAP = fakeDeleteMap;
 			APIJSONSQLConfig.TABLE_KEY_MAP = newTKMap;
+			APIJSONSQLConfig.TABLE_SCHEMA_MAP = tableSchemaMap;
 		} else {
 			ACCESS_MAP.putAll(newMap);
 			ACCESS_FAKE_DELETE_MAP.putAll(fakeDeleteMap);
 			APIJSONSQLConfig.TABLE_KEY_MAP.putAll(newTKMap);
+			APIJSONSQLConfig.TABLE_SCHEMA_MAP = tableSchemaMap;
 		}
 
 		if (ENABLE_VERIFY_COLUMN) {
