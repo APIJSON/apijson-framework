@@ -253,7 +253,7 @@ public class APIJSONVerifier<T extends Object> extends AbstractVerifier<T> {
 			newMap.put(alias, map);
 			fakeDeleteMap.put(alias, fakemap);
 			newTKMap.put(alias, name);
-			tableSchemaMap.put(alias,schema);
+			tableSchemaMap.put(alias, schema);
 
 			if (ENABLE_VERIFY_COLUMN) {
 				JSONObject columns = item.getJSONObject("columns");
