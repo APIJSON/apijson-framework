@@ -132,6 +132,14 @@ https://github.com/Tencent/APIJSON/issues/36
 <br />
 <br />
 
-#### 点右上角 ⭐Star 支持一下，谢谢 ^_^
+### 贡献者
+### Contributors
+1 个腾讯工程师、1 京东工程师 等，感谢大家的贡献~ <br />
+1 Tencent engineers, 1 JD engineer, etc. Thank you all~ <br />
+https://github.com/APIJSON/apijson-framework/graphs/contributors
+
+<br />
+
+#### 创作不易、坚持更难，点右上角 ⭐Star 支持一下，谢谢 ^_^
 #### Please ⭐Star this project ^_^
 https://github.com/APIJSON/apijson-framework
