@@ -12,24 +12,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-package apijson.framework;
-
-import static apijson.framework.APIJSONConstant.ID;
-import static apijson.framework.APIJSONConstant.PRIVACY_;
-import static apijson.framework.APIJSONConstant.USER_;
-import static apijson.framework.APIJSONConstant.USER_ID;
-
-import java.util.List;
-import java.util.Map;
-
-import apijson.column.ColumnUtil;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
+package apijson.framework.javax;
 
 import apijson.RequestMethod;
+import apijson.column.ColumnUtil;
 import apijson.orm.AbstractSQLConfig;
 import apijson.orm.Join;
 import apijson.orm.SQLConfig;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
+
+import java.util.List;
+
+import static apijson.framework.javax.APIJSONConstant.*;
 
 
 /**SQL配置

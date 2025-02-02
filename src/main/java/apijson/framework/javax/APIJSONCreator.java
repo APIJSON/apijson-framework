@@ -12,16 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-package apijson.framework;
+package apijson.framework.javax;
 
-import apijson.orm.FunctionParser;
-import apijson.orm.Parser;
-import apijson.orm.ParserCreator;
-import apijson.orm.SQLConfig;
-import apijson.orm.SQLCreator;
-import apijson.orm.SQLExecutor;
-import apijson.orm.Verifier;
-import apijson.orm.VerifierCreator;
+import apijson.orm.*;
 
 
 /**APIJSON相关创建器

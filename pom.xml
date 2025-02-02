@@ -5,7 +5,7 @@
 
 	<groupId>apijson.framework</groupId>
 	<artifactId>apijson-framework</artifactId>
-	<version>7.1.0</version>
+	<version>7.1.5</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
@@ -21,11 +21,19 @@
 	</properties>
 
 	<dependencies>
+		<!-- JDK 17+, SpringBoot 3.0+ -->
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
 			<version>6.0.0</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- JDK 1.8~16, SpringBoot 1.4~2.7 -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.1</version>
 		</dependency>
 
 		<dependency>
