@@ -51,7 +51,7 @@ public class APIJSONSQLConfig<T extends Object> extends AbstractSQLConfig<T> {
 
 		APIJSON_CREATOR = new APIJSONCreator<>();
 
-		SIMPLE_CALLBACK = new SimpleCallback<>() {
+		SIMPLE_CALLBACK = new SimpleCallback<Object>() {
 
 			@Override
 			public SQLConfig<Object> getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
