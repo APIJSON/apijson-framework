@@ -22,9 +22,10 @@ import static apijson.framework.APIJSONConstant.USER_ID;
 import java.util.List;
 import java.util.Map;
 
-import apijson.column.ColumnUtil;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
+import apijson.JSONArray;
+import apijson.JSONObject;
+//import apijson.column.ColumnUtil;
+import apijson.JSONField;
 
 import apijson.RequestMethod;
 import apijson.orm.AbstractSQLConfig;
@@ -36,13 +37,13 @@ import apijson.orm.SQLConfig;
  * TiDB 用法和 MySQL 一致
  * @author Lemon
  */
-public class APIJSONSQLConfig<T extends Object> extends AbstractSQLConfig<T> {
+public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<Object>> extends AbstractSQLConfig<T, M, L> {
 	public static final String TAG = "APIJSONSQLConfig";
 
 	public static boolean ENABLE_COLUMN_CONFIG = false;
 
-	public static Callback<? extends Object> SIMPLE_CALLBACK;
-	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
+	public static Callback<?, ? extends Map<String, Object>, ? extends List<Object>> SIMPLE_CALLBACK;
+	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
 	
 	static {
 		DEFAULT_DATABASE = DATABASE_MYSQL;  //TODO 默认数据库类型，改成你自己的
@@ -54,13 +55,13 @@ public class APIJSONSQLConfig<T extends Object> extends AbstractSQLConfig<T> {
 		//		TABLE_KEY_MAP.put(User.class.getSimpleName(), "apijson_user");
 		//		TABLE_KEY_MAP.put(Privacy.class.getSimpleName(), "apijson_privacy");
 
-		APIJSON_CREATOR = new APIJSONCreator<Object>();
+		APIJSON_CREATOR = new APIJSONCreator<>();
 
-		SIMPLE_CALLBACK = new SimpleCallback<Object>() {
+		SIMPLE_CALLBACK = new SimpleCallback<Object, JSONObject, JSONArray>() {
 
 			@Override
-			public SQLConfig<Object> getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
-				SQLConfig<Object> config = (SQLConfig<Object>) APIJSON_CREATOR.createSQLConfig();
+			public SQLConfig<Object, JSONObject, JSONArray> getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
+				SQLConfig<Object, JSONObject, JSONArray> config = (SQLConfig<Object, JSONObject, JSONArray>) APIJSON_CREATOR.createSQLConfig();
 				config.setMethod(method);
 				config.setDatabase(database);
 				config.setDatasource(datasource);
@@ -228,26 +229,38 @@ public class APIJSONSQLConfig<T extends Object> extends AbstractSQLConfig<T> {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static <T extends Object> SQLConfig<T> newSQLConfig(RequestMethod method, String table, String alias, JSONObject request, List<Join> joinList, boolean isProcedure) throws Exception {
-		return (SQLConfig<T>) newSQLConfig(method, table, alias, request, joinList, isProcedure, SIMPLE_CALLBACK);
+	public static <T, M extends Map<String, Object>, L extends List<Object>> SQLConfig<T, M, L> newSQLConfig(
+			RequestMethod method, String table, String alias, M request, List<Join<T, M, L>> joinList, boolean isProcedure) throws Exception {
+		return newSQLConfig(method, table, alias, request, joinList, isProcedure, new SimpleCallback<T, M, L>() {
+			@Override
+			public SQLConfig<T, M, L> getSQLConfig(RequestMethod method, String database, String schema, String datasource, String table) {
+				SQLConfig<T, M, L> config = (SQLConfig<T, M, L>) APIJSON_CREATOR.createSQLConfig();
+				config.setMethod(method);
+				config.setDatabase(database);
+				config.setDatasource(datasource);
+				config.setSchema(schema);
+				config.setTable(table);
+				return config;
+			}
+		});
 	}
 
 
 	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
-	@Override
-	public AbstractSQLConfig<T> setColumn(List<String> column) {
-		if (ENABLE_COLUMN_CONFIG) {
-			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion(), ! isConfigTable());
-		}
-		return super.setColumn(column);
-	}
-
-	@Override
-	public String getKey(String key) {
-		if (ENABLE_COLUMN_CONFIG) {
-			key = ColumnUtil.compatInputKey(key, getTable(), getMethod(), getVersion(), ! isConfigTable());
-		}
-		return super.getKey(key);
-	}
+//	@Override
+//	public AbstractSQLConfig<T, M, L> setColumn(List<String> column) {
+//		if (ENABLE_COLUMN_CONFIG) {
+//			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion(), ! isConfigTable());
+//		}
+//		return super.setColumn(column);
+//	}
+//
+//	@Override
+//	public String getKey(String key) {
+//		if (ENABLE_COLUMN_CONFIG) {
+//			key = ColumnUtil.compatInputKey(key, getTable(), getMethod(), getVersion(), ! isConfigTable());
+//		}
+//		return super.getKey(key);
+//	}
 
 }

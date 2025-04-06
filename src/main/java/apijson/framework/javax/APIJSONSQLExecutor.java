@@ -17,23 +17,23 @@ package apijson.framework.javax;
 import apijson.JSON;
 import apijson.Log;
 import apijson.NotNull;
-import apijson.column.ColumnUtil;
+//import apijson.column.ColumnUtil;
 import apijson.orm.AbstractSQLExecutor;
 import apijson.orm.SQLConfig;
-import com.alibaba.fastjson.JSONObject;
 import org.postgresql.util.PGobject;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 
 /**executor for query(read) or update(write) MySQL database
  * @author Lemon
  */
-public class APIJSONSQLExecutor<T extends Object> extends AbstractSQLExecutor<T> {
+public class APIJSONSQLExecutor<T, M extends Map<String, Object>, L extends List<Object>> extends AbstractSQLExecutor<T, M, L> {
 	public static final String TAG = "APIJSONSQLExecutor";
 
 	static {
@@ -71,8 +71,9 @@ public class APIJSONSQLExecutor<T extends Object> extends AbstractSQLExecutor<T>
 
 
 	@Override
-	public PreparedStatement setArgument(@NotNull SQLConfig<T> config, @NotNull PreparedStatement statement, int index, Object value) throws SQLException {
-		if (config.isPostgreSQL() && JSON.isBooleanOrNumberOrString(value) == false) {
+	public PreparedStatement setArgument(@NotNull SQLConfig<T, M, L> config, @NotNull PreparedStatement statement
+			, int index, Object value) throws SQLException {
+		if (config.isPostgreSQL() && JSON.isBoolOrNumOrStr(value) == false) {
 			PGobject o = new PGobject();
 			o.setType("jsonb");
 			o.setValue(value == null ? null : value.toString());
@@ -85,23 +86,27 @@ public class APIJSONSQLExecutor<T extends Object> extends AbstractSQLExecutor<T>
 
 
 	@Override
-	protected Object getValue(SQLConfig<T> config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition,
-			JSONObject table, int columnIndex, String lable, Map<String, JSONObject> childMap) throws Exception {
+	protected Object getValue(
+		SQLConfig<T, M, L> config, ResultSet rs, ResultSetMetaData rsmd, int row
+		, M table, int columnIndex, String label, Map<String, M> childMap, Map<String, String> keyMap
+	) throws Exception {
 		
-		Object value = super.getValue(config, rs, rsmd, tablePosition, table, columnIndex, lable, childMap);
+		Object value = super.getValue(config, rs, rsmd, row, table, columnIndex, label, childMap, keyMap);
 
-		return value instanceof PGobject ? JSON.parse(((PGobject) value).getValue()) : value;
+		return value instanceof PGobject ? JSON.parseJSON(((PGobject) value).getValue()) : value;
 	}
 
 	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
 	@Override
-	protected String getKey(SQLConfig<T> config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition, JSONObject table,
-			int columnIndex, Map<String, JSONObject> childMap) throws Exception {
+	protected String getKey(
+		SQLConfig<T, M, L> config, ResultSet rs, ResultSetMetaData rsmd, int row
+		, M table, int columnIndex, Map<String, M> childMap, Map<String, String> keyMap
+	) throws Exception {
 
-		String key = super.getKey(config, rs, rsmd, tablePosition, table, columnIndex, childMap);
-		if (APIJSONSQLConfig.ENABLE_COLUMN_CONFIG) {
-			return ColumnUtil.compatOutputKey(key, config.getTable(), config.getMethod());
-		}
+		String key = super.getKey(config, rs, rsmd, row, table, columnIndex, childMap, keyMap);
+//		if (APIJSONSQLConfig.ENABLE_COLUMN_CONFIG) {
+//			return ColumnUtil.compatOutputKey(key, config.getTable(), config.getMethod());
+//		}
 
 		return key;
 	}

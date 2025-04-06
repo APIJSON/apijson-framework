@@ -18,18 +18,14 @@ import apijson.*;
 import apijson.orm.AbstractParser;
 import apijson.orm.Parser;
 import apijson.orm.Visitor;
-import com.alibaba.fastjson.JSONObject;
-import javax.servlet.AsyncContext;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import unitauto.MethodUtil;
-import unitauto.MethodUtil.InterfaceProxy;
 
-import java.lang.reflect.Method;
+import javax.servlet.http.HttpSession;
+
 import java.rmi.ServerException;
+import java.util.List;
 import java.util.Map;
 
+import static apijson.JSON.toJSONString;
 import static apijson.RequestMethod.*;
 import static apijson.framework.javax.APIJSONConstant.*;
 
@@ -41,29 +37,29 @@ import static apijson.framework.javax.APIJSONConstant.*;
  * <br > 3.调试方便 - 建议使用 APIAuto-机器学习自动化接口管理工具(https://github.com/TommyLemon/APIAuto)
  * @author Lemon
  */
-public class APIJSONController<T extends Object> {
+public class APIJSONController<T, M extends Map<String, Object>, L extends List<Object>> {
 	public static final String TAG = "APIJSONController";
 	
 	@NotNull
-	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
+	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
 	static {
-		APIJSON_CREATOR = new APIJSONCreator<>();
+		APIJSON_CREATOR = new APIJSONCreator<Object, JSONObject, JSONArray>();
 	}
 	
 	public String getRequestURL() {
 		return null;
 	}
 
-	public Parser<T> newParser(HttpSession session, RequestMethod method) {
+	public APIJSONParser<T, M, L> newParser(HttpSession session, RequestMethod method) {
 		@SuppressWarnings("unchecked")
-		Parser<T> parser = (Parser<T>) APIJSON_CREATOR.createParser();
+		APIJSONParser<T, M, L> parser = (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
 		parser.setMethod(method);
 		if (parser instanceof APIJSONParser) {
-			((APIJSONParser<T>) parser).setSession(session);
+			((APIJSONParser<T, M, L>) parser).setSession(session);
 		}
 		// 可以更方便地通过日志排查错误
 		if (parser instanceof AbstractParser) {
-			((AbstractParser<T>) parser).setRequestURL(getRequestURL());
+			((AbstractParser<T, M, L>) parser).setRequestURL(getRequestURL());
 		}
 		return parser;
 	}
@@ -73,10 +69,10 @@ public class APIJSONController<T extends Object> {
 	}
 	
 	public String parseByTag(RequestMethod method, String tag, Map<String, String> params, String request, HttpSession session) {
-		
-		JSONObject req = AbstractParser.wrapRequest(method, tag, JSON.parseObject(request), false);
+		APIJSONParser<T, M, L> parser = newParser(null, null);
+		M req = parser.wrapRequest(method, tag, JSON.parseObject(request), false, (JSONCreator<M, L>) APIJSON_CREATOR);
 		if (req == null) {
-			req = new JSONObject(true);
+			req = JSON.createJSONObject();
 		}
 		if (params != null && params.isEmpty() == false) {
 			req.putAll(params);
@@ -97,9 +93,12 @@ public class APIJSONController<T extends Object> {
 		if (METHODS.contains(method)) {
 			return parse(RequestMethod.valueOf(method.toUpperCase()), request, session);
 		}
-		
-		return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method} 中 method 值 " + method
-				+ " 错误！只允许 " + METHODS + " 中的一个！")).toJSONString();
+
+		Parser<T, M, L> parser = newParser(null, null);
+		return toJSONString(parser.newErrorResult(
+				new IllegalArgumentException("URL 路径 /{method} 中 method 值 "
+						+ method + " 错误！只允许 " + METHODS + " 中的一个！")
+		));
 	}
 
 	/**获取
@@ -200,9 +199,12 @@ public class APIJSONController<T extends Object> {
 		if (METHODS.contains(method)) {
 			return parseByTag(RequestMethod.valueOf(method.toUpperCase()), tag, params, request, session);
 		}
-		
-		return APIJSONParser.newErrorResult(new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 " + method
-				+ " 错误！只允许 " + METHODS + " 中的一个！")).toJSONString();
+
+		Parser<T, M, L> parser = newParser(null, null);
+		return toJSONString(parser.newErrorResult(
+				new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 "
+						+ method + " 错误！只允许 " + METHODS + " 中的一个！")
+		));
 	}
 
 	
@@ -213,7 +215,7 @@ public class APIJSONController<T extends Object> {
 //	 * @see {@link RequestMethod#GET}
 //	 */
 //	public String listByTag(String tag, String request, HttpSession session) {
-//		return parseByTag(GET, tag + JSONRequest.KEY_ARRAY, request, session);
+//		return parseByTag(GET, tag + apijson.JSONObject.KEY_ARRAY, request, session);
 //	}
 
 	/**获取
@@ -303,8 +305,9 @@ public class APIJSONController<T extends Object> {
 		}
 	 * </pre>
 	 */
-	public JSONObject reload(String type) {
-		JSONObject result = APIJSONParser.newSuccessResult();
+	public M reload(String type) {
+		Parser<T, M, L> parser = newParser(null, null);
+		M result = parser.newSuccessResult();
 
 		boolean reloadAll = StringUtil.isEmpty(type, true) || "ALL".equals(type);
 
@@ -320,7 +323,7 @@ public class APIJSONController<T extends Object> {
                 }
             } catch (ServerException e) {
 				e.printStackTrace();
-				result.put(ACCESS_, APIJSONParser.newErrorResult(e));
+				result.put(ACCESS_, parser.newErrorResult(e));
 			}
 		}
 
@@ -336,7 +339,7 @@ public class APIJSONController<T extends Object> {
                 }
 			} catch (ServerException e) {
 				e.printStackTrace();
-				result.put(FUNCTION_, APIJSONParser.newErrorResult(e));
+				result.put(FUNCTION_, parser.newErrorResult(e));
 			}
 		}
 
@@ -352,7 +355,7 @@ public class APIJSONController<T extends Object> {
                 }
 			} catch (ServerException e) {
 				e.printStackTrace();
-				result.put(REQUEST_, APIJSONParser.newErrorResult(e));
+				result.put(REQUEST_, parser.newErrorResult(e));
 			}
 		}
 
@@ -391,62 +394,62 @@ public class APIJSONController<T extends Object> {
 
 
 
-	public JSONObject listMethod(String request) {
-		if (Log.DEBUG == false) {
-			return APIJSONParser.newErrorResult(new IllegalAccessException("非 DEBUG 模式下不允许使用 UnitAuto 单元测试！"));
-		}
-		return MethodUtil.listMethod(request);
-	}
-
-	public void invokeMethod(String request, HttpServletRequest servletRequest) {
-		AsyncContext asyncContext = servletRequest.startAsync();
-
-		final boolean[] called = new boolean[] { false };
-		MethodUtil.Listener<JSONObject> listener = new MethodUtil.Listener<JSONObject>() {
-
-			@Override
-			public void complete(JSONObject data, Method method, InterfaceProxy proxy, Object... extras) throws Exception {
-				
-				ServletResponse servletResponse = called[0] ? null : asyncContext.getResponse();
-				if (servletResponse == null) {  //  || servletResponse.isCommitted()) {  // isCommitted 在高并发时可能不准，导致写入多次
-                    			Log.w(TAG, "invokeMethod  listener.complete  servletResponse == null || servletResponse.isCommitted() >> return;");
-                    			return;
-				}
-				called[0] = true;
-
-				servletResponse.setCharacterEncoding(servletRequest.getCharacterEncoding());
-				servletResponse.setContentType(servletRequest.getContentType());
-				servletResponse.getWriter().println(data);
-				asyncContext.complete();
-			}
-		};
-		
-		if (Log.DEBUG == false) {
-			try {
-				listener.complete(MethodUtil.JSON_CALLBACK.newErrorResult(new IllegalAccessException("非 DEBUG 模式下不允许使用 UnitAuto 单元测试！")));
-			}
-			catch (Exception e1) {
-				e1.printStackTrace();
-				asyncContext.complete();
-			}
-			
-			return;
-		}
-		
-
-		try {
-			MethodUtil.invokeMethod(request, null, listener);
-		}
-		catch (Exception e) {
-			Log.e(TAG, "invokeMethod  try { JSONObject req = JSON.parseObject(request); ... } catch (Exception e) { \n" + e.getMessage());
-			try {
-				listener.complete(MethodUtil.JSON_CALLBACK.newErrorResult(e));
-			}
-			catch (Exception e1) {
-				e1.printStackTrace();
-				asyncContext.complete();
-			}
-		}
-	}
+//	public JSONObject listMethod(String request) {
+//		if (Log.DEBUG == false) {
+//			return APIJSONParser.newErrorResult(new IllegalAccessException("非 DEBUG 模式下不允许使用 UnitAuto 单元测试！"));
+//		}
+//		return MethodUtil.listMethod(request);
+//	}
+//
+//	public void invokeMethod(String request, HttpServletRequest servletRequest) {
+//		AsyncContext asyncContext = servletRequest.startAsync();
+//
+//		final boolean[] called = new boolean[] { false };
+//		MethodUtil.Listener<JSONObject> listener = new MethodUtil.Listener<JSONObject>() {
+//
+//			@Override
+//			public void complete(JSONObject data, Method method, InterfaceProxy proxy, Object... extras) throws Exception {
+//
+//				ServletResponse servletResponse = called[0] ? null : asyncContext.getResponse();
+//				if (servletResponse == null) {  //  || servletResponse.isCommitted()) {  // isCommitted 在高并发时可能不准，导致写入多次
+//                    			Log.w(TAG, "invokeMethod  listener.complete  servletResponse == null || servletResponse.isCommitted() >> return;");
+//                    			return;
+//				}
+//				called[0] = true;
+//
+//				servletResponse.setCharacterEncoding(servletRequest.getCharacterEncoding());
+//				servletResponse.setContentType(servletRequest.getContentType());
+//				servletResponse.getWriter().println(data);
+//				asyncContext.complete();
+//			}
+//		};
+//
+//		if (Log.DEBUG == false) {
+//			try {
+//				listener.complete(MethodUtil.JSON_CALLBACK.newErrorResult(new IllegalAccessException("非 DEBUG 模式下不允许使用 UnitAuto 单元测试！")));
+//			}
+//			catch (Exception e1) {
+//				e1.printStackTrace();
+//				asyncContext.complete();
+//			}
+//
+//			return;
+//		}
+//
+//
+//		try {
+//			MethodUtil.invokeMethod(request, null, listener);
+//		}
+//		catch (Exception e) {
+//			Log.e(TAG, "invokeMethod  try { JSONObject req = JSON.parseObject(request); ... } catch (Exception e) { \n" + e.getMessage());
+//			try {
+//				listener.complete(MethodUtil.JSON_CALLBACK.newErrorResult(e));
+//			}
+//			catch (Exception e1) {
+//				e1.printStackTrace();
+//				asyncContext.complete();
+//			}
+//		}
+//	}
 
 }

@@ -15,11 +15,11 @@ limitations under the License.*/
 package apijson.framework;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpSession;
 
 import apijson.orm.*;
-import com.alibaba.fastjson.JSONObject;
 
 import apijson.NotNull;
 import apijson.RequestMethod;
@@ -28,7 +28,7 @@ import apijson.RequestMethod;
 /**简化Parser，getObject和getArray(getArrayConfig)都能用
  * @author Lemon
  */
-public class APIJSONObjectParser<T extends Object> extends AbstractObjectParser<T> {
+public class APIJSONObjectParser<T, M extends Map<String, Object>, L extends List<Object>> extends AbstractObjectParser<T, M, L> {
 	public static final String TAG = "APIJSONObjectParser";
 
 	/**for single object
@@ -41,28 +41,28 @@ public class APIJSONObjectParser<T extends Object> extends AbstractObjectParser<
 	 * @param isArrayMainTable
 	 * @throws Exception
 	 */
-	public APIJSONObjectParser(HttpSession session, @NotNull JSONObject request, String parentPath, SQLConfig<T> arrayConfig
-			, boolean isSubQuery, boolean isTable, boolean isArrayMainTable) throws Exception {
-		super(request, parentPath, arrayConfig, isSubQuery, isTable, isArrayMainTable);
+	public APIJSONObjectParser(HttpSession session, @NotNull M request, String parentPath, SQLConfig<T, M, L> arrayConfig
+			, boolean isSubquery, boolean isTable, boolean isArrayMainTable) throws Exception {
+		super(request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable);
 	}
 
 	@Override
-	public APIJSONObjectParser<T> setMethod(RequestMethod method) {
+	public APIJSONObjectParser<T, M, L> setMethod(RequestMethod method) {
 		super.setMethod(method);
 		return this;
 	}
 
 	@Override
-	public APIJSONObjectParser<T> setParser(Parser<T> parser) {
+	public APIJSONObjectParser<T, M, L> setParser(Parser<T, M, L> parser) {
 		super.setParser(parser);
 		return this;
 	}
 
 
 	@Override
-	public SQLConfig<T> newSQLConfig(RequestMethod method, String table, String alias, JSONObject request, List<Join> joinList, boolean isProcedure) throws Exception {
+	public SQLConfig<T, M, L> newSQLConfig(RequestMethod method, String table, String alias, M request
+			, List<Join<T, M, L>> joinList, boolean isProcedure) throws Exception {
 		return APIJSONSQLConfig.newSQLConfig(method, table, alias, request, joinList, isProcedure);
 	}
-
 
 }

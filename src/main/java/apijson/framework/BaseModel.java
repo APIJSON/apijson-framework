@@ -21,8 +21,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
-
+import apijson.JSON;
 import apijson.StringUtil;
 
 /**base model for reduce model codes
@@ -99,16 +98,14 @@ public abstract class BaseModel implements Serializable {
 	 * @param collection
 	 * @return
 	 */
-	public static <T> boolean isEmpty(Collection<T> collection) {
+	public static boolean isEmpty(Collection<?> collection) {
 		return collection == null || collection.isEmpty();
 	}
 	/**判断map是否为空
-	 * @param <K>
-	 * @param <V>
 	 * @param map
 	 * @return
 	 */
-	public static <K, V> boolean isEmpty(Map<K, V> map) {
+	public static boolean isEmpty(Map<?, ?> map) {
 		return map == null || map.isEmpty();
 	}
 	//判断是否为空 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -163,20 +160,17 @@ public abstract class BaseModel implements Serializable {
 		return array == null ? 0 : array.length;
 	}
 	/**获取数量
-	 * @param <T>
 	 * @param collection List, Vector, Set等都是Collection的子类
 	 * @return
 	 */
-	public static <T> int count(Collection<T> collection) {
+	public static int count(Collection<?> collection) {
 		return collection == null ? 0 : collection.size();
 	}
 	/**获取数量
-	 * @param <K>
-	 * @param <V>
 	 * @param map
 	 * @return
 	 */
-	public static <K, V> int count(Map<K, V> map) {
+	public static int count(Map<?, ?> map) {
 		return map == null ? 0 : map.size();
 	}
 	//获取集合长度 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>

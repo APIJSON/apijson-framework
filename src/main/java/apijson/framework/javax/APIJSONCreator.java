@@ -16,34 +16,38 @@ package apijson.framework.javax;
 
 import apijson.orm.*;
 
+import java.util.List;
+import java.util.Map;
+
 
 /**APIJSON相关创建器
  * @author Lemon
  */
-public class APIJSONCreator<T> implements ParserCreator<T>, VerifierCreator<T>, SQLCreator {
+public class APIJSONCreator<T, M extends Map<String, Object>, L extends List<Object>>
+		implements ParserCreator<T, M, L>, VerifierCreator<T, M, L>, SQLCreator<T, M, L> {
 
 	@Override
-	public Parser<T> createParser() {
+	public APIJSONParser<T, M, L> createParser() {
 		return new APIJSONParser<>();
 	}
 
 	@Override
-	public FunctionParser<T> createFunctionParser() {
+	public APIJSONFunctionParser<T, M, L> createFunctionParser() {
 		return new APIJSONFunctionParser<>();
 	}
 
 	@Override
-	public Verifier<T> createVerifier() {
+	public APIJSONVerifier<T, M, L> createVerifier() {
 		return new APIJSONVerifier<>();
 	}
 	
 	@Override
-	public SQLConfig<T> createSQLConfig() {
+	public APIJSONSQLConfig<T, M, L> createSQLConfig() {
 		return new APIJSONSQLConfig<>();
 	}
 
 	@Override
-	public SQLExecutor<T> createSQLExecutor() {
+	public APIJSONSQLExecutor<T, M, L> createSQLExecutor() {
 		return new APIJSONSQLExecutor<>();
 	}
 

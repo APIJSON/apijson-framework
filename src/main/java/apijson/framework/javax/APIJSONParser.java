@@ -17,23 +17,24 @@ package apijson.framework.javax;
 import apijson.NotNull;
 import apijson.RequestMethod;
 import apijson.orm.*;
-import com.alibaba.fastjson.JSONObject;
 import javax.servlet.http.HttpSession;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static apijson.framework.javax.APIJSONConstant.*;
+import static apijson.framework.APIJSONConstant.*;
 
 
 /**请求解析器
  * @author Lemon
  */
-public class APIJSONParser<T extends Object> extends AbstractParser<T> {
+public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Object>>
+		extends AbstractParser<T, M, L> {
 	public static final String TAG = "APIJSONParser";
 
 	@NotNull
-	public static APIJSONCreator<? extends Object> APIJSON_CREATOR;
+	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
 	static {
 		APIJSON_CREATOR = new APIJSONCreator<>();
 	}
@@ -53,7 +54,7 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 	public HttpSession getSession() {
 		return session;
 	}
-	public APIJSONParser<T> setSession(HttpSession session) {
+	public APIJSONParser<T, M, L> setSession(HttpSession session) {
 		this.session = session;
 		setVisitor(APIJSONVerifier.getVisitor(session));
 		return this;
@@ -61,39 +62,39 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Parser<T> createParser() {
-		return (Parser<T>) APIJSON_CREATOR.createParser();
+	public APIJSONParser<T, M, L> createParser() {
+		return (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
 	}
 	@Override
-	public FunctionParser createFunctionParser() {
-		return APIJSON_CREATOR.createFunctionParser();
+	public APIJSONFunctionParser<T, M, L> createFunctionParser() {
+		return (APIJSONFunctionParser<T, M, L>) APIJSON_CREATOR.createFunctionParser();
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Verifier<T> createVerifier() {
-		return (Verifier<T>) APIJSON_CREATOR.createVerifier();
+	public APIJSONVerifier<T, M, L> createVerifier() {
+		return (APIJSONVerifier<T, M, L>) APIJSON_CREATOR.createVerifier();
 	}
 	
 	@Override
-	public SQLConfig createSQLConfig() {
-		return APIJSON_CREATOR.createSQLConfig();
+	public APIJSONSQLConfig<T, M, L> createSQLConfig() {
+		return (APIJSONSQLConfig<T, M, L>) APIJSON_CREATOR.createSQLConfig();
 	}
 	@Override
-	public SQLExecutor createSQLExecutor() {
-		return APIJSON_CREATOR.createSQLExecutor();
+	public APIJSONSQLExecutor<T, M, L> createSQLExecutor() {
+		return (APIJSONSQLExecutor<T, M, L>) APIJSON_CREATOR.createSQLExecutor();
 	}
 
 
 	@Override
-	public JSONObject parseResponse(JSONObject request) {
+	public M parseResponse(M request) {
 		//补充format
 		if (session != null && request != null) {
 			if (request.get(FORMAT) == null) {
 				request.put(FORMAT, session.getAttribute(FORMAT));
 			}
 			if (request.get(DEFAULTS) == null) {
-				JSONObject defaults = (JSONObject) session.getAttribute(DEFAULTS);
+				M defaults = (M) session.getAttribute(DEFAULTS);
 				Set<Map.Entry<String, Object>> set = defaults == null ? null : defaults.entrySet();
 
 				if (set != null) {
@@ -105,15 +106,16 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 				}
 			}
 		}
+		
 		return super.parseResponse(request);
 	}
 
-	private FunctionParser functionParser;
-	public FunctionParser getFunctionParser() {
+	private FunctionParser<T, M, L> functionParser;
+	public FunctionParser<T, M, L> getFunctionParser() {
 		return functionParser;
 	}
 	@Override
-	public Object onFunctionParse(String key, String function, String parentPath, String currentName, JSONObject currentObject, boolean containRaw) throws Exception {
+	public Object onFunctionParse(String key, String function, String parentPath, String currentName, M currentObject, boolean containRaw) throws Exception {
 		if (functionParser == null) {
 			functionParser = createFunctionParser();
 			functionParser.setParser(this);
@@ -136,13 +138,13 @@ public class APIJSONParser<T extends Object> extends AbstractParser<T> {
 
 
 	@Override
-	public APIJSONObjectParser<T> createObjectParser(JSONObject request, String parentPath, SQLConfig<T> arrayConfig
+	public APIJSONObjectParser<T, M, L> createObjectParser(M request, String parentPath, SQLConfig<T, M, L> arrayConfig
 			, boolean isSubquery, boolean isTable, boolean isArrayMainTable) throws Exception {
 
-		return new APIJSONObjectParser<T>(getSession(), request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable) {
+		return new APIJSONObjectParser<T, M, L>(getSession(), request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable) {
 
 			//			@Override
-			//			protected APIJSONSQLConfig newQueryConfig() {
+			//			protected APIJSONSQLConfig<T, M, L> newQueryConfig() {
 			//				if (itemConfig != null) {
 			//					return itemConfig;
 			//				}
