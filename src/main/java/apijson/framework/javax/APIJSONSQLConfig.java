@@ -89,8 +89,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 
 
 
-	@Override
-	public String getDBVersion() {
+	public String gainDBVersion() {
 		if (isMySQL()) {
 			return "5.7.22"; //"8.0.11"; //TODO 改成你自己的 MySQL 或 PostgreSQL 数据库版本号 //MYSQL 8 和 7 使用的 JDBC 配置不一样
 		}
@@ -107,8 +106,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 	}
 
 	@JSONField(serialize = false)  // 不在日志打印 账号/密码 等敏感信息，用了 UnitAuto 则一定要加
-	@Override
-	public String getDBUri() {
+	public String gainDBUri() {
 		if (isMySQL()) {
 			return "jdbc:mysql://localhost:3306"; //TODO 改成你自己的，TiDB 可以当成 MySQL 使用，默认端口为 4000
 		}
@@ -125,8 +123,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 	}
 
 	@JSONField(serialize = false)  // 不在日志打印 账号/密码 等敏感信息，用了 UnitAuto 则一定要加
-	@Override
-	public String getDBAccount() {
+	public String gainDBAccount() {
 		if (isMySQL()) {
 			return "root";  //TODO 改成你自己的
 		}
@@ -143,8 +140,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 	}
 
 	@JSONField(serialize = false)  // 不在日志打印 账号/密码 等敏感信息，用了 UnitAuto 则一定要加
-	@Override
-	public String getDBPassword() {
+	public String gainDBPassword() {
 		if (isMySQL()) {
 			return "apijson";  //TODO 改成你自己的，TiDB 可以当成 MySQL 使用， 默认密码为空字符串 ""
 		}
@@ -179,13 +175,13 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		return CONFIG_TABLE_LIST.contains(getTable());
 	}
 	@Override
-	public String getSQLDatabase() {
-		String db = isConfigTable() ? getConfigDatabase() : super.getSQLDatabase();
+	public String gainSQLDatabase() {
+		String db = isConfigTable() ? getConfigDatabase() : super.gainSQLDatabase();
 		return db == null ? DEFAULT_DATABASE : db;
 	}
 	@Override
-	public String getSQLSchema() {
-		String sch = isConfigTable() ? getConfigSchema() : super.getSQLSchema();
+	public String gainSQLSchema() {
+		String sch = isConfigTable() ? getConfigSchema() : super.gainSQLSchema();
 		return sch == null ? DEFAULT_SCHEMA : sch;
 	}
 
