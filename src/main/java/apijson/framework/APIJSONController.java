@@ -366,7 +366,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 	 * @param defaults
 	 * @return 返回类型设置为 Object 是为了子类重写时可以有返回值，避免因为冲突而另写一个有返回值的登录方法
 	 */
-	public Object login(@NotNull HttpSession session, Visitor<Long> visitor, Integer version, Boolean format, JSONObject defaults) {
+	public Object login(@NotNull HttpSession session, Visitor<Long> visitor, Integer version, Boolean format, M defaults) {
 		//登录状态保存至session
 		session.setAttribute(VISITOR_ID, visitor.getId()); //用户id
 		session.setAttribute(VISITOR_, visitor); //用户
