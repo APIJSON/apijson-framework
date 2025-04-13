@@ -14,13 +14,8 @@ limitations under the License.*/
 
 package apijson.framework;
 
-import apijson.orm.FunctionParser;
-import apijson.orm.Parser;
 import apijson.orm.ParserCreator;
-import apijson.orm.SQLConfig;
 import apijson.orm.SQLCreator;
-import apijson.orm.SQLExecutor;
-import apijson.orm.Verifier;
 import apijson.orm.VerifierCreator;
 
 import java.util.List;

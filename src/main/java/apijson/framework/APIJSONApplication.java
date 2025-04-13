@@ -77,7 +77,8 @@ public class APIJSONApplication {
 		APIJSONSQLConfig.APIJSON_CREATOR = creator;
 		APIJSONParser.APIJSON_CREATOR = creator;
 		APIJSONController.APIJSON_CREATOR = creator;
-
+		APIJSONVerifier.APIJSON_CREATOR = creator;
+		APIJSONFunctionParser.APIJSON_CREATOR = creator;
 
         if (APIJSONVerifier.ENABLE_VERIFY_ROLE) {
             System.out.println("\n\n\n开始初始化: Access 权限校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
@@ -142,6 +143,18 @@ public class APIJSONApplication {
             System.out.println("\n完成测试: Request 请求参数校验 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         }
 
+		if (APIJSONVerifier.ENABLE_APIJSON_ROUTER) {
+			System.out.println("\n\n\n开始初始化: Document 请求映射配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+			try {
+				APIJSONVerifier.initDocument(shutdownWhenServerError, creator);
+			} catch (Throwable e) {
+				e.printStackTrace();
+				if (shutdownWhenServerError) {
+					onServerError("Document 请求映射配置 初始化失败！", shutdownWhenServerError);
+				}
+			}
+			System.out.println("\n完成初始化: Document 请求映射配置 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		}
 
 
 		System.out.println("官方网站： http://apijson.cn");

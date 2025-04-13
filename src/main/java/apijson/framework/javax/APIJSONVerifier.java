@@ -14,20 +14,17 @@ limitations under the License.*/
 
 package apijson.framework.javax;
 
-import static apijson.JSON.*;
-import static apijson.JSONRequest.KEY_COUNT;
-import static apijson.framework.javax.APIJSONConstant.ACCESS_;
-import static apijson.framework.javax.APIJSONConstant.REQUEST_;
-import static apijson.framework.javax.APIJSONConstant.VISITOR_;
-import static apijson.framework.javax.APIJSONConstant.VISITOR_ID;
+import apijson.*;
+import apijson.orm.JSONRequest;
+import apijson.orm.*;
+import javax.servlet.http.HttpSession;
 
 import java.rmi.ServerException;
 import java.util.*;
 
-import apijson.*;
-import javax.servlet.http.HttpSession;
-
-import apijson.orm.*;
+import static apijson.JSON.*;
+import static apijson.JSONRequest.KEY_COUNT;
+import static apijson.framework.javax.APIJSONConstant.*;
 
 
 /**权限验证器
@@ -37,6 +34,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	public static final String TAG = "APIJSONVerifier";
 
 	public static boolean ENABLE_VERIFY_COLUMN = true;
+	public static boolean ENABLE_APIJSON_ROUTER = false;
 
 	//	由 init 方法读取数据库 Access 表来替代手动输入配置
 	//	// <TableName, <METHOD, allowRoles>>
@@ -51,9 +49,11 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	//	}
 
 	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
+	public static Map<String, SortedMap<Integer, Map<String, Object>>> DOCUMENT_MAP;
 
 	static {
 		APIJSON_CREATOR = new APIJSONCreator<>();
+		DOCUMENT_MAP = new HashMap<>();
 	}
 
 	/**初始化，加载所有权限配置和请求校验配置
@@ -93,12 +93,12 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M init(
 			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator) throws ServerException {
 		M result = JSON.createJSONObject();
-		if (ENABLE_VERIFY_ROLE) {
-			result.put(ACCESS_, initAccess(shutdownWhenServerError, creator));
-		}
-		if (ENABLE_VERIFY_CONTENT) {
-			result.put(REQUEST_, initRequest(shutdownWhenServerError, creator));
-		}
+        if (ENABLE_VERIFY_ROLE) {
+            result.put(ACCESS_, initAccess(shutdownWhenServerError, creator));
+        }
+        if (ENABLE_VERIFY_CONTENT) {
+            result.put(REQUEST_, initRequest(shutdownWhenServerError, creator));
+        }
 		return result;
 	}
 
@@ -148,7 +148,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M initAccess(
-			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
+            boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
 			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
 		}
@@ -190,7 +190,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		Map<String, String> newTKMap = new LinkedHashMap<>(); // JSON.createJSONObject();
 		Map<String, String> tableSchemaMap = new LinkedHashMap<>(); // JSON.createJSONObject();
 
-		SortedMap<Integer, Map<String, List<String>>> versionedTableColumnMap = new TreeMap<>(ColumnUtil.DESC_COMPARATOR);
+		SortedMap<Integer, Map<String, List<String>>> versionedTableColumnMap = new TreeMap<>(apijson.framework.ColumnUtil.DESC_COMPARATOR);
 		SortedMap<Integer, Map<String, Map<String, String>>> versionedKeyColumnMap = new TreeMap<>(ColumnUtil.DESC_COMPARATOR);
 		for (int i = 0; i < size; i++) {
 			M item = getJSONObject(list, i);
@@ -219,8 +219,8 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 				if (containNotDeletedValue == false && StringUtil.isEmpty(deletedValue, true)) {
 					onServerError(
 							"Access表 id = " + getString(item, "id") + " 对应的 "
-									+ AbstractSQLConfig.KEY_DELETED_VALUE + " 的值不能为空！或者必须包含字段 "
-									+ AbstractSQLConfig.KEY_NOT_DELETED_VALUE + " ！"
+							+ AbstractSQLConfig.KEY_DELETED_VALUE + " 的值不能为空！或者必须包含字段 "
+							+ AbstractSQLConfig.KEY_NOT_DELETED_VALUE + " ！"
 							, shutdownWhenServerError
 					);
 				}
@@ -241,12 +241,12 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 			}
 
 			if (StringUtil.isEmpty(alias, true)) {
-				if (apijson.JSONObject.isTableKey(name) == false) {
+				if (JSONObject.isTableKey(name) == false) {
 					onServerError("name: " + name + "不合法！字段 alias 的值为空时，name 必须为合法表名！", shutdownWhenServerError);
 				}
 
 				alias = name;
-			} else if (apijson.JSONObject.isTableKey(alias) == false) {
+			} else if (JSONObject.isTableKey(alias) == false) {
 				onServerError("alias: " + alias + "不合法！字段 alias 的值只能为 空 或者 合法表名！", shutdownWhenServerError);
 			}
 
@@ -388,7 +388,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M initRequest(
-			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
+            boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
 			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
 		}
@@ -397,7 +397,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 
 		boolean isAll = table == null || table.isEmpty();
 		M tblObj = createJSONObject();
-		tblObj.put(apijson.JSONObject.KEY_ORDER, "version-,id+");
+		tblObj.put(JSONObject.KEY_ORDER, "version-,id+");
 		M requestTable = isAll ? tblObj : table;
 		if (Log.DEBUG == false) {
 			requestTable.put(APIJSONConstant.KEY_DEBUG, 0);
@@ -412,7 +412,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 
 		M request = JSON.createJSONObject();
 		request.put(REQUEST_ + "[]", ro);
-
+		
 		M response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
 			Log.e(TAG, "\n\n\n\n\n !!!! 查询请求校验规则配置异常 !!!\n" + getString(response, JSONResponse.KEY_MSG) + "\n\n\n\n\n");
@@ -465,7 +465,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 					boolean isArrayKey = tag.endsWith(":[]");  //  apijson.JSONObject.isArrayKey(tag);
 					String key = isArrayKey ? tag.substring(0, tag.length() - 3) : tag;
 
-					if (apijson.JSONObject.isTableKey(key)) {
+					if (JSONObject.isTableKey(key)) {
 						if (isArrayKey) { //自动为 tag = Comment:[] 的 { ... } 新增键值对 "Comment[]":[] 为 { "Comment[]":[], ... }
 							target.put(key + "[]", JSON.createJSONArray());
 						} else { //自动为 tag = Comment 的 { ... } 包一层为 { "Comment": { ... } }
@@ -504,6 +504,179 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 
 		Log.d(TAG, "initRequest  for /> REQUEST_MAP.size() = " + REQUEST_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
+
+		return response;
+	}
+
+
+
+	/**初始化，加载所有请求校验配置
+	 * @return
+	 * @throws ServerException
+	 */
+	public static <M extends Map<String, Object>> M initDocument() throws ServerException {
+		return initDocument(false);
+	}
+	/**初始化，加载所有请求校验配置
+	 * @param shutdownWhenServerError
+	 * @return
+	 * @throws ServerException
+	 */
+	public static <M extends Map<String, Object>> M initDocument(boolean shutdownWhenServerError) throws ServerException {
+		return initDocument(shutdownWhenServerError, null);
+	}
+	/**初始化，加载所有请求校验配置
+	 * @param creator
+	 * @return
+	 * @throws ServerException
+	 */
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M initDocument(APIJSONCreator<T, M, L> creator) throws ServerException {
+		return initDocument(false, creator);
+	}
+	/**初始化，加载所有请求校验配置
+	 * @param shutdownWhenServerError
+	 * @param creator
+	 * @return
+	 * @throws ServerException
+	 */
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M initDocument(boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator) throws ServerException {
+		return initDocument(shutdownWhenServerError, creator, null);
+	}
+	/**初始化，加载所有请求校验配置
+	 * @param shutdownWhenServerError
+	 * @param creator
+	 * @param table 表内自定义数据过滤条件
+	 * @return
+	 * @throws ServerException
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T, M extends Map<String, Object>, L extends List<Object>> M initDocument(boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
+		if (creator == null) {
+			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
+		}
+		APIJSON_CREATOR = creator;
+
+
+		boolean isAll = table == null || table.isEmpty();
+		M document = isAll ? JSON.createJSONObject(new JSONRequest().puts("apijson{}", "length(apijson)>0").setOrder("version-,id+")) : table;
+		if (Log.DEBUG == false) {
+			document.put(APIJSONConstant.KEY_DEBUG, 0);
+		}
+
+		M requestItem = JSON.createJSONObject();
+		requestItem.put(DOCUMENT_, document);  // 方便查找
+		requestItem.put(KEY_COUNT, 0);
+
+		M request = JSON.createJSONObject();
+		request.put(DOCUMENT_ + "[]", requestItem);
+
+		M response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
+		if (JSONResponse.isSuccess(response) == false) {
+			Log.e(TAG, "\n\n\n\n\n !!!! 查询请求映射配置异常 !!!\n" + getString(response, JSONResponse.KEY_MSG) + "\n\n\n\n\n");
+			onServerError("查询请求映射配置异常 !", shutdownWhenServerError);
+		}
+
+		L list = getJSONArray(response, DOCUMENT_ + "[]");
+		int size = list == null ? 0 : list.size();
+		if (isAll && size <= 0) {
+			Log.w(TAG, "initDocument isAll && size <= 0，没有可用的请求映射配置");
+			return response;
+		}
+
+		Log.d(TAG, "initDocument < for DOCUMENT_MAP.size() = " + DOCUMENT_MAP.size() + " <<<<<<<<<<<<<<<<<<<<<<<<");
+
+
+		Map<String, SortedMap<Integer, Map<String, Object>>> newMap = new LinkedHashMap<>();
+
+		for (int i = 0; i < size; i++) {
+			M item = getJSONObject(list, i);
+			if (item == null) {
+				continue;
+			}
+
+			String version = getString(item, "version");
+			if (StringUtil.isEmpty(version, true)) {
+				onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name")
+						+ " 对应 version 不能为空！", shutdownWhenServerError);
+			}
+
+			String url = getString(item, "url");
+			int index = url == null ? -1 : url.indexOf("/");
+			if (index != 0) {
+				onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
+						+ " 对应 url 值错误，必须以 / 开头！", shutdownWhenServerError);
+			}
+
+			String requestStr = getString(item, "request");
+
+			String apijson = getString(item, "apijson");
+			if (StringUtil.isEmpty(apijson)) {
+				if (StringUtil.isBranchUrl(url) == false) {
+					onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
+							+ " 对应 url 值错误！只允许合法的 URL 格式！", shutdownWhenServerError);
+				}
+			}
+			else {
+				if (StringUtil.isNotEmpty(requestStr)) {
+					try {
+						JSON.parseObject(requestStr);
+					}
+					catch (Exception e) {
+						onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
+								+ " 对应 request 值 " + requestStr + " 错误！只允许合法的 M 格式！" + e.getMessage(), shutdownWhenServerError);
+					}
+				}
+
+				try {
+					JSON.parseObject(apijson);
+				}
+				catch (Exception e) {
+					onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
+							+ " 对应 apijson 值 " + apijson + " 错误！只允许合法的 M 格式！" + e.getMessage(), shutdownWhenServerError);
+				}
+
+				index = url.lastIndexOf("/");
+				String method = index < 0 ? null : url.substring(0, index);
+				String tag = index < 0 ? null : url.substring(index + 1);
+
+				index = method == null ? -1 : method.lastIndexOf("/");
+				method = index < 0 ? method : method.substring(index + 1);
+
+				if (METHODS.contains(method) == false) {
+					onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
+							+ " 对应路径 /{method}/{tag} 中 method 值 " + method + " 错误！apijson 字段不为空时只允许 " + METHODS + " 中的一个！", shutdownWhenServerError);
+				}
+
+				if (StringUtil.isName(tag) == false) {
+					onServerError("服务器内部错误，Document 表中的 id=" + getString(item, "id") + ", name=" + getString(item, "name") + ", url=" + url
+							+ " 对应路径 /{method}/{tag} 中 tag 值 " + tag + " 错误！apijson 字段不为空时只允许变量命名格式！", shutdownWhenServerError);
+				}
+
+				String cacheKey = getCacheKeyForRequest(method, tag);
+				SortedMap<Integer, Map<String, Object>> versionedMap = newMap.get(cacheKey);
+				if (versionedMap == null) {
+					versionedMap = new TreeMap<>(new Comparator<Integer>() {
+
+						@Override
+						public int compare(Integer o1, Integer o2) {
+							return o2 == null ? -1 : o2.compareTo(o1);  // 降序
+						}
+					});
+				}
+				versionedMap.put(Integer.valueOf(version), item);
+				newMap.put(cacheKey, versionedMap);
+			}
+
+		}
+
+		if (isAll) {  // 全量更新
+			DOCUMENT_MAP = newMap;
+		}
+		else {
+			DOCUMENT_MAP.putAll(newMap);
+		}
+
+		Log.d(TAG, "initDocument  for /> DOCUMENT_MAP.size() = " + DOCUMENT_MAP.size() + " >>>>>>>>>>>>>>>>>>>>>>>");
 
 		return response;
 	}
