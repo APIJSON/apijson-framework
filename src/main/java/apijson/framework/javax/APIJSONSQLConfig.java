@@ -15,7 +15,6 @@ limitations under the License.*/
 package apijson.framework.javax;
 
 import apijson.JSONArray;
-import apijson.JSONField;
 import apijson.JSONObject;
 import apijson.RequestMethod;
 import apijson.orm.AbstractSQLConfig;
@@ -105,7 +104,6 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		return null;
 	}
 
-	@JSONField(serialize = false)  // 不在日志打印 账号/密码 等敏感信息，用了 UnitAuto 则一定要加
 	public String gainDBUri() {
 		if (isMySQL()) {
 			return "jdbc:mysql://localhost:3306"; //TODO 改成你自己的，TiDB 可以当成 MySQL 使用，默认端口为 4000
@@ -122,7 +120,6 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		return null;
 	}
 
-	@JSONField(serialize = false)  // 不在日志打印 账号/密码 等敏感信息，用了 UnitAuto 则一定要加
 	public String gainDBAccount() {
 		if (isMySQL()) {
 			return "root";  //TODO 改成你自己的
@@ -139,7 +136,6 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		return null;
 	}
 
-	@JSONField(serialize = false)  // 不在日志打印 账号/密码 等敏感信息，用了 UnitAuto 则一定要加
 	public String gainDBPassword() {
 		if (isMySQL()) {
 			return "apijson";  //TODO 改成你自己的，TiDB 可以当成 MySQL 使用， 默认密码为空字符串 ""

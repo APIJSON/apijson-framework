@@ -203,7 +203,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		}
 
 		Map<String, M> scriptMap = new HashMap<>();
-	        L scriptList = (L) JSON.get(response, "[]"); // response.getJSONArray(SCRIPT_ + "[]");
+	        L scriptList = JSON.get(response, "[]"); // response.getJSONArray(SCRIPT_ + "[]");
 	        if (scriptList != null && ! scriptList.isEmpty()) {
 	            //if (isAll) {
 	            //    SCRIPT_MAP = new LinkedHashMap<>();
@@ -211,8 +211,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	            Map<String, M> newMap = new LinkedHashMap<>();
 	
 	            for (int i = 0; i < scriptList.size(); i++) {
-	                M item = (M) JSON.get(scriptList, i);
-	                item = item == null ? null : (M) JSON.get(item, SCRIPT_);
+	                M item = JSON.get(scriptList, i);
+	                item = item == null ? null : JSON.get(item, SCRIPT_);
 	                if (item == null) { // 关联查不到很正常
 	                    continue;
 	                }
@@ -370,7 +370,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		Log.i(TAG, "count([1,2,4,10]) = " + function.invoke("countArray(array)", request));
 		AssertUtil.assertEqual(4, function.invoke("countArray(array)", request));
 
-		Log.i(TAG, "isContain([1,2,4,10], 10) = " + function.invoke("isContain(array,id)", request));
+		Log.i(TAG, "isContain([1,2,4,10], 10) = " + function.invoke("isContainValue(array,id)", request));
 		AssertUtil.assertEqual(true, function.invoke("isContain(array,id)", request));
 
 		Log.i(TAG, "getFromArray([1,2,4,10], 0) = " + function.invoke("getFromArray(array,@position)", request));

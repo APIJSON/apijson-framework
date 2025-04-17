@@ -335,7 +335,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	public static void test() throws Exception {
 		test(null);
 	}
-	public static <T, M extends Map<String, Object>, L extends List<Object>> void test(APIJSONFunctionParser<T, M, L> function) throws Exception {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> void test(
+			APIJSONFunctionParser<T, M, L> functionParser) throws Exception {
 		int i0 = 1, i1 = -2;
 		M request = JSON.createJSONObject();
 		request.put("id", 10);
@@ -360,25 +361,41 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		object.put("key", "success");
 		request.put("object", object);
 
-		if (function == null) {
-			function = new APIJSONFunctionParser<>(null, null, 1, null, null);
+		APIJSONParser<T, M, L> parser = (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
+		parser.setRequest(request);
+		if (functionParser == null) {
+			functionParser = (APIJSONFunctionParser<T, M, L>) APIJSON_CREATOR.createFunctionParser();
+			functionParser.setParser(parser);
+			functionParser.setMethod(parser.getMethod());
+			functionParser.setTag(parser.getTag());
+			functionParser.setVersion(parser.getVersion());
+			functionParser.setRequest(parser.getRequest());
+
+			//if (functionParser instanceof APIJSONFunctionParser) {
+				((APIJSONFunctionParser) functionParser).setSession(parser.getSession());
+			//}
 		}
+
+		// functionParser.setKey(null);
+		// functionParser.setParentPath(null);
+		// functionParser.setCurrentName(null);
+		functionParser.setCurrentObject(request);
 
 		// 等数据库 Function 表加上 plus 配置再过两个以上迭代(应该是到 5.0)后再取消注释
 		//		Log.i(TAG, "plus(1,-2) = " + function.invoke("plus(i0,i1)", request));
 		//		AssertUtil.assertEqual(-1, function.invoke("plus(i0,i1)", request));
 
-		Log.i(TAG, "count([1,2,4,10]) = " + function.invoke("countArray(array)", request));
-		AssertUtil.assertEqual(4, function.invoke("countArray(array)", request));
+		Log.i(TAG, "count([1,2,4,10]) = " + functionParser.invoke("countArray(array)", request));
+		AssertUtil.assertEqual(4, functionParser.invoke("countArray(array)", request));
 
-		Log.i(TAG, "isContain([1,2,4,10], 10) = " + function.invoke("isContain(array,id)", request));
-		AssertUtil.assertEqual(true, function.invoke("isContain(array,id)", request));
+		Log.i(TAG, "isContain([1,2,4,10], 10) = " + functionParser.invoke("isContain(array,id)", request));
+		AssertUtil.assertEqual(true, functionParser.invoke("isContain(array,id)", request));
 
-		Log.i(TAG, "getFromArray([1,2,4,10], 0) = " + function.invoke("getFromArray(array,@position)", request));
-		AssertUtil.assertEqual(1, function.invoke("getFromArray(array,@position)", request));
+		Log.i(TAG, "getFromArray([1,2,4,10], 0) = " + functionParser.invoke("getFromArray(array,@position)", request));
+		AssertUtil.assertEqual(1, functionParser.invoke("getFromArray(array,@position)", request));
 
-		Log.i(TAG, "getFromObject({key:\"success\"}, key) = " + function.invoke("getFromObject(object,key)", request));
-		AssertUtil.assertEqual("success", function.invoke("getFromObject(object,key)", request));
+		Log.i(TAG, "getFromObject({key:\"success\"}, key) = " + functionParser.invoke("getFromObject(object,key)", request));
+		AssertUtil.assertEqual("success", functionParser.invoke("getFromObject(object,key)", request));
 
 	}
 
