@@ -122,6 +122,9 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		if (isOracle()) {
 			return "jdbc:oracle:thin:@localhost:1521:orcl"; //TODO 改成你自己的
 		}
+		if (isDoris()) {
+			return "jdbc:mysql://localhost:9030"; //TODO 改成你自己的，TiDB 可以当成 MySQL 使用，默认端口为 4000
+		}
 		return null;
 	}
 
@@ -138,6 +141,9 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		if (isOracle()) {
 			return "scott";  //TODO 改成你自己的
 		}
+		if (isDoris()) {
+			return "root";  //TODO 改成你自己的
+		}
 		return null;
 	}
 
@@ -153,6 +159,9 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		}
 		if (isOracle()) {
 			return "tiger";  //TODO 改成你自己的
+		}
+		if (isDoris()) {
+			return "";  //TODO 改成你自己的
 		}
 		return null;
 	}
