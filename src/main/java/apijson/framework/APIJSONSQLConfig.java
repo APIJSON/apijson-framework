@@ -111,19 +111,74 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 
 	public String gainDBUri() {
 		if (isMySQL()) {
-			return "jdbc:mysql://localhost:3306"; //TODO 改成你自己的，TiDB 可以当成 MySQL 使用，默认端口为 4000
+			return "jdbc:mysql://localhost:3306";
 		}
-		if (isPostgreSQL()) {
-			return "jdbc:postgresql://localhost:5432/postgres"; //TODO 改成你自己的
+		if (isTiDB()) {
+			return "jdbc:mysql://localhost:4000";
 		}
+		if (isPostgreSQL()) { // PG JDBC 必须在 URI 传 catalog
+			return "jdbc:postgresql://localhost:5432/postgres?stringtype=unspecified"; //TODO 改成你自己的
+		}
+		//if (isCockroachDB()) { // PG JDBC 必须在 URI 传 catalog
+		//	return "jdbc:postgresql://localhost:26257/movr?sslmode=require"; //TODO 改成你自己的 brew install cockroachdb/tap/cockroach && cockroach demo
+		//	// return "jdbc:postgresql://localhost:26258/postgres?sslmode=disable"; //TODO 改成你自己的 brew install cockroachdb/tap/cockroach # && start 3 nodes and init cluster
+		//}
 		if (isSQLServer()) {
 			return "jdbc:jtds:sqlserver://localhost:1433/pubs;instance=SQLEXPRESS"; //TODO 改成你自己的
 		}
 		if (isOracle()) {
 			return "jdbc:oracle:thin:@localhost:1521:orcl"; //TODO 改成你自己的
 		}
+		if (isDb2()) {
+			return "jdbc:db2://localhost:50000/BLUDB"; //TODO 改成你自己的
+		}
+		if (isSQLite()) {
+		  	return "jdbc:sqlite:sample.db"; //TODO 改成你自己的
+		}
+		if (isDameng()) {
+			return "jdbc:dm://localhost:5236"; //TODO 改成你自己的
+		}
+		if (isTDengine()) {
+			//      return "jdbc:TAOS://localhost:6030"; //TODO 改成你自己的
+			return "jdbc:TAOS-RS://localhost:6041"; //TODO 改成你自己的
+		}
+		if (isTimescaleDB()) { // PG JDBC 必须在 URI 传 catalog
+			return "jdbc:postgresql://localhost:5432/postgres?stringtype=unspecified"; //TODO 改成你自己的
+		}
+		if (isQuestDB()) { // PG JDBC 必须在 URI 传 catalog
+			return "jdbc:postgresql://localhost:8812/qdb"; //TODO 改成你自己的
+		}
+		if (isInfluxDB()) {
+			return "http://203.189.6.3:8086"; //TODO 改成你自己的
+		}
+		if (isMilvus()) {
+			return "http://localhost:19530"; //TODO 改成你自己的
+		}
+		if (isManticore()) {
+			return "jdbc:mysql://localhost:9306?characterEncoding=utf8&maxAllowedPacket=512000";
+		}
+		if (isIoTDB()) {
+			return "jdbc:iotdb://localhost:6667"; // ?charset=GB18030 加参数会报错 URI 格式错误
+		}
+		if (isMongoDB()) {
+			return "jdbc:mongodb://atlas-sql-6593c65c296c5865121e6ebe-xxskv.a.query.mongodb.net/myVirtualDatabase?ssl=true&authSource=admin";
+		}
+		if (isCassandra()) {
+			return "http://localhost:7001";
+		}
+		if (isDuckDB()) {
+			return "jdbc:duckdb:/Users/root/my_database.duckdb";
+		}
+		if (isSurrealDB()) {
+			//	return "memory";
+			//	return "surrealkv://localhost:8000";
+			return "ws://localhost:8000";
+		}
+		if (isOpenGauss()) {
+			return "jdbc:opengauss://127.0.0.1:5432/postgres?currentSchema=" + DEFAULT_SCHEMA;
+		}
 		if (isDoris()) {
-			return "jdbc:mysql://localhost:9030"; //TODO 改成你自己的，TiDB 可以当成 MySQL 使用，默认端口为 4000
+			return "jdbc:mysql://localhost:9030";
 		}
 		return null;
 	}
@@ -141,28 +196,150 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		if (isOracle()) {
 			return "scott";  //TODO 改成你自己的
 		}
+		if (isMySQL()) {
+			return "root"; // ""apijson";  //TODO 改成你自己的
+		}
+		if (isPostgreSQL()) {
+			return "postgres";  //TODO 改成你自己的
+		}
+		//if (isCockroachDB()) { // PG JDBC 必须在 URI 传 catalog
+		//	return "demo"; //TODO 改成你自己的
+		//	//return "postgres"; //TODO 改成你自己的
+		//}
+		if (isSQLServer()) {
+			return "sa";  //TODO 改成你自己的
+		}
+		if (isOracle()) {
+			return "scott";  //TODO 改成你自己的
+		}
+		if (isDb2()) {
+			return "db2admin"; //TODO 改成你自己的
+		}
+		//  if (isSQLite()) {
+		//  	return "root"; //TODO 改成你自己的
+		//  }
+		if (isDameng()) {
+			return "SYSDBA";
+		}
+		if (isTDengine()) {
+			return "root"; //TODO 改成你自己的
+		}
+		//if (isTimescaleDB()) {
+		//	return "postgres";  //TODO 改成你自己的
+		//}
+		if (isQuestDB()) {
+			return "admin";  //TODO 改成你自己的
+		}
+		if (isInfluxDB()) {
+			return "iotos";
+		}
+		if (isMilvus()) {
+			return "root";
+		}
+		if (isManticore()) {
+			return null; // "root";
+		}
+		if (isIoTDB()) {
+			return "root";
+		}
+		if (isMongoDB()) {
+			return "root"; //TODO 改成你自己的
+		}
+		if (isCassandra()) {
+			return "root"; //TODO 改成你自己的
+		}
+		if (isDuckDB()) {
+			return "root"; //TODO 改成你自己的
+		}
+		if (isSurrealDB()) {
+			return "root"; //TODO 改成你自己的
+		}
+		if (isOpenGauss()) {
+			return "postgres"; //TODO 改成你自己的
+			// 不允许用初始账号，需要 CREATE USER 创建新账号并 GRANT 授权 return "opengauss"; //TODO 改成你自己的
+		}
 		if (isDoris()) {
 			return "root";  //TODO 改成你自己的
 		}
+
 		return null;
 	}
 
 	public String gainDBPassword() {
 		if (isMySQL()) {
-			return "apijson";  //TODO 改成你自己的，TiDB 可以当成 MySQL 使用， 默认密码为空字符串 ""
+			return "your@Password123";
+		}
+		if (isTiDB()) {
+			return "";
 		}
 		if (isPostgreSQL()) {
-			return null;  //TODO 改成你自己的
+			return null;
 		}
 		if (isSQLServer()) {
-			return "apijson@123";  //TODO 改成你自己的
+			return "your@Password123";
 		}
 		if (isOracle()) {
-			return "tiger";  //TODO 改成你自己的
+			return "tiger";
+		}
+		//if (isCockroachDB()) { // PG JDBC 必须在 URI 传 catalog
+		//	return "demo39865";
+		//	// return null
+		//}
+		if (isSQLServer()) {
+			return "your@Password123";
+		}
+		if (isOracle()) {
+			return "tiger";
+		}
+		if (isDb2()) {
+			return "123";
+		}
+		if (isSQLite()) {
+		  	return "your@Password123";
+		}
+		if (isDameng()) {
+			return "SYSDBA";
+		}
+		if (isTDengine()) {
+			return "taosdata";
+		}
+		if (isTimescaleDB()) {
+			return "password";
+		}
+		if (isQuestDB()) {
+			return "quest";
+		}
+		if (isInfluxDB()) {
+			return "your@Password123";
+		}
+		if (isMilvus()) {
+			return "your@Password123";
+		}
+		//if (isManticore()) {
+		//	return null;
+		//}
+		//if (isIoTDB()) {
+		//	return "root";
+		//}
+		if (isMongoDB()) {
+			return "your@Password123";
+		}
+		if (isCassandra()) {
+			return "your@Password123";
+		}
+		if (isDuckDB()) {
+			return "";
+		}
+		if (isSurrealDB()) {
+			return "root";
+		}
+		if (isOpenGauss()) {
+			return "your@Password123";
 		}
 		if (isDoris()) {
-			return "";  //TODO 改成你自己的
+			return "";
 		}
+
 		return null;
 	}
 
