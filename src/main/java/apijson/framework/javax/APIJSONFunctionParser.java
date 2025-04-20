@@ -26,6 +26,7 @@ import java.rmi.ServerException;
 import java.util.*;
 
 import static apijson.JSON.*;
+import static apijson.JSONRequest.KEY_COUNT;
 import static apijson.RequestMethod.*;
 import static apijson.framework.javax.APIJSONConstant.FUNCTION_;
 import static apijson.framework.javax.APIJSONConstant.SCRIPT_;
@@ -179,8 +180,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 				item.put(SCRIPT_, script);
 			}   // Script >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+			item.put(KEY_COUNT, 0);
 			request.put("[]", item);
-			request.put(apijson.JSONRequest.KEY_COUNT, 0);
 		}   // [] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
@@ -191,7 +192,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 
 		//初始化默认脚本引擎,避免增量
 		if (isAll || SCRIPT_EXECUTOR_MAP.get("js") == null) {
-			ScriptExecutor javaScriptExecutor = new JavaScriptExecutor();
+			ScriptExecutor<T, M, L> javaScriptExecutor = new JavaScriptExecutor<>();
 			javaScriptExecutor.init();
 			SCRIPT_EXECUTOR_MAP.put("js", javaScriptExecutor);
 			SCRIPT_EXECUTOR_MAP.put("JavaScript", javaScriptExecutor);
@@ -199,7 +200,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		}
 
 		Map<String, M> scriptMap = new HashMap<>();
-		L scriptList = (L) JSON.get(response, "[]"); // response.getJSONArray(SCRIPT_ + "[]");
+		L scriptList = JSON.get(response, "[]"); // response.getJSONArray(SCRIPT_ + "[]");
 		if (scriptList != null && ! scriptList.isEmpty()) {
 			//if (isAll) {
 			//    SCRIPT_MAP = new LinkedHashMap<>();
@@ -207,8 +208,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 			Map<String, M> newMap = new LinkedHashMap<>();
 
 			for (int i = 0; i < scriptList.size(); i++) {
-				M item = (M) JSON.get(scriptList, i);
-				item = item == null ? null : (M) JSON.get(item, SCRIPT_);
+				M item = JSON.get(scriptList, i);
+				item = item == null ? null : JSON.get(item, SCRIPT_);
 				if (item == null) { // 关联查不到很正常
 					continue;
 				}
@@ -267,7 +268,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 				// }
 				//脚本语言执行
 				if (SCRIPT_EXECUTOR_MAP.containsKey(language)){
-					ScriptExecutor scriptExecutor = SCRIPT_EXECUTOR_MAP.get(language);
+					ScriptExecutor<T, M, L> scriptExecutor = (ScriptExecutor<T, M, L>) SCRIPT_EXECUTOR_MAP.get(language);
 					M script = scriptMap.get(name);
 					scriptExecutor.load(name, getString(script, "script"));
 				}
