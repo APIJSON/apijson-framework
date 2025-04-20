@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,11 +38,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	public static final String TAG = "APIJSONFunctionParser";
 
 	@NotNull
-	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
-	@NotNull
 	public static final String[] ALL_METHODS;
 	static {
-		APIJSON_CREATOR = new APIJSONCreator<>();
 		ALL_METHODS = new String[]{ GET.name(), HEAD.name(), GETS.name(), HEADS.name(), POST.name(), PUT.name(), DELETE.name() };
 	}
 
@@ -125,10 +122,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M init(boolean shutdownWhenServerError
 			, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
-			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
+			creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 		}
-		APIJSON_CREATOR = creator;
-
 
 		boolean isAll = table == null || table.isEmpty();
 
@@ -294,7 +289,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 			}
 
 			for (String method : methods) {
-				APIJSONParser<T, M, L> parser = (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
+				APIJSONParser<T, M, L> parser = APIJSONApplication.createParser();
 				M r = parser.setMethod(RequestMethod.valueOf(method))
 						.setNeedVerify(false)
 						.parseResponse(demo);
@@ -342,7 +337,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		request.put("id", 10);
 		request.put("i0", i0);
 		request.put("i1", i1);
-		JSONArray arr = new JSONArray();
+		L arr = JSON.createJSONArray();
 		arr.add(JSON.createJSONObject());
 		request.put("arr", arr);
 
@@ -361,10 +356,10 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		object.put("key", "success");
 		request.put("object", object);
 
-		APIJSONParser<T, M, L> parser = (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
+		APIJSONParser<T, M, L> parser = APIJSONApplication.createParser();
 		parser.setRequest(request);
 		if (functionParser == null) {
-			functionParser = (APIJSONFunctionParser<T, M, L>) APIJSON_CREATOR.createFunctionParser();
+			functionParser = APIJSONApplication.createFunctionParser();
 			functionParser.setParser(parser);
 			functionParser.setMethod(parser.getMethod());
 			functionParser.setTag(parser.getTag());
@@ -372,7 +367,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 			functionParser.setRequest(parser.getRequest());
 
 			//if (functionParser instanceof APIJSONFunctionParser) {
-				((APIJSONFunctionParser) functionParser).setSession(parser.getSession());
+				((APIJSONFunctionParser<?, ?, ?>) functionParser).setSession(parser.getSession());
 			//}
 		}
 

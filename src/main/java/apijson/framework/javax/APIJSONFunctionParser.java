@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,11 +38,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	public static final String TAG = "APIJSONFunctionParser";
 
 	@NotNull
-	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
-	@NotNull
 	public static final String[] ALL_METHODS;
 	static {
-		APIJSON_CREATOR = new APIJSONCreator<>();
 		ALL_METHODS = new String[]{ GET.name(), HEAD.name(), GETS.name(), HEADS.name(), POST.name(), PUT.name(), DELETE.name() };
 	}
 
@@ -57,6 +54,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		super(method, tag, version, curObj);
 		setSession(session);
 	}
+
 	public HttpSession getSession() {
 		return session;
 	}
@@ -82,52 +80,50 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	}
 
 	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
-	 * @return 
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <M extends Map<String, Object>> M init() throws ServerException {
 		return init(false);
 	}
 	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
-	 * @param shutdownWhenServerError 
-	 * @return 
+	 * @param shutdownWhenServerError
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <M extends Map<String, Object>> M init(boolean shutdownWhenServerError) throws ServerException {
 		return init(shutdownWhenServerError, null);
 	}
 	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
-	 * @param creator 
-	 * @return 
+	 * @param creator
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M init(APIJSONCreator<T, M, L> creator) throws ServerException {
 		return init(false, creator);
 	}
 	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
-	 * @param shutdownWhenServerError 
-	 * @param creator 
-	 * @return 
+	 * @param shutdownWhenServerError
+	 * @param creator
+	 * @return
 	 * @throws ServerException
 	 */
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M init(boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator) throws ServerException {
 		return init(shutdownWhenServerError, creator, null);
 	}
 	/**初始化，加载所有远程函数配置，并校验是否已在应用层代码实现
-	 * @param shutdownWhenServerError 
-	 * @param creator 
+	 * @param shutdownWhenServerError
+	 * @param creator
 	 * @param table 表内自定义数据过滤条件
-	 * @return 
+	 * @return
 	 * @throws ServerException
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M init(boolean shutdownWhenServerError
 			, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
-			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
+			creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 		}
-		APIJSON_CREATOR = creator;
-
 
 		boolean isAll = table == null || table.isEmpty();
 
@@ -135,64 +131,64 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		//if (Log.DEBUG == false) {
 		//	function.put(APIJSONConstant.KEY_DEBUG, 0);
 		//}
-        	//
+		//
 		//JSONRequest functionItem = JSON.createJSONObject();
 		//functionItem.put(FUNCTION_, function);
-	        //
-	        //JSONRequest script = JSON.createJSONObject(); // isAll ? JSON.createJSONObject() : table;
-	        //script.put("simple", 0);
-	        //if (Log.DEBUG == false) {
-	        //    script.put(APIJSONConstant.KEY_DEBUG, 0);
-	        //}
-	        // 不能用这个来优化，因为可能配置了不校验远程函数是否存在
-	        //{   // name{}@ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	            //JSONRequest nameInAt = JSON.createJSONObject();
-	            //nameInAt.put("from", "Function");
-	            //{   // Function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	            //    JSONRequest fun = JSON.createJSONObject();
-	            //    fun.setColumn("name");
-	            //    nameInAt.put("Function", fun);
-	            //}   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
-	            //script.put("name{}@", nameInAt);
-	        //}   // name{}@ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		//
+		//JSONRequest script = JSON.createJSONObject(); // isAll ? JSON.createJSONObject() : table;
+		//script.put("simple", 0);
+		//if (Log.DEBUG == false) {
+		//    script.put(APIJSONConstant.KEY_DEBUG, 0);
+		//}
+		// 不能用这个来优化，因为可能配置了不校验远程函数是否存在
+		//{   // name{}@ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		//JSONRequest nameInAt = JSON.createJSONObject();
+		//nameInAt.put("from", "Function");
+		//{   // Function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		//    JSONRequest fun = JSON.createJSONObject();
+		//    fun.setColumn("name");
+		//    nameInAt.put("Function", fun);
+		//}   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+		//script.put("name{}@", nameInAt);
+		//}   // name{}@ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 		//JSONRequest scriptItem = JSON.createJSONObject();
-        	//scriptItem.put(SCRIPT_, script);
+		//scriptItem.put(SCRIPT_, script);
 
 		M request = JSON.createJSONObject();
 		//request.putAll(functionItem.toArray(0, 0, FUNCTION_));
 		//request.putAll(scriptItem.toArray(0, 0, SCRIPT_));
 
-	        // 可以用它，因为 Function 表必须存在，没有绕过校验的配置 // 不能用这个来优化，因为可能配置了不校验远程函数是否存在
-	        {   // [] <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	            M item = JSON.createJSONObject();
-	
-	            {   // Function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	                M function = isAll ? JSON.createJSONObject() : table;
-	                if (! Log.DEBUG) {
-	                    function.put(APIJSONConstant.KEY_DEBUG, 0);
-	                }
-	                item.put(FUNCTION_, function);
-	            }   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
-	            if (ENABLE_SCRIPT_FUNCTION) { // Script <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	                M script = JSON.createJSONObject();
-	                script.put("name@", "/Function/name");
-	                script.put("simple", 0);
-	                item.put(SCRIPT_, script);
-	            }   // Script >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
-	            request.put("[]", item);
-	            request.put(apijson.JSONRequest.KEY_COUNT, 0);
-	        }   // [] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		// 可以用它，因为 Function 表必须存在，没有绕过校验的配置 // 不能用这个来优化，因为可能配置了不校验远程函数是否存在
+		{   // [] <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			M item = JSON.createJSONObject();
+
+			{   // Function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				M function = isAll ? JSON.createJSONObject() : table;
+				if (! Log.DEBUG) {
+					function.put(APIJSONConstant.KEY_DEBUG, 0);
+				}
+				item.put(FUNCTION_, function);
+			}   // Function >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+			if (ENABLE_SCRIPT_FUNCTION) { // Script <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				M script = JSON.createJSONObject();
+				script.put("name@", "/Function/name");
+				script.put("simple", 0);
+				item.put(SCRIPT_, script);
+			}   // Script >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+			request.put("[]", item);
+			request.put(apijson.JSONRequest.KEY_COUNT, 0);
+		}   // [] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
 		M response = creator.createParser().setMethod(GET).setNeedVerify(true).parseResponse(request);
 		if (! JSONResponse.isSuccess(response)) {
 			onServerError("\n\n\n\n\n !!!! 查询远程函数异常 !!!\n" + response.get(JSONResponse.KEY_MSG) + "\n\n\n\n\n", shutdownWhenServerError);
 		}
-		
+
 		//初始化默认脚本引擎,避免增量
 		if (isAll || SCRIPT_EXECUTOR_MAP.get("js") == null) {
 			ScriptExecutor javaScriptExecutor = new JavaScriptExecutor();
@@ -203,34 +199,34 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		}
 
 		Map<String, M> scriptMap = new HashMap<>();
-	        L scriptList = JSON.get(response, "[]"); // response.getJSONArray(SCRIPT_ + "[]");
-	        if (scriptList != null && ! scriptList.isEmpty()) {
-	            //if (isAll) {
-	            //    SCRIPT_MAP = new LinkedHashMap<>();
-	            //}
-	            Map<String, M> newMap = new LinkedHashMap<>();
-	
-	            for (int i = 0; i < scriptList.size(); i++) {
-	                M item = JSON.get(scriptList, i);
-	                item = item == null ? null : JSON.get(item, SCRIPT_);
-	                if (item == null) { // 关联查不到很正常
-	                    continue;
-	                }
-	
-	                String n = getString(item, "name");
-	                if (! StringUtil.isName(n)) {
-	                    onServerError("Script 表字段 name 的值 " + n + " 不合法！必须为合法的方法名字符串！", shutdownWhenServerError);
-	                }
-	
-	                String s = getString(item, "script");
-	                if (StringUtil.isEmpty(s, true)) {
-	                    onServerError("Script 表字段 script 的值 " + s + " 不合法！不能为空！", shutdownWhenServerError);
-	                }
-	                newMap.put(n, item);
-	            }
-	
-	            scriptMap = newMap;
-	        }
+		L scriptList = (L) JSON.get(response, "[]"); // response.getJSONArray(SCRIPT_ + "[]");
+		if (scriptList != null && ! scriptList.isEmpty()) {
+			//if (isAll) {
+			//    SCRIPT_MAP = new LinkedHashMap<>();
+			//}
+			Map<String, M> newMap = new LinkedHashMap<>();
+
+			for (int i = 0; i < scriptList.size(); i++) {
+				M item = (M) JSON.get(scriptList, i);
+				item = item == null ? null : (M) JSON.get(item, SCRIPT_);
+				if (item == null) { // 关联查不到很正常
+					continue;
+				}
+
+				String n = getString(item, "name");
+				if (! StringUtil.isName(n)) {
+					onServerError("Script 表字段 name 的值 " + n + " 不合法！必须为合法的方法名字符串！", shutdownWhenServerError);
+				}
+
+				String s = getString(item, "script");
+				if (StringUtil.isEmpty(s, true)) {
+					onServerError("Script 表字段 script 的值 " + s + " 不合法！不能为空！", shutdownWhenServerError);
+				}
+				newMap.put(n, item);
+			}
+
+			scriptMap = newMap;
+		}
 
 		L list = scriptList; // response.getJSONArray(FUNCTION_ + "[]");
 		int size = list == null ? 0 : list.size();
@@ -276,7 +272,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 					scriptExecutor.load(name, getString(script, "script"));
 				}
 			}
-			newMap.put(name, item);  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ 
+			newMap.put(name, item);  // 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！
 
 			String[] methods = StringUtil.split(getString(item, "methods"));
 
@@ -293,7 +289,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 			}
 
 			for (String method : methods) {
-				APIJSONParser<T, M, L> parser = (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
+				APIJSONParser<T, M, L> parser = APIJSONApplication.createParser();
 				M r = parser.setMethod(RequestMethod.valueOf(method))
 						.setNeedVerify(false)
 						.parseResponse(demo);
@@ -308,7 +304,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 			}
 		}
 
-		// 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！ 
+		// 必须在测试 invoke 前把配置 put 进 FUNCTION_MAP！
 		//		if (isAll) {
 		//			FUNCTION_MAP = newMap;
 		//		}
@@ -324,7 +320,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		Log.e(TAG, "\n远程函数文档测试未通过！\n请新增 demo 里的函数，或修改 Function 表里的 demo 为已有的函数示例！\n保证前端看到的远程函数文档是正确的！！！\n\n原因：\n" + msg);
 
 		if (shutdown) {
-			System.exit(1);	
+			System.exit(1);
 		} else {
 			throw new ServerException(msg);
 		}
@@ -334,13 +330,14 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	public static void test() throws Exception {
 		test(null);
 	}
-	public static <T, M extends Map<String, Object>, L extends List<Object>> void test(APIJSONFunctionParser<T, M, L> function) throws Exception {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> void test(
+			APIJSONFunctionParser<T, M, L> functionParser) throws Exception {
 		int i0 = 1, i1 = -2;
 		M request = JSON.createJSONObject();
 		request.put("id", 10);
 		request.put("i0", i0);
 		request.put("i1", i1);
-		JSONArray arr = new JSONArray();
+		L arr = JSON.createJSONArray();
 		arr.add(JSON.createJSONObject());
 		request.put("arr", arr);
 
@@ -359,25 +356,41 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		object.put("key", "success");
 		request.put("object", object);
 
-		if (function == null) {
-			function = new APIJSONFunctionParser<>(null, null, 1, null, null);
+		APIJSONParser<T, M, L> parser = APIJSONApplication.createParser();
+		parser.setRequest(request);
+		if (functionParser == null) {
+			functionParser = APIJSONApplication.createFunctionParser();
+			functionParser.setParser(parser);
+			functionParser.setMethod(parser.getMethod());
+			functionParser.setTag(parser.getTag());
+			functionParser.setVersion(parser.getVersion());
+			functionParser.setRequest(parser.getRequest());
+
+			//if (functionParser instanceof APIJSONFunctionParser) {
+			((APIJSONFunctionParser<?, ?, ?>) functionParser).setSession(parser.getSession());
+			//}
 		}
+
+		// functionParser.setKey(null);
+		// functionParser.setParentPath(null);
+		// functionParser.setCurrentName(null);
+		functionParser.setCurrentObject(request);
 
 		// 等数据库 Function 表加上 plus 配置再过两个以上迭代(应该是到 5.0)后再取消注释
 		//		Log.i(TAG, "plus(1,-2) = " + function.invoke("plus(i0,i1)", request));
 		//		AssertUtil.assertEqual(-1, function.invoke("plus(i0,i1)", request));
 
-		Log.i(TAG, "count([1,2,4,10]) = " + function.invoke("countArray(array)", request));
-		AssertUtil.assertEqual(4, function.invoke("countArray(array)", request));
+		Log.i(TAG, "count([1,2,4,10]) = " + functionParser.invoke("countArray(array)", request));
+		AssertUtil.assertEqual(4, functionParser.invoke("countArray(array)", request));
 
-		Log.i(TAG, "isContain([1,2,4,10], 10) = " + function.invoke("isContainValue(array,id)", request));
-		AssertUtil.assertEqual(true, function.invoke("isContain(array,id)", request));
+		Log.i(TAG, "isContain([1,2,4,10], 10) = " + functionParser.invoke("isContain(array,id)", request));
+		AssertUtil.assertEqual(true, functionParser.invoke("isContain(array,id)", request));
 
-		Log.i(TAG, "getFromArray([1,2,4,10], 0) = " + function.invoke("getFromArray(array,@position)", request));
-		AssertUtil.assertEqual(1, function.invoke("getFromArray(array,@position)", request));
+		Log.i(TAG, "getFromArray([1,2,4,10], 0) = " + functionParser.invoke("getFromArray(array,@position)", request));
+		AssertUtil.assertEqual(1, functionParser.invoke("getFromArray(array,@position)", request));
 
-		Log.i(TAG, "getFromObject({key:\"success\"}, key) = " + function.invoke("getFromObject(object,key)", request));
-		AssertUtil.assertEqual("success", function.invoke("getFromObject(object,key)", request));
+		Log.i(TAG, "getFromObject({key:\"success\"}, key) = " + functionParser.invoke("getFromObject(object,key)", request));
+		AssertUtil.assertEqual("success", functionParser.invoke("getFromObject(object,key)", request));
 
 	}
 
@@ -385,7 +398,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	/**获取远程函数的demo，如果没有就自动补全
 	 * @param curObj
 	 * @return
-	 * @throws ServerException 
+	 * @throws ServerException
 	 */
 	public M getFunctionDemo(@NotNull M curObj) {
 		M demo = JSON.parseObject(getString(curObj, "demo"));
@@ -482,8 +495,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param key
 	 * @return
 	 */
-	public boolean isContainKey(@NotNull M curObj, String object, String key) { 
-		return BaseModel.isContainKey(getJSONObject(curObj, object), getString(curObj, key)); 
+	public boolean isContainKey(@NotNull M curObj, String object, String key) {
+		return BaseModel.isContainKey(getJSONObject(curObj, object), getString(curObj, key));
 	}
 	/**判断object是否包含value
 	 * @param curObj
@@ -491,7 +504,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param value
 	 * @return
 	 */
-	public boolean isContainValue(@NotNull M curObj, String object, String value) { 
+	public boolean isContainValue(@NotNull M curObj, String object, String value) {
 		return BaseModel.isContainValue(getJSONObject(curObj, object), curObj.get(value));
 	}
 	//判断是否为包含 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -503,7 +516,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param array
 	 * @return
 	 */
-	public int countArray(@NotNull M curObj, String array) { 
+	public int countArray(@NotNull M curObj, String array) {
 		return BaseModel.count((Collection<?>) getJSONArray(curObj, array));
 	}
 	/**获取数量
@@ -531,7 +544,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		} catch (Exception e) {
 			p = getIntValue(curObj, position);
 		}
-		return BaseModel.get(getJSONArray(curObj, array), p); 
+		return BaseModel.get(getJSONArray(curObj, array), p);
 	}
 	/**获取
 	 * @param curObj
@@ -539,7 +552,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param key
 	 * @return
 	 */
-	public Object getFromObject(@NotNull M curObj, String object, String key) { 
+	public Object getFromObject(@NotNull M curObj, String object, String key) {
 		return BaseModel.get(getJSONObject(curObj, object), getString(curObj, key));
 	}
 	//根据键获取值 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -557,7 +570,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		} catch (Exception e) {
 			p = getIntValue(curObj, position);
 		}
-		curObj.remove(p); 
+		curObj.remove(p);
 		return null;
 	}
 	/**移除
@@ -565,7 +578,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param key
 	 * @return
 	 */
-	public Object removeKey(@NotNull M curObj, String key) { 
+	public Object removeKey(@NotNull M curObj, String key) {
 		curObj.remove(key);
 		return null;
 	}
@@ -579,7 +592,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param value
 	 * @return
 	 */
-	public boolean booleanValue(@NotNull M curObj, String value) { 
+	public boolean booleanValue(@NotNull M curObj, String value) {
 		return getBooleanValue(curObj, value);
 	}
 	/**获取非空值
@@ -587,7 +600,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param value
 	 * @return
 	 */
-	public int intValue(@NotNull M curObj, String value) {  
+	public int intValue(@NotNull M curObj, String value) {
 		return getIntValue(curObj, value);
 	}
 	/**获取非空值
@@ -595,7 +608,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param value
 	 * @return
 	 */
-	public long longValue(@NotNull M curObj, String value) {   
+	public long longValue(@NotNull M curObj, String value) {
 		return getLongValue(curObj, value);
 	}
 	/**获取非空值
@@ -603,7 +616,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param value
 	 * @return
 	 */
-	public float floatValue(@NotNull M curObj, String value) {  
+	public float floatValue(@NotNull M curObj, String value) {
 		return getFloatValue(curObj, value);
 	}
 	/**获取非空值
@@ -611,8 +624,8 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param value
 	 * @return
 	 */
-	public double doubleValue(@NotNull M curObj, String value) {    
-		return getDoubleValue(curObj, value); 
+	public double doubleValue(@NotNull M curObj, String value) {
+		return getDoubleValue(curObj, value);
 	}
 	//获取非基本类型对应基本类型的非空值 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -622,9 +635,9 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	 * @param defaultValue
 	 * @return v == null ? curObj.get(defaultValue) : v
 	 */
-	public Object getWithDefault(@NotNull M curObj, String value, String defaultValue) {    
-		Object v = curObj.get(value); 
-		return v == null ? curObj.get(defaultValue) : v; 
+	public Object getWithDefault(@NotNull M curObj, String value, String defaultValue) {
+		Object v = curObj.get(value);
+		return v == null ? curObj.get(defaultValue) : v;
 	}
 
 	// FIXME UnitAuto 去除 fastjson 后恢复
@@ -723,7 +736,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 	// * @throws IllegalArgumentException
 	// */
 	//public String getMethodDefinition(@NotNull M curObj, String method, String arguments
-    //        , String type, String exceptions, String language) throws IllegalArgumentException {
+	//        , String type, String exceptions, String language) throws IllegalArgumentException {
 	//	String n = getString(curObj, method);
 	//	if (StringUtil.isEmpty(n, true)) {
 	//		throw new NullPointerException("getMethodDefination  StringUtil.isEmpty(methodArgs, true) !");

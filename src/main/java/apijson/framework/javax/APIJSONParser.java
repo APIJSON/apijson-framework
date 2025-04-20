@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,32 +14,30 @@ limitations under the License.*/
 
 package apijson.framework.javax;
 
-import apijson.NotNull;
-import apijson.RequestMethod;
-import apijson.orm.*;
-import javax.servlet.http.HttpSession;
+import static apijson.framework.javax.APIJSONConstant.DEFAULTS;
+import static apijson.framework.javax.APIJSONConstant.FORMAT;
+import static apijson.framework.javax.APIJSONConstant.VERSION;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static apijson.framework.APIJSONConstant.*;
+import javax.servlet.http.HttpSession;
+
+import apijson.NotNull;
+import apijson.RequestMethod;
+import apijson.orm.AbstractParser;
+import apijson.orm.FunctionParser;
+import apijson.orm.SQLConfig;
 
 
 /**请求解析器
  * @author Lemon
  */
-public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Object>>
-		extends AbstractParser<T, M, L> {
+public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Object>> extends AbstractParser<T, M, L> {
 	public static final String TAG = "APIJSONParser";
 
-	@NotNull
-	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
-	static {
-		APIJSON_CREATOR = new APIJSONCreator<>();
-	}
-	
-	
+
 	public APIJSONParser() {
 		super();
 	}
@@ -63,28 +61,51 @@ public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Obje
 	@SuppressWarnings("unchecked")
 	@Override
 	public APIJSONParser<T, M, L> createParser() {
-		return (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
+		return APIJSONApplication.createParser();
 	}
 	@Override
 	public APIJSONFunctionParser<T, M, L> createFunctionParser() {
-		return (APIJSONFunctionParser<T, M, L>) APIJSON_CREATOR.createFunctionParser();
+		return APIJSONApplication.createFunctionParser();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public APIJSONVerifier<T, M, L> createVerifier() {
-		return (APIJSONVerifier<T, M, L>) APIJSON_CREATOR.createVerifier();
+		return APIJSONApplication.createVerifier();
 	}
-	
+
 	@Override
 	public APIJSONSQLConfig<T, M, L> createSQLConfig() {
-		return (APIJSONSQLConfig<T, M, L>) APIJSON_CREATOR.createSQLConfig();
+		return APIJSONApplication.createSQLConfig();
 	}
 	@Override
 	public APIJSONSQLExecutor<T, M, L> createSQLExecutor() {
-		return (APIJSONSQLExecutor<T, M, L>) APIJSON_CREATOR.createSQLExecutor();
+		return APIJSONApplication.createSQLExecutor();
 	}
 
+	@Override
+	public APIJSONParser<T, M, L> setNeedVerify(boolean needVerify) {
+		super.setNeedVerify(needVerify);
+		return this;
+	}
+
+	@Override
+	public APIJSONParser<T, M, L> setNeedVerifyLogin(boolean needVerifyLogin) {
+		super.setNeedVerifyLogin(needVerifyLogin);
+		return this;
+	}
+
+	@Override
+	public APIJSONParser<T, M, L> setNeedVerifyRole(boolean needVerifyRole) {
+		super.setNeedVerifyRole(needVerifyRole);
+		return this;
+	}
+
+	@Override
+	public APIJSONParser<T, M, L> setNeedVerifyContent(boolean needVerifyContent) {
+		super.setNeedVerifyContent(needVerifyContent);
+		return this;
+	}
 
 	@Override
 	public M parseResponse(M request) {
@@ -106,7 +127,7 @@ public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Obje
 				}
 			}
 		}
-		
+
 		return super.parseResponse(request);
 	}
 
@@ -123,22 +144,22 @@ public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Obje
 			functionParser.setTag(getTag());
 			functionParser.setVersion(getVersion());
 			functionParser.setRequest(requestObject);
-			
-			if (functionParser instanceof APIJSONFunctionParser) {
-				((APIJSONFunctionParser) functionParser).setSession(getSession());
+
+			if (functionParser instanceof APIJSONFunctionParser<?, ?, ?>) {
+				((APIJSONFunctionParser<?, ?, ?>) functionParser).setSession(getSession());
 			}
 		}
 		functionParser.setKey(key);
 		functionParser.setParentPath(parentPath);
 		functionParser.setCurrentName(currentName);
 		functionParser.setCurrentObject(currentObject);
-		
+
 		return functionParser.invoke(function, currentObject, containRaw);
 	}
 
 
 	@Override
-	public APIJSONObjectParser<T, M, L> createObjectParser(M request, String parentPath, SQLConfig<T, M, L> arrayConfig
+	public APIJSONObjectParser<T, M, L> createObjectParser(@NotNull M request, String parentPath, SQLConfig<T, M, L> arrayConfig
 			, boolean isSubquery, boolean isTable, boolean isArrayMainTable) throws Exception {
 
 		return new APIJSONObjectParser<T, M, L>(getSession(), request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable) {
@@ -173,6 +194,6 @@ public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Obje
 		}
 		super.onVerifyContent();
 	}
-	
+
 
 }

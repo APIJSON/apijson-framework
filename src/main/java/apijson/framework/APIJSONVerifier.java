@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@ limitations under the License.*/
 package apijson.framework;
 
 import static apijson.JSON.*;
+import static apijson.JSONMap.KEY_ORDER;
+import static apijson.JSONMap.isTableKey;
 import static apijson.JSONRequest.KEY_COUNT;
 import static apijson.framework.APIJSONConstant.*;
 import static apijson.framework.APIJSONConstant.METHODS;
@@ -50,11 +52,9 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	//		ACCESS_MAP.put(Login.class.getSimpleName(), getAccessMap(Login.class.getAnnotation(MethodAccess.class)));
 	//	}
 
-	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
 	public static Map<String, SortedMap<Integer, Map<String, Object>>> DOCUMENT_MAP;
 
 	static {
-		APIJSON_CREATOR = new APIJSONCreator<>();
 		DOCUMENT_MAP = new HashMap<>();
 	}
 
@@ -152,10 +152,8 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M initAccess(
 			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
-			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
+			creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 		}
-		APIJSON_CREATOR = creator;
-
 
 		boolean isAll = table == null || table.isEmpty();
 
@@ -165,12 +163,10 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		M accessItem = JSON.createJSONObject();
 		accessItem.put(ACCESS_, access);
+		accessItem.put(apijson.JSONRequest.KEY_COUNT, 0);
 
 		M request = JSON.createJSONObject();
-		M ao = JSON.createJSONObject();
-		ao.put(ACCESS_, accessItem);
-		ao.put(apijson.JSONRequest.KEY_COUNT, 0);
-		request.put(ACCESS_ + "[]", ao);
+		request.put(ACCESS_ + "[]", accessItem);
 
 		M response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
@@ -201,13 +197,35 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 			}
 
 			Map<RequestMethod, String[]> map = new HashMap<>();
-			map.put(RequestMethod.GET, JSON.parseObject(getString(item, "get"), String[].class));
-			map.put(RequestMethod.HEAD, JSON.parseObject(getString(item, "head"), String[].class));
-			map.put(RequestMethod.GETS, JSON.parseObject(getString(item, "gets"), String[].class));
-			map.put(RequestMethod.HEADS, JSON.parseObject(getString(item, "heads"), String[].class));
-			map.put(RequestMethod.POST, JSON.parseObject(getString(item, "post"), String[].class));
-			map.put(RequestMethod.PUT, JSON.parseObject(getString(item, "put"), String[].class));
-			map.put(RequestMethod.DELETE, JSON.parseObject(getString(item, "delete"), String[].class));
+			// fastjson2 不支持
+			//map.put(RequestMethod.GET, JSON.parseObject(getString(item, "get"), String[].class));
+			//map.put(RequestMethod.HEAD, JSON.parseObject(getString(item, "head"), String[].class));
+			//map.put(RequestMethod.GETS, JSON.parseObject(getString(item, "gets"), String[].class));
+			//map.put(RequestMethod.HEADS, JSON.parseObject(getString(item, "heads"), String[].class));
+			//map.put(RequestMethod.POST, JSON.parseObject(getString(item, "post"), String[].class));
+			//map.put(RequestMethod.PUT, JSON.parseObject(getString(item, "put"), String[].class));
+			//map.put(RequestMethod.DELETE, JSON.parseObject(getString(item, "delete"), String[].class));
+
+			List<String> getArr = parseArray(getString(item, "get"), String.class);
+			map.put(RequestMethod.GET, getArr == null ? null : getArr.toArray(new String[]{}));
+
+			List<String> headArr = parseArray(getString(item, "head"), String.class);
+			map.put(RequestMethod.HEAD, headArr == null ? null : headArr.toArray(new String[]{}));
+
+			List<String> getsArr = parseArray(getString(item, "gets"), String.class);
+			map.put(RequestMethod.GETS, getsArr == null ? null : getsArr.toArray(new String[]{}));
+
+			List<String> headsArr = parseArray(getString(item, "heads"), String.class);
+			map.put(RequestMethod.HEADS, headsArr == null ? null : headsArr.toArray(new String[]{}));
+
+			List<String> postArr = parseArray(getString(item, "post"), String.class);
+			map.put(RequestMethod.POST, postArr == null ? null : postArr.toArray(new String[]{}));
+
+			List<String> putArr = parseArray(getString(item, "put"), String.class);
+			map.put(RequestMethod.PUT, putArr == null ? null : putArr.toArray(new String[]{}));
+
+			List<String> deleteArr = parseArray(getString(item, "delete"), String.class);
+			map.put(RequestMethod.DELETE, deleteArr == null ? null : deleteArr.toArray(new String[]{}));
 
 			String name = getString(item, "name");
 			String alias = getString(item, "alias");
@@ -243,12 +261,12 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 			}
 
 			if (StringUtil.isEmpty(alias, true)) {
-				if (apijson.JSONObject.isTableKey(name) == false) {
+				if (isTableKey(name) == false) {
 					onServerError("name: " + name + "不合法！字段 alias 的值为空时，name 必须为合法表名！", shutdownWhenServerError);
 				}
 
 				alias = name;
-			} else if (apijson.JSONObject.isTableKey(alias) == false) {
+			} else if (isTableKey(alias) == false) {
 				onServerError("alias: " + alias + "不合法！字段 alias 的值只能为 空 或者 合法表名！", shutdownWhenServerError);
 			}
 
@@ -392,14 +410,12 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M initRequest(
 			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
-			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
+			creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 		}
-		APIJSON_CREATOR = creator;
-
 
 		boolean isAll = table == null || table.isEmpty();
 		M tblObj = createJSONObject();
-		tblObj.put(apijson.JSONObject.KEY_ORDER, "version-,id+");
+		tblObj.put(KEY_ORDER, "version-,id+");
 		M requestTable = isAll ? tblObj : table;
 		if (Log.DEBUG == false) {
 			requestTable.put(APIJSONConstant.KEY_DEBUG, 0);
@@ -407,13 +423,10 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 
 		M requestItem = JSON.createJSONObject();
 		requestItem.put(REQUEST_, requestTable);  // 方便查找
-
-		M ro = JSON.createJSONObject();
-		ro.put(REQUEST_, requestItem);
-		ro.put(KEY_COUNT, 0);
+		requestItem.put(KEY_COUNT, 0);
 
 		M request = JSON.createJSONObject();
-		request.put(REQUEST_ + "[]", ro);
+		request.put(REQUEST_ + "[]", requestItem);
 		
 		M response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
@@ -464,10 +477,10 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 				target = structure;
 				if (structure.containsKey(tag) == false) { //tag 是 Table 名或 Table[]
 
-					boolean isArrayKey = tag.endsWith(":[]");  //  apijson.JSONObject.isArrayKey(tag);
+					boolean isArrayKey = tag.endsWith(":[]");  //  apijson.isArrayKey(tag);
 					String key = isArrayKey ? tag.substring(0, tag.length() - 3) : tag;
 
-					if (apijson.JSONObject.isTableKey(key)) {
+					if (isTableKey(key)) {
 						if (isArrayKey) { //自动为 tag = Comment:[] 的 { ... } 新增键值对 "Comment[]":[] 为 { "Comment[]":[], ... }
 							target.put(key + "[]", JSON.createJSONArray());
 						} else { //自动为 tag = Comment 的 { ... } 包一层为 { "Comment": { ... } }
@@ -556,13 +569,11 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M initDocument(
 			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
-			creator = (APIJSONCreator<T, M, L>) APIJSON_CREATOR;
+			creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 		}
-		APIJSON_CREATOR = creator;
-
 
 		boolean isAll = table == null || table.isEmpty();
-		M document = isAll ? JSON.createJSONObject(new JSONRequest().puts("apijson{}", "length(apijson)>0").setOrder("version-,id+")) : table;
+		M document = isAll ? JSON.createJSONObject(new JSONRequest("apijson{}", "length(apijson)>0").setOrder("version-,id+")) : table;
 		if (Log.DEBUG == false) {
 			document.put(APIJSONConstant.KEY_DEBUG, 0);
 		}
@@ -698,17 +709,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 * @throws Exception
 	 */
 	public static <T extends Object, M extends Map<String, Object>, L extends List<Object>> void testStructure() throws Exception {
-		SQLCreator<T, M, L> creator = (SQLCreator<T, M, L>) APIJSON_CREATOR; // new SQLCreator<T, M, L>() {
-		//	@Override
-		//	public SQLConfig<T, M, L> createSQLConfig() {
-		//		return (SQLConfig<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR.createSQLConfig();
-		//	}
-		//
-		//	@Override
-		//	public SQLExecutor<T, M, L> createSQLExecutor() {
-		//		return (SQLExecutor<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR.createSQLExecutor();
-		//	}
-		//};
+		SQLCreator<T, M, L> creator = (SQLCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 
 		M request;
 		try {
@@ -791,7 +792,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	@NotNull
 	@Override
 	public APIJSONParser<T, M, L> createParser() {
-		APIJSONParser<T, M, L> parser = (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
+		APIJSONParser<T, M, L> parser = APIJSONApplication.createParser();
 		parser.setVisitor(visitor);
 		return parser;
 	}
@@ -804,7 +805,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 */
 	public static void verifyLogin(HttpSession session) throws Exception {
 		Log.d(TAG, "verifyLogin  session.getId() = " + (session == null ? null : session.getId()));
-		APIJSON_CREATOR.createVerifier().setVisitor(getVisitor(session)).verifyLogin();
+		APIJSONApplication.createVerifier().setVisitor(getVisitor(session)).verifyLogin();
 	}
 
 

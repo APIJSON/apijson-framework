@@ -1,4 +1,4 @@
-/*Copyright ©2021 TommyLemon(https://github.com/APIJSON/apijson-column)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -369,8 +369,8 @@ public class ColumnUtil {
 	 * @return
 	 * @see 先提前配置 {@link #VERSIONED_COLUMN_KEY_MAP}，然后在 {@link AbstractSQLExecutor} 的子类重写 {@link AbstractSQLExecutor#getKey } 并调用这个方法，例如
 	 * <pre >
-	protected String getKey(SQLConfig<T, M, L> config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition, JSONObject table,
-	int columnIndex, Map<String, JSONObject> childMap) throws Exception { <br>
+	protected String getKey(SQLConfig<T, M, L> config, ResultSet rs, ResultSetMetaData rsmd, int tablePosition, JSONMap table,
+	int columnIndex, Map<String, JSONMap> childMap) throws Exception { <br>
 	return ColumnUtil.compatOutputKey(super.getKey(config, rs, rsmd, tablePosition, table, columnIndex, childMap), config.getTable(), config.getMethod(), version); <br>
 	}
 	 * </pre>

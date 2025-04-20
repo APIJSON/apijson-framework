@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public class APIJSONSQLExecutor<T, M extends Map<String, Object>, L extends List
 		
 		Object value = super.getValue(config, rs, rsmd, row, table, columnIndex, label, childMap, keyMap);
 
-		return value instanceof PGobject ? JSON.parseJSON(((PGobject) value).getValue()) : value;
+		return value instanceof PGobject ? JSON.parse(((PGobject) value).getValue()) : value;
 	}
 
 	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column

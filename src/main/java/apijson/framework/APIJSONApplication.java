@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,9 +32,33 @@ public class APIJSONApplication {
 	public static final String TAG = "APIJSONApplication";
 	
 	@NotNull
-	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>>  DEFAULT_APIJSON_CREATOR;
+	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> DEFAULT_APIJSON_CREATOR;
 	static {
 		DEFAULT_APIJSON_CREATOR = new APIJSONCreator<>();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, M extends Map<String, Object>, L extends List<Object>> APIJSONParser<T, M, L> createParser() {
+		return (APIJSONParser<T, M, L>) DEFAULT_APIJSON_CREATOR.createParser();
+	}
+	@SuppressWarnings("unchecked")
+	public static <T, M extends Map<String, Object>, L extends List<Object>> APIJSONFunctionParser<T, M, L> createFunctionParser() {
+		return (APIJSONFunctionParser<T, M, L>) DEFAULT_APIJSON_CREATOR.createFunctionParser();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, M extends Map<String, Object>, L extends List<Object>> APIJSONVerifier<T, M, L> createVerifier() {
+		return (APIJSONVerifier<T, M, L>) DEFAULT_APIJSON_CREATOR.createVerifier();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, M extends Map<String, Object>, L extends List<Object>> APIJSONSQLConfig<T, M, L> createSQLConfig() {
+		return (APIJSONSQLConfig<T, M, L>) DEFAULT_APIJSON_CREATOR.createSQLConfig();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, M extends Map<String, Object>, L extends List<Object>> APIJSONSQLExecutor<T, M, L> createSQLExecutor() {
+		return (APIJSONSQLExecutor<T, M, L>) DEFAULT_APIJSON_CREATOR.createSQLExecutor();
 	}
 
 
@@ -72,13 +96,6 @@ public class APIJSONApplication {
 			boolean shutdownWhenServerError, @NotNull APIJSONCreator<T, M, L> creator) throws Exception {
 		System.out.println("\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<< APIJSON 开始启动 >>>>>>>>>>>>>>>>>>>>>>>>\n");
 		DEFAULT_APIJSON_CREATOR = creator;
-
-		// 统一用同一个 creator
-		APIJSONSQLConfig.APIJSON_CREATOR = creator;
-		APIJSONParser.APIJSON_CREATOR = creator;
-		APIJSONController.APIJSON_CREATOR = creator;
-		APIJSONVerifier.APIJSON_CREATOR = creator;
-		APIJSONFunctionParser.APIJSON_CREATOR = creator;
 
         if (APIJSONVerifier.ENABLE_VERIFY_ROLE) {
             System.out.println("\n\n\n开始初始化: Access 权限校验配置 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
@@ -173,8 +190,10 @@ public class APIJSONApplication {
 		}
 	}
 
-	public static void addScriptExecutor(String language, ScriptExecutor scriptExecutor) {
+	public static <T, M extends Map<String, Object>, L extends List<Object>> void addScriptExecutor(String language, ScriptExecutor<T, M, L> scriptExecutor) {
 		scriptExecutor.init();
 		AbstractFunctionParser.SCRIPT_EXECUTOR_MAP.put(language, scriptExecutor);
 	}
+
+
 }

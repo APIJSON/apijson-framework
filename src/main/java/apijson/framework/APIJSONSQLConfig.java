@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@ import static apijson.framework.APIJSONConstant.PRIVACY_;
 import static apijson.framework.APIJSONConstant.USER_;
 import static apijson.framework.APIJSONConstant.USER_ID;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import apijson.JSONArray;
-import apijson.JSONObject;
+import apijson.JSONList;
+import apijson.JSONMap;
 //import apijson.column.ColumnUtil;
 
 import apijson.RequestMethod;
@@ -42,8 +43,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 	public static boolean ENABLE_COLUMN_CONFIG = false;
 
 	public static Callback<?, ? extends Map<String, Object>, ? extends List<Object>> SIMPLE_CALLBACK;
-	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
-	
+
 	static {
 		DEFAULT_DATABASE = DATABASE_MYSQL;  //TODO 默认数据库类型，改成你自己的
 		DEFAULT_SCHEMA = "sys";  //TODO 默认模式名，改成你自己的，默认情况是 MySQL: sys, PostgreSQL: public, SQL Server: dbo, Oracle: 
@@ -54,13 +54,12 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		//		TABLE_KEY_MAP.put(User.class.getSimpleName(), "apijson_user");
 		//		TABLE_KEY_MAP.put(Privacy.class.getSimpleName(), "apijson_privacy");
 
-		APIJSON_CREATOR = new APIJSONCreator<>();
-
-		SIMPLE_CALLBACK = new SimpleCallback<Object, JSONObject, JSONArray>() {
+		SIMPLE_CALLBACK = new SimpleCallback<Long, LinkedHashMap<String, Object>, List<Object>>() {
 
 			@Override
-			public SQLConfig<Object, JSONObject, JSONArray> getSQLConfig(RequestMethod method, String database, String schema,String datasource, String table) {
-				SQLConfig<Object, JSONObject, JSONArray> config = (SQLConfig<Object, JSONObject, JSONArray>) APIJSON_CREATOR.createSQLConfig();
+			public SQLConfig<Long, LinkedHashMap<String, Object>, List<Object>> getSQLConfig(
+					RequestMethod method, String database, String schema, String datasource, String table) {
+				SQLConfig<Long, LinkedHashMap<String, Object>, List<Object>> config = APIJSONApplication.createSQLConfig();
 				config.setMethod(method);
 				config.setDatabase(database);
 				config.setDatasource(datasource);
@@ -91,6 +90,31 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 
 	}
 
+	/**获取SQL配置
+	 * @param table
+	 * @param alias
+	 * @param request
+	 * @param isProcedure
+	 * @return
+	 * @throws Exception
+	 */
+	public static <T, M extends Map<String, Object>, L extends List<Object>> SQLConfig<T, M, L> newSQLConfig(
+			RequestMethod method, String table, String alias, M request, List<Join<T, M, L>> joinList, boolean isProcedure) throws Exception {
+		return newSQLConfig(method, table, alias, request, joinList, isProcedure, (SimpleCallback<T, M, L>) SIMPLE_CALLBACK);
+	}
+
+	public APIJSONSQLConfig() {
+		this(RequestMethod.GET);
+	}
+	public APIJSONSQLConfig(RequestMethod method) {
+		super(method);
+	}
+	public APIJSONSQLConfig(RequestMethod method, String table) {
+		super(method, table);
+	}
+	public APIJSONSQLConfig(RequestMethod method, int count, int page) {
+		super(method, count, page);
+	}
 
 
 	public String gainDBVersion() {
@@ -267,7 +291,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 
 	public String gainDBPassword() {
 		if (isMySQL()) {
-			return "your@Password123";
+			return "yourPassword@123";
 		}
 		if (isTiDB()) {
 			return "";
@@ -276,7 +300,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 			return null;
 		}
 		if (isSQLServer()) {
-			return "your@Password123";
+			return "yourPassword@123";
 		}
 		if (isOracle()) {
 			return "tiger";
@@ -286,7 +310,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		//	// return null
 		//}
 		if (isSQLServer()) {
-			return "your@Password123";
+			return "yourPassword@123";
 		}
 		if (isOracle()) {
 			return "tiger";
@@ -295,7 +319,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 			return "123";
 		}
 		if (isSQLite()) {
-		  	return "your@Password123";
+		  	return "yourPassword@123";
 		}
 		if (isDameng()) {
 			return "SYSDBA";
@@ -310,10 +334,10 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 			return "quest";
 		}
 		if (isInfluxDB()) {
-			return "your@Password123";
+			return "yourPassword@123";
 		}
 		if (isMilvus()) {
-			return "your@Password123";
+			return "yourPassword@123";
 		}
 		//if (isManticore()) {
 		//	return null;
@@ -322,10 +346,10 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		//	return "root";
 		//}
 		if (isMongoDB()) {
-			return "your@Password123";
+			return "yourPassword@123";
 		}
 		if (isCassandra()) {
-			return "your@Password123";
+			return "yourPassword@123";
 		}
 		if (isDuckDB()) {
 			return "";
@@ -334,7 +358,7 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 			return "root";
 		}
 		if (isOpenGauss()) {
-			return "your@Password123";
+			return "yourPassword@123";
 		}
 		if (isDoris()) {
 			return "";
@@ -384,61 +408,14 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 	}
 
 
-	public APIJSONSQLConfig() {
-		this(RequestMethod.GET);
-	}
-	public APIJSONSQLConfig(RequestMethod method) {
-		super(method);
-	}
-	public APIJSONSQLConfig(RequestMethod method, String table) {
-		super(method, table);
-	}
-	public APIJSONSQLConfig(RequestMethod method, int count, int page) {
-		super(method, count, page);
-	}
-
-
-
-	/**获取SQL配置
-	 * @param table
-	 * @param alias 
-	 * @param request
-	 * @param isProcedure 
-	 * @return
-	 * @throws Exception 
-	 */
-	public static <T, M extends Map<String, Object>, L extends List<Object>> SQLConfig<T, M, L> newSQLConfig(
-			RequestMethod method, String table, String alias, M request, List<Join<T, M, L>> joinList, boolean isProcedure) throws Exception {
-		return newSQLConfig(method, table, alias, request, joinList, isProcedure, new SimpleCallback<T, M, L>() {
-			@Override
-			public SQLConfig<T, M, L> getSQLConfig(RequestMethod method, String database, String schema, String datasource, String table) {
-				SQLConfig<T, M, L> config = (SQLConfig<T, M, L>) APIJSON_CREATOR.createSQLConfig();
-				config.setMethod(method);
-				config.setDatabase(database);
-				config.setDatasource(datasource);
-				config.setSchema(schema);
-				config.setTable(table);
-				return config;
-			}
-		});
-	}
-
-
 	// 支持 !key 反选字段 和 字段名映射，依赖插件 https://github.com/APIJSON/apijson-column
-//	@Override
-//	public AbstractSQLConfig<T, M, L> setColumn(List<String> column) {
-//		if (ENABLE_COLUMN_CONFIG) {
-//			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion(), ! isConfigTable());
-//		}
-//		return super.setColumn(column);
-//	}
-//
-//	@Override
-//	public String getKey(String key) {
-//		if (ENABLE_COLUMN_CONFIG) {
-//			key = ColumnUtil.compatInputKey(key, getTable(), getMethod(), getVersion(), ! isConfigTable());
-//		}
-//		return super.getKey(key);
-//	}
+	@Override
+	public APIJSONSQLConfig<T, M, L> setColumn(List<String> column) {
+		if (ENABLE_COLUMN_CONFIG) {
+			column = ColumnUtil.compatInputColumn(column, getTable(), getMethod(), getVersion(), ! isConfigTable());
+		}
+		super.setColumn(column);
+		return this;
+	}
 
 }

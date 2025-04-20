@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,12 +37,6 @@ import apijson.orm.SQLConfig;
 public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Object>> extends AbstractParser<T, M, L> {
 	public static final String TAG = "APIJSONParser";
 
-	@NotNull
-	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
-	static {
-		APIJSON_CREATOR = new APIJSONCreator<>();
-	}
-	
 	
 	public APIJSONParser() {
 		super();
@@ -67,26 +61,26 @@ public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Obje
 	@SuppressWarnings("unchecked")
 	@Override
 	public APIJSONParser<T, M, L> createParser() {
-		return (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
+		return APIJSONApplication.createParser();
 	}
 	@Override
 	public APIJSONFunctionParser<T, M, L> createFunctionParser() {
-		return (APIJSONFunctionParser<T, M, L>) APIJSON_CREATOR.createFunctionParser();
+		return APIJSONApplication.createFunctionParser();
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public APIJSONVerifier<T, M, L> createVerifier() {
-		return (APIJSONVerifier<T, M, L>) APIJSON_CREATOR.createVerifier();
+		return APIJSONApplication.createVerifier();
 	}
 	
 	@Override
 	public APIJSONSQLConfig<T, M, L> createSQLConfig() {
-		return (APIJSONSQLConfig<T, M, L>) APIJSON_CREATOR.createSQLConfig();
+		return APIJSONApplication.createSQLConfig();
 	}
 	@Override
 	public APIJSONSQLExecutor<T, M, L> createSQLExecutor() {
-		return (APIJSONSQLExecutor<T, M, L>) APIJSON_CREATOR.createSQLExecutor();
+		return APIJSONApplication.createSQLExecutor();
 	}
 
 	@Override
@@ -165,7 +159,7 @@ public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Obje
 
 
 	@Override
-	public APIJSONObjectParser<T, M, L> createObjectParser(M request, String parentPath, SQLConfig<T, M, L> arrayConfig
+	public APIJSONObjectParser<T, M, L> createObjectParser(@NotNull M request, String parentPath, SQLConfig<T, M, L> arrayConfig
 			, boolean isSubquery, boolean isTable, boolean isArrayMainTable) throws Exception {
 
 		return new APIJSONObjectParser<T, M, L>(getSession(), request, parentPath, arrayConfig, isSubquery, isTable, isArrayMainTable) {

@@ -1,4 +1,4 @@
-/*Copyright ©2016 TommyLemon(https://github.com/TommyLemon/APIJSON)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import static apijson.JSON.*;
 import static apijson.RequestMethod.*;
 import static apijson.framework.javax.APIJSONConstant.*;
 
-
 /**APIJSON base controller，建议在子项目被 @RestController 注解的类继承它或通过它的实例调用相关方法
  * <br > 全通过 HTTP POST 来请求:
  * <br > 1.减少代码 - 客户端无需写 HTTP GET, HTTP PUT 等各种方式的请求代码
@@ -37,19 +36,12 @@ import static apijson.framework.javax.APIJSONConstant.*;
 public class APIJSONController<T, M extends Map<String, Object>, L extends List<Object>> {
 	public static final String TAG = "APIJSONController";
 
-	@NotNull
-	public static APIJSONCreator<?, ? extends Map<String, Object>, ? extends List<Object>> APIJSON_CREATOR;
-	static {
-		APIJSON_CREATOR = new APIJSONCreator<Object, JSONObject, JSONArray>();
-	}
-
 	public String getRequestURL() {
 		return null;
 	}
 
 	public APIJSONParser<T, M, L> newParser(HttpSession session, RequestMethod method) {
-		@SuppressWarnings("unchecked")
-        APIJSONParser<T, M, L> parser = (APIJSONParser<T, M, L>) APIJSON_CREATOR.createParser();
+		APIJSONParser<T, M, L> parser = APIJSONApplication.createParser();
 		parser.setMethod(method);
 		parser.setSession(session);
 		parser.setRequestURL(getRequestURL());
@@ -62,7 +54,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 
 	public String parseByTag(RequestMethod method, String tag, Map<String, String> params, String request, HttpSession session) {
 		APIJSONParser<T, M, L> parser = newParser(null, null);
-		M req = parser.wrapRequest(method, tag, JSON.parseObject(request), false, (JSONCreator<M, L>) APIJSON_CREATOR);
+		M req = parser.wrapRequest(method, tag, JSON.parseObject(request), false);
 		if (req == null) {
 			req = JSON.createJSONObject();
 		}
@@ -207,7 +199,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 //	 * @see {@link RequestMethod#GET}
 //	 */
 //	public String listByTag(String tag, String request, HttpSession session) {
-//		return parseByTag(GET, tag + apijson.JSONObject.KEY_ARRAY, request, session);
+//		return parseByTag(GET, tag + apijson.JSONMap.KEY_ARRAY, request, session);
 //	}
 
 	/**获取
@@ -395,7 +387,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 			}
 
 			@SuppressWarnings("unchecked")
-            APIJSONCreator<T, M, L> creator = (APIJSONCreator<T, M, L>) APIJSONParser.APIJSON_CREATOR;
+            APIJSONCreator<T, M, L> creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 			if (result == null && Log.DEBUG && APIJSONVerifier.DOCUMENT_MAP.isEmpty()) {
 
 				//获取指定的JSON结构 <<<<<<<<<<<<<<
@@ -575,7 +567,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 	 * @param defaults
 	 * @return 返回类型设置为 Object 是为了子类重写时可以有返回值，避免因为冲突而另写一个有返回值的登录方法
 	 */
-	public Object login(@NotNull HttpSession session, Visitor<Long> visitor, Integer version, Boolean format, M defaults) {
+	public Object login(@NotNull HttpSession session, @NotNull Visitor<Long> visitor, Integer version, Boolean format, M defaults) {
 		//登录状态保存至session
 		session.setAttribute(VISITOR_ID, visitor.getId()); //用户id
 		session.setAttribute(VISITOR_, visitor); //用户
@@ -598,7 +590,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 
 
 
-//	public JSONObject listMethod(String request) {
+//	public JSONMap listMethod(String request) {
 //		if (Log.DEBUG == false) {
 //			return APIJSONParser.newErrorResult(new IllegalAccessException("非 DEBUG 模式下不允许使用 UnitAuto 单元测试！"));
 //		}
@@ -609,10 +601,10 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 //		AsyncContext asyncContext = servletRequest.startAsync();
 //
 //		final boolean[] called = new boolean[] { false };
-//		MethodUtil.Listener<JSONObject> listener = new MethodUtil.Listener<JSONObject>() {
+//		MethodUtil.Listener<JSONMap> listener = new MethodUtil.Listener<JSONMap>() {
 //
 //			@Override
-//			public void complete(JSONObject data, Method method, InterfaceProxy proxy, Object... extras) throws Exception {
+//			public void complete(JSONMap data, Method method, InterfaceProxy proxy, Object... extras) throws Exception {
 //
 //				ServletResponse servletResponse = called[0] ? null : asyncContext.getResponse();
 //				if (servletResponse == null) {  //  || servletResponse.isCommitted()) {  // isCommitted 在高并发时可能不准，导致写入多次
@@ -645,7 +637,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 //			MethodUtil.invokeMethod(request, null, listener);
 //		}
 //		catch (Exception e) {
-//			Log.e(TAG, "invokeMethod  try { JSONObject req = JSON.parseObject(request); ... } catch (Exception e) { \n" + e.getMessage());
+//			Log.e(TAG, "invokeMethod  try { JSONMap req = JSON.parseObject(request); ... } catch (Exception e) { \n" + e.getMessage());
 //			try {
 //				listener.complete(MethodUtil.JSON_CALLBACK.newErrorResult(e));
 //			}

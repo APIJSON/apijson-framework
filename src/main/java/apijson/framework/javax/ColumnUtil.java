@@ -1,4 +1,4 @@
-/*Copyright ©2021 TommyLemon(https://github.com/APIJSON/apijson-column)
+/*Copyright ©2016 APIJSON(https://github.com/APIJSON)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
