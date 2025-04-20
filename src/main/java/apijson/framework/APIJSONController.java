@@ -18,7 +18,6 @@ import apijson.*;
 import apijson.JSONRequest;
 import apijson.orm.*;
 
-import apijson.orm.exception.CommonException;
 import jakarta.servlet.http.HttpSession;
 
 import java.rmi.ServerException;
@@ -51,7 +50,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 		return parser;
 	}
 
-	public static APIJSONParser<?, ? extends Map<String, Object>, ? extends List<Object>> ERR_PARSER = APIJSONApplication.createParser();
+	public static APIJSONParser<?, ? extends Map<String, Object>, ? extends List<Object>> COMMON_PARSER = APIJSONApplication.createParser();
 
 	/**新建带状态内容的JSONObject
 	 * @param code
@@ -96,7 +95,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 	 * @return
 	 */
 	public static <M extends Map<String, Object>> M extendResult(M object, int code, String msg, String warn, boolean isRoot) {
-		return (M) ERR_PARSER.extendResult(JSON.createJSONObject(object), code, msg, warn, isRoot);
+		return (M) COMMON_PARSER.extendResult(JSON.createJSONObject(object), code, msg, warn, isRoot);
 	}
 
 
@@ -169,23 +168,43 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 	 * @return
 	 */
 	public static <M extends Map<String, Object>> M extendErrorResult(M object, Throwable e, RequestMethod requestMethod, String url, boolean isRoot) {
-		return (M) ERR_PARSER.extendErrorResult(JSON.createJSONObject(object), e, requestMethod, url, isRoot);
+		return (M) COMMON_PARSER.extendErrorResult(JSON.createJSONObject(object), e, requestMethod, url, isRoot);
 	}
 
 	public static <M extends Map<String, Object>> M newErrorResult(Exception e) {
 		return newErrorResult(e, false);
 	}
 	public static <M extends Map<String, Object>> M newErrorResult(Exception e, boolean isRoot) {
-		return (M) ERR_PARSER.newErrorResult(e, isRoot);
+		return (M) COMMON_PARSER.newErrorResult(e, isRoot);
 	}
 
 
 	public String parse(RequestMethod method, String request, HttpSession session) {
+		if (APIJSONVerifier.ENABLE_APIJSON_ROUTER && ! Log.DEBUG) {
+			return JSON.toJSONString(
+					newErrorResult(
+							new IllegalArgumentException("APIJSONVerifier.ENABLE_APIJSON_ROUTER = true 已启用 router，" +
+									"Log.DEBUG = false 时不允许调用 /router/{method}/{tag} 外的万能通用接口！"
+							)
+					)
+			);
+		}
+
 		return newParser(session, method).parse(request);
 	}
 
 	public String parseByTag(RequestMethod method, String tag, Map<String, String> params, String request, HttpSession session) {
-		APIJSONParser<T, M, L> parser = newParser(null, null);
+		if (APIJSONVerifier.ENABLE_APIJSON_ROUTER && ! Log.DEBUG) {
+			return JSON.toJSONString(
+					newErrorResult(
+							new IllegalArgumentException("APIJSONVerifier.ENABLE_APIJSON_ROUTER = true 已启用 router，" +
+									"Log.DEBUG = false 时不允许调用 /router/{method}/{tag} 外的万能通用接口！"
+							)
+					)
+			);
+		}
+
+		APIJSONParser<T, M, L> parser = newParser(session, method);
 		M req = parser.wrapRequest(method, tag, JSON.parseObject(request), false);
 		if (req == null) {
 			req = JSON.createJSONObject();
@@ -194,10 +213,19 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 			req.putAll(params);
 		}
 
-		return newParser(session, method).parse(req);
+		return parser.parse(req);
 	}
 
 	//通用接口，非事务型操作 和 简单事务型操作 都可通过这些接口自动化实现<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+	/**全能增删改查统一入口，这个一个方法可替代以下所有万能通用方法，一个接口通用增删改查
+	 * @param request
+	 * @param session
+	 * @return
+	 */
+	public String crudAll(String request, HttpSession session) {
+		return parse(CRUD, request, session);
+	}
 
 	/**增删改查统一入口，这个一个方法可替代以下 7 个方法，牺牲一点路由解析性能来提升一些开发效率
 	 * @param method
@@ -210,8 +238,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 			return parse(RequestMethod.valueOf(method.toUpperCase()), request, session);
 		}
 
-		Parser<T, M, L> parser = newParser(null, null);
-		return toJSONString(parser.newErrorResult(
+		return toJSONString(newErrorResult(
 				new IllegalArgumentException("URL 路径 /{method} 中 method 值 "
 						+ method + " 错误！只允许 " + METHODS + " 中的一个！")
 		));
@@ -316,8 +343,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 			return parseByTag(RequestMethod.valueOf(method.toUpperCase()), tag, params, request, session);
 		}
 
-		Parser<T, M, L> parser = newParser(null, null);
-		return toJSONString(parser.newErrorResult(
+		return toJSONString(newErrorResult(
 				new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 "
 						+ method + " 错误！只允许 " + METHODS + " 中的一个！")
 		));
@@ -428,6 +454,15 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 	 * @return
 	 */
 	public String router(String method, String tag, Map<String, String> params, String request, HttpSession session, boolean compatCommonAPI) {
+		if (! APIJSONVerifier.ENABLE_APIJSON_ROUTER) {
+			return JSON.toJSONString(
+					newErrorResult(
+							new IllegalArgumentException("未启用 router！请配置 APIJSONVerifier.ENABLE_APIJSON_ROUTER = true ！"
+							)
+					)
+			);
+		}
+
 		RequestMethod requestMethod = null;
 		try {
 			requestMethod = RequestMethod.valueOf(method.toUpperCase());
@@ -438,7 +473,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 
 		if (METHODS.contains(method) == false) {
 			return JSON.toJSONString(
-					parser.newErrorResult(
+					newErrorResult(
 							new IllegalArgumentException("URL 路径 /{method}/{tag} 中 method 值 "
 									+ method + " 错误！只允许 " + METHODS + " 中的一个！"
 							)
@@ -449,7 +484,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 		String t = compatCommonAPI && tag != null && tag.endsWith("[]") ? tag.substring(0, tag.length() - 2) : tag;
 		if (StringUtil.isName(t) == false) {
 			return JSON.toJSONString(
-					parser.newErrorResult(
+					newErrorResult(
 							new IllegalArgumentException("URL 路径 /" + method + "/{tag} 的 tag 中 "
 									+ t + " 错误！tag 不能为空，且只允许变量命名格式！"
 							)
@@ -464,7 +499,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 		}
 		catch (Exception e) {
 			return JSON.toJSONString(
-					parser.newErrorResult(new IllegalArgumentException("URL 路径 /" + method + "/"
+					newErrorResult(new IllegalArgumentException("URL 路径 /" + method + "/"
 							+ tag + "?version=value 中 value 值 " + versionStr + " 错误！必须符合整数格式！")
 					)
 			);
@@ -613,7 +648,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 			return parser.setNeedVerifyContent(false).parse(apijsonReq);
 		}
 		catch (Exception e) {
-			return JSON.toJSONString(parser.newErrorResult(e));
+			return JSON.toJSONString(newErrorResult(e));
 		}
 	}
 
@@ -634,8 +669,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 	 * </pre>
 	 */
 	public M reload(String type) {
-		Parser<T, M, L> parser = newParser(null, null);
-		M result = parser.newSuccessResult();
+		M result = newSuccessResult();
 
 		boolean reloadAll = StringUtil.isEmpty(type, true) || "ALL".equals(type);
 
@@ -651,7 +685,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 				}
 			} catch (ServerException e) {
 				e.printStackTrace();
-				result.put(ACCESS_, parser.newErrorResult(e));
+				result.put(ACCESS_, newErrorResult(e));
 			}
 		}
 
@@ -667,7 +701,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 				}
 			} catch (ServerException e) {
 				e.printStackTrace();
-				result.put(FUNCTION_, parser.newErrorResult(e));
+				result.put(FUNCTION_, newErrorResult(e));
 			}
 		}
 
@@ -683,7 +717,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 				}
 			} catch (ServerException e) {
 				e.printStackTrace();
-				result.put(REQUEST_, parser.newErrorResult(e));
+				result.put(REQUEST_, newErrorResult(e));
 			}
 		}
 
