@@ -48,6 +48,9 @@ public class ColumnUtil {
 	public static final Comparator<Integer> DESC_COMPARATOR = new Comparator<Integer>() {
 		@Override
 		public int compare(Integer o1, Integer o2) {
+			if (o2 == null) {
+				return o1 == null ? 0 : -1;
+			}
 			return o2.compareTo(o1);
 		}
 	};

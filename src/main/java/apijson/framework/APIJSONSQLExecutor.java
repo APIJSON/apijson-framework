@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-//import apijson.column.ColumnUtil;
 import org.postgresql.util.PGobject;
 
 import apijson.JSON;
@@ -104,9 +103,9 @@ public class APIJSONSQLExecutor<T, M extends Map<String, Object>, L extends List
 	) throws Exception {
 
 		String key = super.getKey(config, rs, rsmd, row, table, columnIndex, childMap, keyMap);
-//		if (APIJSONSQLConfig.ENABLE_COLUMN_CONFIG) {
-//			return ColumnUtil.compatOutputKey(key, config.getTable(), config.getMethod());
-//		}
+		if (APIJSONSQLConfig.ENABLE_COLUMN_CONFIG) {
+			return ColumnUtil.compatOutputKey(key, config.getTable(), config.getMethod());
+		}
 
 		return key;
 	}

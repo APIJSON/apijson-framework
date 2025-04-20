@@ -418,4 +418,12 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		return this;
 	}
 
+	@Override
+	public String gainKey(String key) {
+		if (ENABLE_COLUMN_CONFIG) {
+			key = ColumnUtil.compatInputKey(key, getTable(), getMethod());
+		}
+		return super.gainKey(key);
+	}
+
 }
