@@ -600,7 +600,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 			}
 
 			if (parser.isNeedVerifyContent()) {
-				Verifier<T, M, L> verifier = creator.createVerifier();
+				Verifier<T, M, L> verifier = parser.getVerifier();
 
 				//获取指定的JSON结构 <<<<<<<<<<<<
 				Map<String, Object> target = parser.getStructure("Request", method.toUpperCase(), tag, version);
@@ -610,7 +610,7 @@ public class APIJSONController<T, M extends Map<String, Object>, L extends List<
 				}
 
 				//M clone 浅拷贝没用，Structure.parse 会导致 structure 里面被清空，第二次从缓存里取到的就是 {}
-				verifier.verifyRequest(requestMethod, "", JSON.createJSONObject(target), rawReq, 0, null, null, creator);
+				verifier.verifyRequest(requestMethod, "", JSON.createJSONObject(target), rawReq, 0, null, null);
 			}
 
 			M apijsonReq = JSON.parseObject(apijson);

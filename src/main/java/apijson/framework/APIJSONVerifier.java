@@ -709,12 +709,12 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 * @throws Exception
 	 */
 	public static <T extends Object, M extends Map<String, Object>, L extends List<Object>> void testStructure() throws Exception {
-		SQLCreator<T, M, L> creator = (SQLCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
+		Parser<T, M, L> parser = APIJSONApplication.createParser();
 
 		M request;
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"userId\":0}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, creator));
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, parser));
 		} catch (Throwable e) {
 			if (e instanceof IllegalArgumentException == false || "POST请求，Comment 里面不能缺少 momentId 等[userId,momentId,content]内的任何字段！".equals(e.getMessage()) == false) {
 				throw e;
@@ -723,7 +723,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"id\":0, \"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, creator));
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, parser));
 		} catch (Throwable e) {
 			if (e instanceof IllegalArgumentException == false || "POST请求，/Comment 不能传 id ！".equals(e.getMessage()) == false) {
 				throw e;
@@ -732,7 +732,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, creator));
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, parser));
 			AssertUtil.assertEqual("OWNER", getString(request, "@role"));
 			Log.d(TAG, "测试 Operation.INSERT 不存在字段时插入：成功");
 		} catch (Throwable e) {
@@ -743,7 +743,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		M response;
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, creator, null));
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, parser, null));
 			AssertUtil.assertEqual("verifyURLList(pictureList)", getJSONObject(response, "User").get("verifyURLList-()"));
 			Log.d(TAG, "测试 Operation.UPDATE 强制插入/替换：成功");
 		} catch (Throwable e) {
@@ -751,7 +751,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\"}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, creator, null));
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, parser, null));
 			AssertUtil.assertEqual(null, getJSONObject(response, "User").get("phone"));
 			Log.d(TAG, "测试 Operation.REMOVE 强制移除：成功");
 		} catch (Throwable e) {
@@ -759,7 +759,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\", \"sex\":1}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, creator, null));
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, parser, null));
 			AssertUtil.assertEqual("api", getJSONObject(response, "User").get("name"));
 			Log.d(TAG, "测试 Operation.INSERT 不存在字段时插入：成功");
 		} catch (Throwable e) {
@@ -767,7 +767,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"id\":0, \"name\":\"tommy\", \"phone\":\"12345678\", \"sex\":1}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, creator, null));
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, parser, null));
 			AssertUtil.assertEqual(2, getJSONObject(response, "User").get("sex"));
 			Log.d(TAG, "测试 Operation.REPLACE 存在字段时替换：成功");
 		} catch (Throwable e) {
@@ -787,6 +787,20 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 	}
 
+	protected Parser<T, M, L> parser;
+	@Override
+	public Parser<T, M, L> getParser() {
+		if (parser == null) {
+			parser = createParser();
+		}
+		return parser;
+	}
+
+	@Override
+	public APIJSONVerifier<T, M, L> setParser(AbstractParser<T, M, L> parser) {
+		this.parser = parser;
+		return this;
+	}
 
 	@SuppressWarnings("unchecked")
 	@NotNull

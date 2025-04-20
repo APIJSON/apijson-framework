@@ -14,19 +14,21 @@ limitations under the License.*/
 
 package apijson.framework.javax;
 
-import apijson.*;
-import apijson.orm.JSONRequest;
-import apijson.orm.*;
-import javax.servlet.http.HttpSession;
-
-import java.rmi.ServerException;
-import java.util.*;
-
 import static apijson.JSON.*;
 import static apijson.JSONMap.KEY_ORDER;
 import static apijson.JSONMap.isTableKey;
 import static apijson.JSONRequest.KEY_COUNT;
 import static apijson.framework.javax.APIJSONConstant.*;
+import static apijson.framework.javax.APIJSONConstant.METHODS;
+
+import java.rmi.ServerException;
+import java.util.*;
+
+import apijson.*;
+import apijson.orm.JSONRequest;
+import javax.servlet.http.HttpSession;
+
+import apijson.orm.*;
 
 
 /**权限验证器
@@ -93,12 +95,12 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M init(
 			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator) throws ServerException {
 		M result = JSON.createJSONObject();
-        if (ENABLE_VERIFY_ROLE) {
-            result.put(ACCESS_, initAccess(shutdownWhenServerError, creator));
-        }
-        if (ENABLE_VERIFY_CONTENT) {
-            result.put(REQUEST_, initRequest(shutdownWhenServerError, creator));
-        }
+		if (ENABLE_VERIFY_ROLE) {
+			result.put(ACCESS_, initAccess(shutdownWhenServerError, creator));
+		}
+		if (ENABLE_VERIFY_CONTENT) {
+			result.put(REQUEST_, initRequest(shutdownWhenServerError, creator));
+		}
 		return result;
 	}
 
@@ -148,7 +150,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M initAccess(
-            boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
+			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
 			creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 		}
@@ -161,12 +163,10 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		M accessItem = JSON.createJSONObject();
 		accessItem.put(ACCESS_, access);
+		accessItem.put(apijson.JSONRequest.KEY_COUNT, 0);
 
 		M request = JSON.createJSONObject();
-		M ao = JSON.createJSONObject();
-		ao.put(ACCESS_, accessItem);
-		ao.put(apijson.JSONRequest.KEY_COUNT, 0);
-		request.put(ACCESS_ + "[]", ao);
+		request.put(ACCESS_ + "[]", accessItem);
 
 		M response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
@@ -197,13 +197,35 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 			}
 
 			Map<RequestMethod, String[]> map = new HashMap<>();
-			map.put(RequestMethod.GET, JSON.parseObject(getString(item, "get"), String[].class));
-			map.put(RequestMethod.HEAD, JSON.parseObject(getString(item, "head"), String[].class));
-			map.put(RequestMethod.GETS, JSON.parseObject(getString(item, "gets"), String[].class));
-			map.put(RequestMethod.HEADS, JSON.parseObject(getString(item, "heads"), String[].class));
-			map.put(RequestMethod.POST, JSON.parseObject(getString(item, "post"), String[].class));
-			map.put(RequestMethod.PUT, JSON.parseObject(getString(item, "put"), String[].class));
-			map.put(RequestMethod.DELETE, JSON.parseObject(getString(item, "delete"), String[].class));
+			// fastjson2 不支持
+			//map.put(RequestMethod.GET, JSON.parseObject(getString(item, "get"), String[].class));
+			//map.put(RequestMethod.HEAD, JSON.parseObject(getString(item, "head"), String[].class));
+			//map.put(RequestMethod.GETS, JSON.parseObject(getString(item, "gets"), String[].class));
+			//map.put(RequestMethod.HEADS, JSON.parseObject(getString(item, "heads"), String[].class));
+			//map.put(RequestMethod.POST, JSON.parseObject(getString(item, "post"), String[].class));
+			//map.put(RequestMethod.PUT, JSON.parseObject(getString(item, "put"), String[].class));
+			//map.put(RequestMethod.DELETE, JSON.parseObject(getString(item, "delete"), String[].class));
+
+			List<String> getArr = parseArray(getString(item, "get"), String.class);
+			map.put(RequestMethod.GET, getArr == null ? null : getArr.toArray(new String[]{}));
+
+			List<String> headArr = parseArray(getString(item, "head"), String.class);
+			map.put(RequestMethod.HEAD, headArr == null ? null : headArr.toArray(new String[]{}));
+
+			List<String> getsArr = parseArray(getString(item, "gets"), String.class);
+			map.put(RequestMethod.GETS, getsArr == null ? null : getsArr.toArray(new String[]{}));
+
+			List<String> headsArr = parseArray(getString(item, "heads"), String.class);
+			map.put(RequestMethod.HEADS, headsArr == null ? null : headsArr.toArray(new String[]{}));
+
+			List<String> postArr = parseArray(getString(item, "post"), String.class);
+			map.put(RequestMethod.POST, postArr == null ? null : postArr.toArray(new String[]{}));
+
+			List<String> putArr = parseArray(getString(item, "put"), String.class);
+			map.put(RequestMethod.PUT, putArr == null ? null : putArr.toArray(new String[]{}));
+
+			List<String> deleteArr = parseArray(getString(item, "delete"), String.class);
+			map.put(RequestMethod.DELETE, deleteArr == null ? null : deleteArr.toArray(new String[]{}));
 
 			String name = getString(item, "name");
 			String alias = getString(item, "alias");
@@ -217,8 +239,8 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 				if (containNotDeletedValue == false && StringUtil.isEmpty(deletedValue, true)) {
 					onServerError(
 							"Access表 id = " + getString(item, "id") + " 对应的 "
-							+ AbstractSQLConfig.KEY_DELETED_VALUE + " 的值不能为空！或者必须包含字段 "
-							+ AbstractSQLConfig.KEY_NOT_DELETED_VALUE + " ！"
+									+ AbstractSQLConfig.KEY_DELETED_VALUE + " 的值不能为空！或者必须包含字段 "
+									+ AbstractSQLConfig.KEY_NOT_DELETED_VALUE + " ！"
 							, shutdownWhenServerError
 					);
 				}
@@ -386,7 +408,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M initRequest(
-            boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
+			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
 			creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 		}
@@ -401,13 +423,10 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 
 		M requestItem = JSON.createJSONObject();
 		requestItem.put(REQUEST_, requestTable);  // 方便查找
-
-		M ro = JSON.createJSONObject();
-		ro.put(REQUEST_, requestItem);
-		ro.put(KEY_COUNT, 0);
+		requestItem.put(KEY_COUNT, 0);
 
 		M request = JSON.createJSONObject();
-		request.put(REQUEST_ + "[]", ro);
+		request.put(REQUEST_ + "[]", requestItem);
 
 		M response = creator.createParser().setMethod(RequestMethod.GET).setNeedVerify(false).parseResponse(request);
 		if (JSONResponse.isSuccess(response) == false) {
@@ -548,7 +567,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, M extends Map<String, Object>, L extends List<Object>> M initDocument(
-            boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
+			boolean shutdownWhenServerError, APIJSONCreator<T, M, L> creator, M table) throws ServerException {
 		if (creator == null) {
 			creator = (APIJSONCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
 		}
@@ -690,12 +709,12 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 	 * @throws Exception
 	 */
 	public static <T extends Object, M extends Map<String, Object>, L extends List<Object>> void testStructure() throws Exception {
-		SQLCreator<T, M, L> creator = (SQLCreator<T, M, L>) APIJSONApplication.DEFAULT_APIJSON_CREATOR;
+		Parser<T, M, L> parser = APIJSONApplication.createParser();
 
 		M request;
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"userId\":0}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, creator));
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, parser));
 		} catch (Throwable e) {
 			if (e instanceof IllegalArgumentException == false || "POST请求，Comment 里面不能缺少 momentId 等[userId,momentId,content]内的任何字段！".equals(e.getMessage()) == false) {
 				throw e;
@@ -704,7 +723,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"id\":0, \"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, creator));
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, parser));
 		} catch (Throwable e) {
 			if (e instanceof IllegalArgumentException == false || "POST请求，/Comment 不能传 id ！".equals(e.getMessage()) == false) {
 				throw e;
@@ -713,7 +732,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			request = JSON.parseObject("{\"Comment\":{\"userId\":0, \"momentId\":0, \"content\":\"apijson\"}}");
-			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, creator));
+			Log.d(TAG, "test  verifyRequest = " + AbstractVerifier.verifyRequest(RequestMethod.POST, "", JSON.parseObject(requestConfig), request, parser));
 			AssertUtil.assertEqual("OWNER", getString(request, "@role"));
 			Log.d(TAG, "测试 Operation.INSERT 不存在字段时插入：成功");
 		} catch (Throwable e) {
@@ -724,7 +743,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		M response;
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, creator, null));
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, parser, null));
 			AssertUtil.assertEqual("verifyURLList(pictureList)", getJSONObject(response, "User").get("verifyURLList-()"));
 			Log.d(TAG, "测试 Operation.UPDATE 强制插入/替换：成功");
 		} catch (Throwable e) {
@@ -732,7 +751,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\"}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, creator, null));
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, parser, null));
 			AssertUtil.assertEqual(null, getJSONObject(response, "User").get("phone"));
 			Log.d(TAG, "测试 Operation.REMOVE 强制移除：成功");
 		} catch (Throwable e) {
@@ -740,7 +759,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"userId\":0, \"phone\":\"12345678\", \"sex\":1}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, creator, null));
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, parser, null));
 			AssertUtil.assertEqual("api", getJSONObject(response, "User").get("name"));
 			Log.d(TAG, "测试 Operation.INSERT 不存在字段时插入：成功");
 		} catch (Throwable e) {
@@ -748,7 +767,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		try {
 			response = JSON.parseObject("{\"User\":{\"id\":0, \"name\":\"tommy\", \"phone\":\"12345678\", \"sex\":1}}");
-			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, creator, null));
+			Log.d(TAG, "test  verifyResponse = " + AbstractVerifier.verifyResponse(RequestMethod.GET, "", JSON.parseObject(responseConfig), response, parser, null));
 			AssertUtil.assertEqual(2, getJSONObject(response, "User").get("sex"));
 			Log.d(TAG, "测试 Operation.REPLACE 存在字段时替换：成功");
 		} catch (Throwable e) {
@@ -768,6 +787,20 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 	}
 
+	protected Parser<T, M, L> parser;
+	@Override
+	public Parser<T, M, L> getParser() {
+		if (parser == null) {
+			parser = createParser();
+		}
+		return parser;
+	}
+
+	@Override
+	public APIJSONVerifier<T, M, L> setParser(AbstractParser<T, M, L> parser) {
+		this.parser = parser;
+		return this;
+	}
 
 	@SuppressWarnings("unchecked")
 	@NotNull
