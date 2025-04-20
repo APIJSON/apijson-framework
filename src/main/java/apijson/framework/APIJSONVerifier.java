@@ -163,7 +163,7 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 		}
 		M accessItem = JSON.createJSONObject();
 		accessItem.put(ACCESS_, access);
-		accessItem.put(apijson.JSONRequest.KEY_COUNT, 0);
+		accessItem.put(KEY_COUNT, 0);
 
 		M request = JSON.createJSONObject();
 		request.put(ACCESS_ + "[]", accessItem);
