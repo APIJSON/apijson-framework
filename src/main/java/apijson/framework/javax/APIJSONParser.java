@@ -114,6 +114,10 @@ public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Obje
 			if (request.get(FORMAT) == null) {
 				request.put(FORMAT, session.getAttribute(FORMAT));
 			}
+			if (request.get(VERSION) == null) {
+				request.put(VERSION, session.getAttribute(VERSION));
+			}
+
 			if (request.get(DEFAULTS) == null) {
 				M defaults = (M) session.getAttribute(DEFAULTS);
 				Set<Map.Entry<String, Object>> set = defaults == null ? null : defaults.entrySet();
@@ -182,18 +186,5 @@ public class APIJSONParser<T, M extends Map<String, Object>, L extends List<Obje
 
 		}.setMethod(getMethod()).setParser(this);
 	}
-
-
-
-	@Override
-	public void onVerifyContent() throws Exception {
-		//补充全局缺省版本号  //可能在默认为1的前提下这个请求version就需要为0  requestObject.getIntValue(VERSION) <= 0) {
-		HttpSession session = getSession();
-		if (session != null && requestObject.get(VERSION) == null) {
-			requestObject.put(VERSION, session.getAttribute(VERSION));
-		}
-		super.onVerifyContent();
-	}
-
 
 }
