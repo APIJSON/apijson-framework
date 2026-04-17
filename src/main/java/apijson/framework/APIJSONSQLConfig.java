@@ -58,11 +58,13 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 
 			@Override
 			public SQLConfig<Long, LinkedHashMap<String, Object>, List<Object>> getSQLConfig(
-					RequestMethod method, String database, String schema, String datasource, String table) {
+					RequestMethod method, String database, String datasource, String namespace, String catalog, String schema, String table) {
 				SQLConfig<Long, LinkedHashMap<String, Object>, List<Object>> config = APIJSONApplication.createSQLConfig();
 				config.setMethod(method);
 				config.setDatabase(database);
 				config.setDatasource(datasource);
+				config.setNamespace(namespace);
+				config.setCatalog(catalog);
 				config.setSchema(schema);
 				config.setTable(table);
 				return config;
@@ -70,20 +72,20 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 
 			//取消注释来实现自定义各个表的主键名
 			//			@Override
-			//			public String getIdKey(String database, String schema, String datasource, String table) {
+			//			public String getIdKey(String database, String datasource, String namespace, String catalog, String schema, String table) {
 			//				return StringUtil.firstCase(table + "Id");  // userId, comemntId ...
 			//				//		return StringUtil.toLowerCase(t) + "_id";  // user_id, comemnt_id ...
 			//				//		return StringUtil.toUpperCase(t) + "_ID";  // USER_ID, COMMENT_ID ...
 			//			}
 
 			@Override
-			public String getUserIdKey(String database, String schema, String datasource, String table) {
+			public String getUserIdKey(String database, String datasource, String namespace, String catalog, String schema, String table) {
 				return USER_.equals(table) || PRIVACY_.equals(table) ? ID : USER_ID; // id / userId
 			}
 
 			//取消注释来实现数据库自增 id
 			//			@Override
-			//			public Object newId(RequestMethod method, String database, String schema, String datasource, String table) {
+			//			public Object newId(RequestMethod method, String database, String datasource, String namespace, String catalog, String schema, String table) {
 			//				return null; // return null 则不生成 id，一般用于数据库自增 id
 			//			}
 		};
@@ -399,12 +401,12 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 
 	@Override
 	public String getIdKey() {
-		return SIMPLE_CALLBACK.getIdKey(getDatabase(), getSchema(), getDatasource(), getTable());
+		return SIMPLE_CALLBACK.getIdKey(getDatabase(), getDatasource(), getNamespace(), getCatalog(), getSchema(), getTable());
 	}
 
 	@Override
 	public String getUserIdKey() {
-		return SIMPLE_CALLBACK.getUserIdKey(getDatabase(), getSchema(), getDatasource(), getTable());
+		return SIMPLE_CALLBACK.getUserIdKey(getDatabase(), getDatasource(), getNamespace(), getCatalog(), getSchema(), getTable());
 	}
 
 

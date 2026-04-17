@@ -853,19 +853,19 @@ public class APIJSONVerifier<T, M extends Map<String, Object>, L extends List<Ob
 
 
 	@Override
-	public String getIdKey(String database, String schema, String datasource, String table) {
-		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, schema, datasource, table);
+	public String getIdKey(String database, String datasource, String namespace, String catalog, String schema, String table) {
+		return APIJSONSQLConfig.SIMPLE_CALLBACK.getIdKey(database, datasource, namespace, catalog, schema, table);
 	}
 
 	@Override
-	public String getUserIdKey(String database, String schema, String datasource, String table) {
-		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, schema, datasource, table);
+	public String getUserIdKey(String database, String datasource, String namespace, String catalog, String schema, String table) {
+		return APIJSONSQLConfig.SIMPLE_CALLBACK.getUserIdKey(database, datasource, namespace, catalog, schema, table);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T newId(RequestMethod method, String database, String schema, String datasource, String table) {
-		return (T) APIJSONSQLConfig.SIMPLE_CALLBACK.newId(method, database, schema, datasource, table);
+	public T newId(RequestMethod method, String database, String datasource, String namespace, String catalog, String schema, String table) {
+		return (T) APIJSONSQLConfig.SIMPLE_CALLBACK.newId(method, database, datasource, namespace, catalog, schema, table);
 	}
 
 }
