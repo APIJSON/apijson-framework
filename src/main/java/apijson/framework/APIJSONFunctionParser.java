@@ -185,7 +185,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		}   // [] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 
-		M response = creator.createParser().setMethod(GET).setNeedVerify(true).parseResponse(request);
+		M response = creator.createParser().setMethod(GET).setNeedVerify(false).parseResponse(request);
 		if (! JSONResponse.isSuccess(response)) {
 			onServerError("\n\n\n\n\n !!!! 查询远程函数异常 !!!\n" + response.get(JSONResponse.KEY_MSG) + "\n\n\n\n\n", shutdownWhenServerError);
 		}
