@@ -191,7 +191,7 @@ public class APIJSONFunctionParser<T, M extends Map<String, Object>, L extends L
 		}
 
 		//初始化默认脚本引擎,避免增量
-		if (isAll || SCRIPT_EXECUTOR_MAP.get("js") == null) {
+		if (ENABLE_SCRIPT_FUNCTION && (isAll || SCRIPT_EXECUTOR_MAP.get("js") == null)) {
 			ScriptExecutor<T, M, L> javaScriptExecutor = new JavaScriptExecutor<>();
 			javaScriptExecutor.init();
 			SCRIPT_EXECUTOR_MAP.put("js", javaScriptExecutor);
