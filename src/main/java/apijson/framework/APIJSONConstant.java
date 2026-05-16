@@ -32,8 +32,6 @@ import apijson.orm.model.Script;
 import apijson.orm.model.SysColumn;
 import apijson.orm.model.SysTable;
 import apijson.orm.model.Table;
-import apijson.orm.model.TestRecord;
-
 
 /**APIJSON 常量类
  * @author Lemon
@@ -69,8 +67,7 @@ public class APIJSONConstant {
 	public static final String SYS_COLUMN_;
 	public static final String SYS_TABLE_;
 	public static final String TABLE_;
-	public static final String TEST_RECORD_;
-	
+
 	public static final String VISITOR_;
 	
 	public static final List<String> METHODS;
@@ -88,8 +85,7 @@ public class APIJSONConstant {
 		SYS_COLUMN_ = SysColumn.class.getSimpleName();
 		SYS_TABLE_ = SysTable.class.getSimpleName();
 		TABLE_ = Table.class.getSimpleName();
-		TEST_RECORD_ = TestRecord.class.getSimpleName();
-		
+
 		VISITOR_ = Visitor.class.getSimpleName();
 		
 		METHODS = Arrays.asList("get", "head", "gets", "heads", "post", "put", "delete");
