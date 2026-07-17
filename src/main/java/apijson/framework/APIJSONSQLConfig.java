@@ -206,6 +206,10 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		if (isDoris()) {
 			return "jdbc:mysql://localhost:9030";
 		}
+		if (isStarRocks()) {
+			return "jdbc:mysql://localhost:9030";
+		}
+
 		return null;
 	}
 
@@ -287,6 +291,9 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		if (isDoris()) {
 			return "root";  //TODO 改成你自己的
 		}
+		if (isStarRocks()) {
+			return "root";  //TODO 改成你自己的
+		}
 
 		return null;
 	}
@@ -363,6 +370,9 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 			return "yourPassword@123";
 		}
 		if (isDoris()) {
+			return "";
+		}
+		if (isStarRocks()) {
 			return "";
 		}
 
