@@ -18,4 +18,4 @@ package apijson.framework.javax;
  * @author Lemon
  * @use extends BaseModel
  */
-public abstract class BaseModel extends apijson.framework.BaseModel {}
+public abstract class BaseModel<T extends Object, D extends Object> extends apijson.framework.BaseModel<T, D> {}

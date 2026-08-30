@@ -28,63 +28,134 @@ import apijson.StringUtil;
  * @author Lemon
  * @use extends BaseModel
  */
-public abstract class BaseModel implements Serializable {
+public abstract class BaseModel<T extends Object, D extends Object> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	private Long id;       //主键，唯一标识
-	private Long userId;   //对应User表中的id，外键
-	private String date;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+	private T id;       //主键，唯一标识, Long 或 String
+	private T userId;   //对应User表中的id，外键, Long 或 String
 
-	public Long getId() {
+	private D date;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+	private D time;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+	// 可以类型用 String，或重写 getCreateTime 加注解 @JSONField(format = "yyyy-MM-dd HH:mm:ss") 或全局配置 JSON.DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	private D createTime;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+	private D updateTime;   //更新时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+	private D createdAt;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+	private D updatedAt;   //更新时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+
+	public T getId() {
 		return id;
 	}
-	public BaseModel setId(Long id) {
+	public BaseModel<T, D> setId(T id) {
 		this.id = id;
 		return this;
 	}
-	public Long getUserId() {
+	public T getUserId() {
 		return userId;
 	}
-	public BaseModel setUserId(Long userId) {
+	public BaseModel<T, D> setUserId(T userId) {
 		this.userId = userId;
 		return this;
 	}
-	public String getDate() {
+	public D getDate() {
 		return date;
 	}
-	public BaseModel setDate(String date) {
+	public BaseModel<T, D> setDate(D date) {
 		this.date = date;
 		return this;
 	}
-	
-	
+
+	public D getTime() {
+		return time;
+	}
+	public BaseModel<T, D> setTime(D time) {
+		this.time = time;
+		return this;
+	}
+
+	public D getCreateTime() {
+		return createTime;
+	}
+	public BaseModel<T, D> setCreateTime(D createTime) {
+		this.createTime = createTime;
+		return this;
+	}
+	//public BaseModel setCreateTime(Date createTime) { // java.sql. Date, Time, Timestamp 都 extends java.util.Date
+	//	return setCreateTime(createTime == null ? null : createTime.toString());
+	//}
+
+	public D getUpdateTime() {
+		return updateTime;
+	}
+	public BaseModel<T, D> setUpdateTime(D updateTime) {
+		this.updateTime = updateTime;
+		return this;
+	}
+	//public BaseModel setUpdateTime(Date updateTime) { // java.sql. Date, Time, Timestamp 都 extends java.util.Date
+	//	return setCreateTime(updateTime == null ? null : updateTime.toString());
+	//}
+
+	public D getCreatedAt() {
+		return createdAt;
+	}
+	public BaseModel<T, D> setCreatedAt(D createdAt) {
+		this.createdAt = createdAt;
+		return this;
+	}
+
+	public D getUpdatedAt() {
+		return updatedAt;
+	}
+	public BaseModel<T, D> setUpdatedAt(D updatedAt) {
+		this.updatedAt = updatedAt;
+		return this;
+	}
+
+
 	@Override
 	public String toString() {
 		return JSON.toJSONString(this);
 	}
-	
-	
+
+
+	/**获取当前时间
+	 * @return
+	 */
+	public static Date currentTime() {
+		return new Date();
+	}
+	/**获取时间
+	 * @param time
+	 * @return
+	 */
+	public static Date toTime(String time) {
+		return new Date(time);
+	}
 	/**获取当前时间戳
 	 * @return
 	 */
 	public static Timestamp currentTimeStamp() {  
 	    return new Timestamp(new Date().getTime());  
 	}
-	/**获取时间戳 TODO 判空？ 还是要报错？
+	/**获取时间戳
 	 * @param time
 	 * @return
 	 */
-	public static Timestamp getTimeStamp(String time) {
+	public static Timestamp toTimeStamp(String time) {
 		return Timestamp.valueOf(time);
+	}
+	public static Timestamp toTimeStamp(Date time) {
+		return time instanceof Timestamp ? (Timestamp) time : new Timestamp(time.getTime());
 	}
 	/**获取时间毫秒值 TODO 判空？ 还是要报错？
 	 * @param time
 	 * @return
 	 */
-	public static long getTimeMillis(String time) {
-		return StringUtil.isEmpty(time, true) ? 0 : getTimeStamp(time).getTime();
+	public static long toTimeMillis(String time) {
+		return toTime(time).getTime();
 	}
-	
+	public static long toTimeMillis(Date time) {
+		return time == null ? 0 : time.getTime();
+	}
 	
 	//判断是否为空 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**判断array是否为空
