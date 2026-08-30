@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.Map;
 
 import apijson.JSON;
-import apijson.StringUtil;
 
 /**base model for reduce model codes
  * @author Lemon
@@ -30,17 +29,25 @@ import apijson.StringUtil;
  */
 public abstract class BaseModel<T extends Object, D extends Object> implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private T id;       //主键，唯一标识, Long 或 String
-	private T userId;   //对应User表中的id，外键, Long 或 String
+	private T userId;   //所属人 ID，对应User表中的id，外键, Long 或 String
+	private T creatorId;   //创建人 ID，对应User表中的id，外键, Long 或 String
+	private T updaterId;   //编辑人 ID，对应User表中的id，外键, Long 或 String
+	private T deleterId;   //删除人 ID，对应User表中的id，外键, Long 或 String
+	private T createdBy;   //创建人 ID，对应User表中的id，外键, Long 或 String
+	private T updatedBy;   //编辑人 ID，对应User表中的id，外键, Long 或 String
+	private T deletedBy;   //删除人 ID，对应User表中的id，外键, Long 或 String
 
 	private D date;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
 	private D time;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
 	// 可以类型用 String，或重写 getCreateTime 加注解 @JSONField(format = "yyyy-MM-dd HH:mm:ss") 或全局配置 JSON.DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private D createTime;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
 	private D updateTime;   //更新时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+	private D deleteTime;   //删除时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
 	private D createdAt;   //创建时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
 	private D updatedAt;   //更新时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
+	private D deletedAt;   //删除时间，JSON没有Date,TimeStamp类型，都会被转成Long，不能用！
 
 	public T getId() {
 		return id;
@@ -56,6 +63,55 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 		this.userId = userId;
 		return this;
 	}
+
+	public T getCreatorId() {
+		return creatorId;
+	}
+	public BaseModel<T, D> setCreatorId(T creatorId) {
+		this.creatorId = creatorId;
+		return this;
+	}
+
+	public T getUpdaterId() {
+		return updaterId;
+	}
+	public BaseModel<T, D> setUpdaterId(T updaterId) {
+		this.updaterId = updaterId;
+		return this;
+	}
+
+	public T getDeleterId() {
+		return deleterId;
+	}
+	public BaseModel<T, D> setDeleterId(T deleterId) {
+		this.deleterId = deleterId;
+		return this;
+	}
+
+	public T getCreatedBy() {
+		return createdBy;
+	}
+	public BaseModel<T, D> setCreatedBy(T createdBy) {
+		this.createdBy = createdBy;
+		return this;
+	}
+
+	public T getUpdatedBy() {
+		return updatedBy;
+	}
+	public BaseModel<T, D> setUpdatedBy(T updatedBy) {
+		this.updatedBy = updatedBy;
+		return this;
+	}
+
+	public T getDeletedBy() {
+		return deletedBy;
+	}
+	public BaseModel<T, D> setDeletedBy(T deletedBy) {
+		this.deletedBy = deletedBy;
+		return this;
+	}
+
 	public D getDate() {
 		return date;
 	}
@@ -79,9 +135,6 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 		this.createTime = createTime;
 		return this;
 	}
-	//public BaseModel setCreateTime(Date createTime) { // java.sql. Date, Time, Timestamp 都 extends java.util.Date
-	//	return setCreateTime(createTime == null ? null : createTime.toString());
-	//}
 
 	public D getUpdateTime() {
 		return updateTime;
@@ -90,9 +143,14 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 		this.updateTime = updateTime;
 		return this;
 	}
-	//public BaseModel setUpdateTime(Date updateTime) { // java.sql. Date, Time, Timestamp 都 extends java.util.Date
-	//	return setCreateTime(updateTime == null ? null : updateTime.toString());
-	//}
+
+	public D getDeleteTime() {
+		return deleteTime;
+	}
+	public BaseModel<T, D> setDeleteTime(D deleteTime) {
+		this.deleteTime = deleteTime;
+		return this;
+	}
 
 	public D getCreatedAt() {
 		return createdAt;
@@ -110,6 +168,13 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 		return this;
 	}
 
+	public D getDeletedAt() {
+		return deletedAt;
+	}
+	public BaseModel<T, D> setDeletedAt(D deletedAt) {
+		this.deletedAt = deletedAt;
+		return this;
+	}
 
 	@Override
 	public String toString() {
@@ -133,8 +198,8 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 	/**获取当前时间戳
 	 * @return
 	 */
-	public static Timestamp currentTimeStamp() {  
-	    return new Timestamp(new Date().getTime());  
+	public static Timestamp currentTimeStamp() {
+	    return new Timestamp(new Date().getTime());
 	}
 	/**获取时间戳
 	 * @param time
@@ -156,7 +221,7 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 	public static long toTimeMillis(Date time) {
 		return time == null ? 0 : time.getTime();
 	}
-	
+
 	//判断是否为空 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**判断array是否为空
 	 * @param array
@@ -180,7 +245,7 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 		return map == null || map.isEmpty();
 	}
 	//判断是否为空 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
+
 	//判断是否包含 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**判断array是否包含a
 	 * @param array
@@ -219,8 +284,8 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 		return map != null && map.containsValue(value);
 	}
 	//判断是否为包含 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
-	
+
+
 	//获取集合长度 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**获取数量
 	 * @param <T>
@@ -245,8 +310,8 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 		return map == null ? 0 : map.size();
 	}
 	//获取集合长度 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
-	
+
+
 	//获取集合长度 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**获取
 	 * @param <T>
@@ -276,9 +341,9 @@ public abstract class BaseModel<T extends Object, D extends Object> implements S
 		return key == null || map == null ? null : map.get(key);
 	}
 	//获取集合长度 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	
-	
-	
+
+
+
 	//获取非基本类型对应基本类型的非空值 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**获取非空值
 	 * @param value
