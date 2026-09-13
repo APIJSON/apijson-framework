@@ -140,6 +140,6 @@ https://github.com/APIJSON/apijson-framework/graphs/contributors
 
 <br />
 
-#### 创作不易、坚持更难，点右上角 ⭐Star 支持一下，谢谢 ^_^
+#### 创作不易、坚持更难，右上角点亮 ⭐Star 收藏/支持一下，谢谢 ^_^
 #### Please ⭐Star this project ^_^
 https://github.com/APIJSON/apijson-framework
