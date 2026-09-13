@@ -1,6 +1,6 @@
 # apijson-framework  [![](https://jitpack.io/v/APIJSON/apijson-framework.svg)](https://jitpack.io/#APIJSON/apijson-framework)
-腾讯 [APIJSON](https://github.com/Tencent/APIJSON) 服务端框架，通过数据库表配置角色权限、参数校验等，简化使用。<br />
-Tencent [APIJSON](https://github.com/Tencent/APIJSON) Server Framework for configuring access of roles and validation of arguments in database tables,  then using APIJSON easier.
+[APIJSON](https://github.com/Tencent/APIJSON) 服务端框架，通过数据库表配置角色权限、参数校验等，简化使用。<br />
+[APIJSON](https://github.com/Tencent/APIJSON) Server Framework for configuring access of roles and validation of arguments in database tables,  then using APIJSON easier.
 
 #### Access: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
 ![image](https://user-images.githubusercontent.com/5738175/167259883-e5fff2f4-b3e8-4b2f-a597-d851004c3393.png)
@@ -134,8 +134,8 @@ https://github.com/Tencent/APIJSON/issues/36
 
 ### 贡献者
 ### Contributors
-1 个腾讯工程师、1 京东工程师 等，感谢大家的贡献~ <br />
-1 Tencent engineer, 1 JD engineer, etc. Thank you all~ <br />
+2 个腾讯工程师、1 京东工程师 等，感谢大家的贡献~ <br />
+2 Tencent engineer, 1 JD engineer, etc. Thank you all~ <br />
 https://github.com/APIJSON/apijson-framework/graphs/contributors
 
 <br />
