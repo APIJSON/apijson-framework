@@ -1,11 +1,11 @@
 # apijson-framework  [![](https://jitpack.io/v/APIJSON/apijson-framework.svg)](https://jitpack.io/#APIJSON/apijson-framework)
-[APIJSON](https://github.com/Tencent/APIJSON) 服务端框架，通过数据库表配置角色权限、参数校验等，简化使用。<br />
-[APIJSON](https://github.com/Tencent/APIJSON) Server Framework for configuring access of roles and validation of arguments in database tables,  then using APIJSON easier.
+[APIJSON](https://github.com/APIJSON/APIJSON) 服务端框架，通过数据库表配置角色权限、参数校验等，简化使用。<br />
+[APIJSON](https://github.com/APIJSON/APIJSON) Server Framework for configuring access of roles and validation of arguments in database tables,  then using APIJSON easier.
 
-#### Access: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
+#### Access: https://github.com/APIJSON/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
 ![image](https://user-images.githubusercontent.com/5738175/167259883-e5fff2f4-b3e8-4b2f-a597-d851004c3393.png)
 
-#### Request: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
+#### Request: https://github.com/APIJSON/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
 ![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
 
 <br />
@@ -115,19 +115,19 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSOND
 ## 使用
 ## Usage
 
-#### Access: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
+#### Access: https://github.com/APIJSON/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
 ![image](https://user-images.githubusercontent.com/5738175/167259883-e5fff2f4-b3e8-4b2f-a597-d851004c3393.png)
 
 ![image](https://user-images.githubusercontent.com/5738175/167261523-59abf4ba-e211-49f9-92bd-a79384bb757f.png)
 
-#### Request: https://github.com/Tencent/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
+#### Request: https://github.com/APIJSON/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
 ![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
 
 ![image](https://user-images.githubusercontent.com/5738175/167262762-2c2a1c58-e7bf-4352-a7b9-fcbb0fa67f7f.png)
 
 <br />
-有问题可以去 Tencent/APIJSON 提 issue <br />
-https://github.com/Tencent/APIJSON/issues/36
+有问题可以去 APIJSON 主项目 提 issue <br />
+https://github.com/APIJSON/APIJSON/issues/36
 
 <br />
 <br />
@@ -135,7 +135,7 @@ https://github.com/Tencent/APIJSON/issues/36
 ### 贡献者
 ### Contributors
 2 个腾讯工程师、1 京东工程师 等，感谢大家的贡献~ <br />
-2 Tencent engineer, 1 JD engineer, etc. Thank you all~ <br />
+2 APIJSON engineer, 1 JD engineer, etc. Thank you all~ <br />
 https://github.com/APIJSON/apijson-framework/graphs/contributors
 
 <br />
