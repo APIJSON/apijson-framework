@@ -2,10 +2,10 @@
 [APIJSON](https://github.com/APIJSON/APIJSON) 服务端框架，通过数据库表配置角色权限、参数校验等，简化使用。<br />
 [APIJSON](https://github.com/APIJSON/APIJSON) Server Framework for configuring access of roles and validation of arguments in database tables,  then using APIJSON easier.
 
-#### Access: https://github.com/APIJSON/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
+#### Access: [MethodAccess.java](https://github.com/APIJSON/APIJSON/blob/main/src/main/java/apijson/MethodAccess.java)
 ![image](https://user-images.githubusercontent.com/5738175/167259883-e5fff2f4-b3e8-4b2f-a597-d851004c3393.png)
 
-#### Request: https://github.com/APIJSON/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
+#### Request: [Operation.java](https://github.com/APIJSON/APIJSON/blob/main/src/main/java/apijson/orm/Operation.java)
 ![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
 
 <br />
@@ -43,7 +43,7 @@
 
 <br />
 
-https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSONDemo/pom.xml
+https://github.com/APIJSON/APIJSON-Demo/blob/main/APIJSON-Java-Server/APIJSONDemo/pom.xml
 
 <br />
 <br />
@@ -115,12 +115,12 @@ https://github.com/APIJSON/APIJSON-Demo/blob/master/APIJSON-Java-Server/APIJSOND
 ## 使用
 ## Usage
 
-#### Access: https://github.com/APIJSON/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/MethodAccess.java
+#### Access: [MethodAccess.java](https://github.com/APIJSON/APIJSON/blob/main/src/main/java/apijson/MethodAccess.java)
 ![image](https://user-images.githubusercontent.com/5738175/167259883-e5fff2f4-b3e8-4b2f-a597-d851004c3393.png)
 
 ![image](https://user-images.githubusercontent.com/5738175/167261523-59abf4ba-e211-49f9-92bd-a79384bb757f.png)
 
-#### Request: https://github.com/APIJSON/APIJSON/blob/master/APIJSONORM/src/main/java/apijson/orm/Operation.java
+#### Request: [Operation.java](https://github.com/APIJSON/APIJSON/blob/main/src/main/java/apijson/orm/Operation.java)
 ![image](https://user-images.githubusercontent.com/5738175/167259922-f343683f-6335-4778-aaeb-d1b9aed999dc.png)
 
 ![image](https://user-images.githubusercontent.com/5738175/167262762-2c2a1c58-e7bf-4352-a7b9-fcbb0fa67f7f.png)
