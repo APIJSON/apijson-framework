@@ -5,7 +5,7 @@
 
 	<groupId>apijson.framework</groupId>
 	<artifactId>apijson-framework</artifactId>
-	<version>8.3.2</version>
+	<version>8.3.1</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
@@ -37,9 +37,9 @@
 
 		<!-- 可使用 libs 目录的 apijson-orm.jar 来替代，两种方式二选一 -->
 		<dependency>
-			<groupId>com.github.Tencent</groupId>
+			<groupId>com.github.APIJSON</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>8.3.0</version>
+			<version>8.3.1</version>
 		</dependency>
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
