@@ -5,7 +5,7 @@
 
 	<groupId>apijson.framework</groupId>
 	<artifactId>apijson-framework</artifactId>
-	<version>8.3.1</version>
+	<version>8.3.2</version>
 	<packaging>jar</packaging>
 
 	<name>APIJSONFramework</name>
@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>com.github.APIJSON</groupId>
 			<artifactId>APIJSON</artifactId>
-			<version>8.3.1</version>
+			<version>8.3.2</version>
 		</dependency>
 
 		<!-- 数据库 JDBC 驱动 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< -->
@@ -62,7 +62,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.12.1</version>
+				<version>3.16.0</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
