@@ -158,6 +158,9 @@ public class APIJSONSQLConfig<T, M extends Map<String, Object>, L extends List<O
 		if (isSQLite()) {
 		  	return "jdbc:sqlite:sample.db"; //TODO 改成你自己的
 		}
+		if (isTurso()) {
+			return "jdbc:turso:db"; //TODO 改成你自己的
+		}
 		if (isDameng()) {
 			return "jdbc:dm://localhost:5236"; //TODO 改成你自己的
 		}
